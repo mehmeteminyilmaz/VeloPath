@@ -1,12 +1,10 @@
 # VeloPath 🚀
 
-![VeloPath Banner](./docs/assets/banner.png)
-
 **VeloPath**, kullanıcıların projelerini akıllıca planlayabileceği, görevlerini yönetebileceği ve ilerlemelerini dinamik olarak takip edebileceği **AI destekli** bir proje yönetim sistemidir.
 
 ---
 
-## ✨ Özellikler (Hafta 4)
+## ✨ Özellikler
 
 VeloPath, modern bir kullanıcı deneyimi sunmak için tasarlanmıştır:
 
