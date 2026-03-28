@@ -1,9 +1,42 @@
-# Haftalık İlerleme (Weekly Progress)
+# VeloPath Haftalık İlerleme
 
-Projenin haftalık takibi burada yer alacaktır.
+## Hafta 1
 
-## Hafta 1 (28 Mart 2026)
-- [x] Proje ana dizin yapısı oluşturuldu.
-- [x] `README.md` güncellendi ve GitHub'a başarıyla gönderildi.
-- [x] Dokümantasyon klasörü (`docs/`) dosyaları hazırlandı.
-- [x] `.gitkeep` dosyaları ile klasör yapısı görünür hale getirildi.
+### Yapılanlar
+- Proje konusu belirlendi
+- Teknoloji seçildi
+- GitHub repo oluşturuldu
+- Proje klasörleri oluşturuldu
+
+### Sonraki Hafta
+- UI tasarım
+- Wireframe
+
+---
+
+## Hafta 2
+Planlandı
+
+## Hafta 3
+Planlandı
+
+## Hafta 4
+Planlandı
+
+## Hafta 5
+Planlandı
+
+## Hafta 6
+Planlandı
+
+## Hafta 7
+Planlandı
+
+## Hafta 8
+Planlandı
+
+## Hafta 9
+Planlandı
+
+## Hafta 10
+Planlandı
