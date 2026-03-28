@@ -21,7 +21,12 @@ Planlandı
 Planlandı
 
 ## Hafta 4
-Planlandı
+### Yapılanlar
+- [x] React Router kurulumu ve sayfa yönlendirmeleri eklendi.
+- [x] State Management; projelerin ve görevlerin state içinde tutulması sağlandı.
+- [x] Dinamik Proje Oluşturma formu Dashboard ile bağlandı.
+- [x] Proje Detay sayfasında görev ekleme ve ilerleme çubuğu (progress bar) aktif edildi.
+- [x] Premium (Dark mode + Glassmorphism) UI tasarımı uygulandı.
 
 ## Hafta 5
 Planlandı
