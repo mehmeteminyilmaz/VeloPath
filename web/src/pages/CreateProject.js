@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, PlusCircle, Briefcase, Settings, LogOut, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
 
 const CreateProject = ({ addProject }) => {
   const [title, setTitle] = useState('');
@@ -18,17 +19,7 @@ const CreateProject = ({ addProject }) => {
   return (
     <div className="auth-layout">
       {/* Sidebar Navigation */}
-      <div className="sidebar">
-        <h2 style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>VeloPath</h2>
-        <nav>
-          <Link to="/" className="nav-item"><LayoutDashboard size={20} /> Dashboard</Link>
-          <Link to="/create" className="nav-item active"><PlusCircle size={20} /> Proje Oluştur</Link>
-          <Link to="#" className="nav-item"><Briefcase size={20} /> Projelerim</Link>
-          <div style={{ flexGrow: 1 }}></div>
-          <Link to="#" className="nav-item"><Settings size={20} /> Ayarlar</Link>
-          <div className="nav-item" style={{ cursor: 'pointer' }}><LogOut size={20} /> Çıkış Yap</div>
-        </nav>
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <main className="main-content">
