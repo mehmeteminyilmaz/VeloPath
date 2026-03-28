@@ -1,16 +1,22 @@
-VeloPath
+# VeloPath
 
-## Proje Açıklaması
-Kullanıcı kapasitesine göre dinamik olarak proje yol haritası oluşturan AI destekli planlama sistemi.
+AI destekli proje planlama ve ilerleme takip sistemi.
 
-## Kullanılan Teknolojiler
+## Proje Yapısı
+
+- web → React Web Uygulaması
+- mobile → React Native Mobil Uygulama
+- backend → Node.js API
+- docs → Proje dökümanları
+
+## Teknolojiler
+
 - React
+- React Native
 - Node.js
 - MongoDB
-- React Native
+- AI Entegrasyonu
 
-## Amaç
-Projelerin daha planlı ve tamamlanabilir şekilde ilerlemesini sağlamak.
+## Geliştirme Süreci
 
-## Haftalık Gelişim Takibi
-Bu bölüm haftalık olarak güncellenecektir.
+Proje haftalık olarak geliştirilecektir.
