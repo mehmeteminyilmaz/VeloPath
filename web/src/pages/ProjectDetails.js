@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle, Briefcase, Settings, LogOut, ArrowLeft, CheckCircle, Circle, Save, Activity, Trash2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, CheckCircle, Circle, Activity, Trash2 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
