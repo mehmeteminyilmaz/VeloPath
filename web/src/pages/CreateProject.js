@@ -72,7 +72,10 @@ const CreateProject = ({ addProject }) => {
               </div>
 
               <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-                <label>Teslim Tarihi (Deadline)</label>
+                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Teslim Tarihi</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 'normal', opacity: 0.8 }}>(İsteğe Bağlı)</span>
+                </label>
                 <input 
                   type="date" 
                   value={deadline}
