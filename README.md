@@ -6,16 +6,14 @@
 
 ## ✨ Özellikler
 
-VeloPath, modern bir kullanıcı deneyimi sunmak için tasarlanmıştır:
+VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için "Next-Gen" (Linear / Vercel esintili) teknoloji tasarım trendleriyle inşa edilmiştir:
 
-- **📊 Dinamik Dashboard:** Tüm projelerinizin genel durumunu ve istatistiklerini (Toplam Proje, Bekleyen Görevler vb.) tek bir ekranda görün.
-- **🎨 Akıllı İlerleme Renkleri:** Proje ilerlemesine göre renk değiştiren progress bar'lar:
-  - 🟠 **%0 - %30:** Başlangıç
-  - 🔵 **%31 - %70:** İlerliyor
-  - 🟢 **%71 - %100:** Final Yakın / Tamamlandı (Glow Efekti)
-- **🌑 Premium Dark Mode:** Göz yormayan, "Glassmorphism" efektli modern ve profesyonel arayüz.
-- **📱 Responsive Navigasyon:** Sayfalar arası hızlı ve kolay geçiş sağlayan Sidebar menüsü.
-- **🛠️ Görev Yönetimi:** Proje detaylarında anlık görev ekleme, silme ve tamamlama takibi.
+- 🚀 **Ultra-Modern Premium Arayüz:** Derin *Glassmorphism* (buzlu cam) paneller ve degrade (gradient) başlıklarla "State-of-the-Art" görünüm.
+- 🔮 **Aurora Ambient Arka Plan:** Uygulamaya derinlik ve "canlılık" hissi katan hareketli, otonom arka plan ışıkları.
+- 🎯 **Gelişmiş Proje Yönetimi:** Her projeye *Öncelik Seviyesi (Priority)*, *Teslim Tarihi (Deadline)* ve manuel *Durum (Status)* atayabilme imkanı.
+- 📊 **Dinamik Dashboard:** Projelerinizi ve istatistiklerinizi tek ekranda organize edebildiğiniz performans paneli.
+- 🎨 **Akıllı İlerleme Renkleri:** Görevlerin doluluk oranına göre renk değiştiren progress bar'lar ve %100 olduğunda beliren özel başarı *glow* efekti.
+- 💫 **Mikro Etkileşimler:** Sayfalar arası akıcı *Slide-Up/Fade-In* açılış animasyonları ve parıldayan bileşenlerdeki duyarlı *Haptic-Click* hissi.
 
 ---
 
