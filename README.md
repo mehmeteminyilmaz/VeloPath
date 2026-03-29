@@ -8,12 +8,13 @@
 
 VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için "Next-Gen" (Linear / Vercel esintili) teknoloji tasarım trendleriyle inşa edilmiştir:
 
-- 🚀 **Ultra-Modern Premium Arayüz:** Derin *Glassmorphism* (buzlu cam) paneller ve degrade (gradient) başlıklarla "State-of-the-Art" görünüm.
+- 🚀 **Ultra-Modern Premium Arayüz:** Derin *Glassmorphism* (buzlu cam) paneller, degrade (gradient) başlıklarla "State-of-the-Art" görünüm.
+- 💾 **Kalıcı Veri (Local Storage):** Tarayıcıyı kapatsanız bile projelerinizin ve görevlerinizin kaybolmamasını sağlayan entegre hafıza sistemi.
+- 🗑️ **Güvenli Silme Özgürlüğü:** Görevleri hızlıca silebilir veya bitmiş projelerinizi güvenli "onay" mekanizmalarıyla sistemden kaldırabilirsiniz.
 - 🔮 **Aurora Ambient Arka Plan:** Uygulamaya derinlik ve "canlılık" hissi katan hareketli, otonom arka plan ışıkları.
-- 🎯 **Gelişmiş Proje Yönetimi:** Her projeye *Öncelik Seviyesi (Priority)*, *Teslim Tarihi (Deadline)* ve manuel *Durum (Status)* atayabilme imkanı.
+- 🎯 **Gelişmiş Proje Yönetimi:** Her projeye *Öncelik*, *Teslim Tarihi* ve *Durum* atayabilme imkanı.
 - 📊 **Dinamik Dashboard:** Projelerinizi ve istatistiklerinizi tek ekranda organize edebildiğiniz performans paneli.
-- 🎨 **Akıllı İlerleme Renkleri:** Görevlerin doluluk oranına göre renk değiştiren progress bar'lar ve %100 olduğunda beliren özel başarı *glow* efekti.
-- 💫 **Mikro Etkileşimler:** Sayfalar arası akıcı *Slide-Up/Fade-In* açılış animasyonları ve parıldayan bileşenlerdeki duyarlı *Haptic-Click* hissi.
+- 💫 **Mikro Etkileşimler:** Akıcı *Slide-Up* açılış animasyonları ve parıldayan bileşenlerdeki duyarlı *Haptic-Click* hissi.
 
 ---
 
