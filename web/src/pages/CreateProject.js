@@ -26,7 +26,7 @@ const CreateProject = ({ addProject }) => {
 
       {/* Main Content */}
       <main className="main-content">
-        <header style={{ marginBottom: '3rem' }}>
+        <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
             <ArrowLeft size={16} /> Dashboard'a Dön
           </Link>
@@ -34,7 +34,7 @@ const CreateProject = ({ addProject }) => {
           <p style={{ color: 'var(--text-secondary)' }}>Projenin detaylarını belirleyerek hedefine bir adım daha yaklaş.</p>
         </header>
 
-        <section style={{ maxWidth: '600px' }}>
+        <section className="animate-slide-up delay-100" style={{ maxWidth: '600px' }}>
           <form className="card" onSubmit={handleSubmit}>
             <div className="input-group">
               <label>Proje Başlığı</label>

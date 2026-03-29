@@ -49,7 +49,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
       <Sidebar />
 
       <main className="main-content">
-        <header style={{ marginBottom: '3rem' }}>
+        <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
             <ArrowLeft size={16} /> Dashboard'a Dön
           </Link>
@@ -86,7 +86,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
           </div>
         </header>
 
-        <section style={{ maxWidth: '800px' }}>
+        <section className="animate-slide-up delay-100" style={{ maxWidth: '800px' }}>
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
               <Activity size={20} color="var(--primary)" />
@@ -95,7 +95,13 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {project.tasks.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)', padding: '1rem', textAlign: 'center' }}>Henüz görev eklenmemiş. Aşağıdan başlayın!</p>
+                <div style={{ textAlign: 'center', padding: '3rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)', marginTop: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ background: 'rgba(99, 102, 241, 0.1)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                    <Activity size={32} color="var(--primary)" />
+                  </div>
+                  <h4 style={{ color: 'white', fontSize: '1.2rem', marginBottom: '0.5rem' }}>Harika Bir Başlangıç!</h4>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Görünüşe göre bu proje için henüz bir adım planlamadınız. Yeni bir görev ekleyerek hedeflerinize ulaşmaya başlayın.</p>
+                </div>
               ) : (
                 project.tasks.map(task => (
                   <div 

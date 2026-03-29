@@ -24,7 +24,7 @@ const Dashboard = ({ projects }) => {
       <Sidebar />
 
       <main className="main-content">
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white' }}>Kontrol Paneli</h1>
             <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, Mehmet! Bugün neler yapıyoruz?</p>
@@ -36,7 +36,7 @@ const Dashboard = ({ projects }) => {
         </header>
 
         {/* İstatistik Kartları */}
-        <section className="stats-container">
+        <section className="stats-container animate-slide-up delay-100">
           <div className="stat-card">
             <div className="stat-icon"><Briefcase size={24} /></div>
             <div>
@@ -60,11 +60,11 @@ const Dashboard = ({ projects }) => {
           </div>
         </section>
 
-        <h2 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <h2 className="animate-slide-up delay-200" style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Layout size={20} color="var(--primary)" /> Projelerim
         </h2>
 
-        <section className="grid">
+        <section className="grid animate-slide-up delay-300">
           {projects.length === 0 ? (
             <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem' }}>
               <p style={{ color: 'var(--text-secondary)' }}>Henüz bir projeniz yok. İlkini oluşturmaya ne dersiniz?</p>

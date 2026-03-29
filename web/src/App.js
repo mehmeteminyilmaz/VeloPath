@@ -57,6 +57,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <div className="aurora-bg"></div>
         <Routes>
           <Route path="/" element={<Dashboard projects={projects} />} />
           <Route path="/create" element={<CreateProject addProject={addProject} />} />
