@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, CheckCircle, Circle, Activity, Trash2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, CheckCircle, Circle, Activity, Trash2, Sparkles } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
@@ -102,9 +102,19 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
 
         <section className="animate-slide-up delay-100" style={{ maxWidth: '800px' }}>
           <div className="card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
-              <Activity size={20} color="var(--primary)" />
-              <h3 style={{ color: 'white' }}>Görevler ({completedCount} / {totalCount})</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Activity size={20} color="var(--primary)" />
+                <h3 style={{ color: 'white' }}>Görevler ({completedCount} / {totalCount})</h3>
+              </div>
+              <button 
+                onClick={() => alert('Yapay Zeka (AI) entegrasyonu Backend aşamasında (Hafta 5 ve Sonrası) aktif edilecektir! 🚀')} 
+                style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)', border: 'none', padding: '8px 16px', borderRadius: '20px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)', transition: 'transform 0.2s' }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <Sparkles size={16} /> AI ile Dağılım Çıkar
+              </button>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
