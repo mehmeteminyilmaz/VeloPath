@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle, Briefcase, Settings, LogOut, ArrowLeft, CheckCircle, Circle, Save, Activity } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { LayoutDashboard, PlusCircle, Briefcase, Settings, LogOut, ArrowLeft, CheckCircle, Circle, Save, Activity, Trash2 } from 'lucide-react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
-const ProjectDetails = ({ projects, addTask, toggleTask }) => {
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const project = projects.find(p => p.id === parseInt(id));
   const [newTaskText, setNewTaskText] = useState('');
 
@@ -70,9 +71,22 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
                   )}
                 </div>
              </div>
-             <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
-                {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
-             </span>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+               <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
+                  {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
+               </span>
+               <button
+                 onClick={() => {
+                   if(window.confirm('Bu projeyi tamamen silmek istediğinize emin misiniz?')) {
+                     deleteProject(project.id);
+                     navigate('/');
+                   }
+                 }}
+                 style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
+               >
+                 <Trash2 size={16} /> Sil
+               </button>
+             </div>
           </div>
           
           <div style={{ marginTop: '2.5rem' }}>
@@ -121,10 +135,23 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
                     <span style={{ 
                       color: task.completed ? 'var(--text-secondary)' : 'white', 
                       textDecoration: task.completed ? 'line-through' : 'none',
-                      fontSize: '1rem'
+                      fontSize: '1rem',
+                      flex: 1
                     }}>
                       {task.text}
                     </span>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTask(id, task.id);
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px', opacity: 0.6 }}
+                      title="Görevi Sil"
+                      onMouseOver={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                      onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 ))
               )}

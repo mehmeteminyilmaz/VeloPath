@@ -1,9 +1,9 @@
 import React from 'react';
-import { PlusCircle, Briefcase, CheckCircle, Activity, Layout } from 'lucide-react';
+import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
-const Dashboard = ({ projects }) => {
+const Dashboard = ({ projects, deleteProject }) => {
   // İstatistikleri hesaplayalım
   const stats = {
     total: projects.length,
@@ -85,7 +85,24 @@ const Dashboard = ({ projects }) => {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <h3 style={{ color: 'white', fontSize: '1.1rem' }}>{project.title}</h3>
-                    <span className="status-badge" style={{ color: info.color }}>{project.status || info.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="status-badge" style={{ color: info.color }}>{project.status || info.label}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if(window.confirm('Bu projeyi tamamen silmek istediğinize emin misiniz?')) {
+                            deleteProject(project.id);
+                          }
+                        }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.6, transition: '0.2s' }}
+                        title="Projeyi Sil"
+                        onMouseOver={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
