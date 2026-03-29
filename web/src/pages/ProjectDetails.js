@@ -55,7 +55,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
              <div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white' }}>{project.title}</h1>
+                <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{project.title}</h1>
                 <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>{project.description}</p>
                 <div style={{ display: 'flex', gap: '12px', marginTop: '1rem' }}>
                   {project.priority && (

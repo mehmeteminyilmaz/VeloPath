@@ -26,7 +26,7 @@ const Dashboard = ({ projects }) => {
       <main className="main-content">
         <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white' }}>Kontrol Paneli</h1>
+            <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Kontrol Paneli</h1>
             <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, Mehmet! Bugün neler yapıyoruz?</p>
           </div>
           <Link to="/create" className="button">

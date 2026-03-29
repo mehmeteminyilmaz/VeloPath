@@ -9,7 +9,7 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      <h2 style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>VeloPath</h2>
+      <h2 className="text-gradient" style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 800 }}>VeloPath</h2>
       <nav style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
           <LayoutDashboard size={20} /> Dashboard

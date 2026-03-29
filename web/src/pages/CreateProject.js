@@ -30,7 +30,7 @@ const CreateProject = ({ addProject }) => {
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
             <ArrowLeft size={16} /> Dashboard'a Dön
           </Link>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white' }}>Yeni Proje Başlat</h1>
+          <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Yeni Proje Başlat</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Projenin detaylarını belirleyerek hedefine bir adım daha yaklaş.</p>
         </header>
 
