@@ -12,6 +12,9 @@ function App() {
       id: 1, 
       title: "VeloPath Web Geliştirme", 
       description: "React ile ana kontrol paneli oluşturma.",
+      priority: "Yüksek",
+      deadline: "2026-04-15",
+      status: "Devam Ediyor",
       tasks: [
         { id: 1, text: "React Router Kurulumu", completed: true },
         { id: 2, text: "Dashboard Tasarımı", completed: true },

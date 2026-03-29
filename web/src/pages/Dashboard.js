@@ -83,9 +83,22 @@ const Dashboard = ({ projects }) => {
                   className={`card ${info.glow ? 'glow-card' : ''}`} 
                   style={{ textDecoration: 'none' }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <h3 style={{ color: 'white', fontSize: '1.1rem' }}>{project.title}</h3>
-                    <span className="status-badge" style={{ color: info.color }}>{info.label}</span>
+                    <span className="status-badge" style={{ color: info.color }}>{project.status || info.label}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+                    {project.priority && (
+                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: project.priority === 'Yüksek' ? 'var(--danger)' : project.priority === 'Orta' ? 'var(--status-low)' : 'var(--status-mid)' }}>
+                        {project.priority} Öncelik
+                      </span>
+                    )}
+                    {project.deadline && (
+                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
+                        Son: {project.deadline}
+                      </span>
+                    )}
                   </div>
                   
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>

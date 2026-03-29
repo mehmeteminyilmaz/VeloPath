@@ -53,13 +53,25 @@ const ProjectDetails = ({ projects, addTask, toggleTask }) => {
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
             <ArrowLeft size={16} /> Dashboard'a Dön
           </Link>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
              <div>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white' }}>{project.title}</h1>
                 <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>{project.description}</p>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '1rem' }}>
+                  {project.priority && (
+                    <span style={{ fontSize: '0.85rem', padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: project.priority === 'Yüksek' ? 'var(--danger)' : project.priority === 'Orta' ? 'var(--status-low)' : 'var(--status-mid)', border: '1px solid currentColor' }}>
+                      🔥 {project.priority} Öncelik
+                    </span>
+                  )}
+                  {project.deadline && (
+                    <span style={{ fontSize: '0.85rem', padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      📅 Teslim: {project.deadline}
+                    </span>
+                  )}
+                </div>
              </div>
-             <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem' }}>
-                {progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR'}
+             <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
+                {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
              </span>
           </div>
           
