@@ -18,10 +18,21 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için "Next-Gen" (Lin
 
 ---
 
+---
+
 ## 📸 Ekran Görüntüleri
 
-### Kontrol Paneli (Dashboard)
-![Dashboard](./docs/assets/dashboard.png)
+### 1. Kontrol Paneli (Dashboard)
+Yeni "günce" projesi ve LocalStorage ile güçlendirilmiş genel görünüm.
+![Dashboard Preview](./docs/assets/dashboard_preview.png)
+
+### 2. Proje Detayları ve AI Asistanı
+"günce" projesinin detayları ve sağ üstteki parıldayan AI görev dağılım butonu.
+![Project Details Preview](./docs/assets/project_details_preview.png)
+
+### 3. Yeni Proje Oluşturma
+Modern form yapısı ve (İsteğe Bağlı) teslim tarihi seçeneği.
+![Create Project Preview](./docs/assets/create_project_preview.png)
 
 ---
 
