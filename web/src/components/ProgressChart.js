@@ -8,7 +8,7 @@ const ProgressChart = ({ progress = 0 }) => {
     <div className="progress-chart-container">
       <svg viewBox="0 0 36 36" className="circular-chart">
         <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#8b5cf6" />
             <stop offset="100%" stopColor="#3b82f6" />
           </linearGradient>
@@ -20,7 +20,7 @@ const ProgressChart = ({ progress = 0 }) => {
         />
         <path className="circle"
           strokeDasharray={strokeDasharray}
-          stroke="url(#gradient)"
+          stroke="url(#chartGradient)"
           d="M18 2.0845
             a 15.9155 15.9155 0 0 1 0 31.831
             a 15.9155 15.9155 0 0 1 0 -31.831"
