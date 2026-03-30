@@ -8,6 +8,7 @@
 
 VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için "Next-Gen" (Linear / Vercel esintili) teknoloji tasarım trendleriyle inşa edilmiştir:
 
+- 📊 **Verimlilik Grafiği (Workspace Efficiency):** Tüm projelerin genel ilerlemesini analiz eden dairesel görsel istatistik paneli.
 - 🚀 **Ultra-Modern Premium Arayüz:** Derin *Glassmorphism* (buzlu cam) paneller, degrade (gradient) başlıklarla "State-of-the-Art" görünüm.
 - 💾 **Kalıcı Veri (Local Storage):** Tarayıcıyı kapatsanız bile projelerinizin ve görevlerinizin kaybolmamasını sağlayan entegre hafıza sistemi.
 - 🗑️ **Güvenli Silme Özgürlüğü:** Görevleri hızlıca silebilir veya bitmiş projelerinizi güvenli "onay" mekanizmalarıyla sistemden kaldırabilirsiniz.
@@ -23,8 +24,8 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için "Next-Gen" (Lin
 ## 📸 Ekran Görüntüleri
 
 ### 1. Kontrol Paneli (Dashboard)
-Yeni "günce" projesi ve LocalStorage ile güçlendirilmiş genel görünüm.
-![Dashboard Preview](./docs/assets/dashboard_preview.png)
+Yeni "Verimlilik Grafiği" ve LocalStorage ile güçlendirilmiş en güncel görünüm.
+![Dashboard Preview](./docs/assets/dashboard_v2.png)
 
 ### 2. Proje Detayları ve AI Asistanı
 "günce" projesinin detayları ve sağ üstteki parıldayan AI görev dağılım butonu.
