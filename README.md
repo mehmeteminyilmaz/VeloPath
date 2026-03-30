@@ -33,6 +33,10 @@ Not editörü ve görev bağımlılıklarının yönetim alanı.
 Önizleme destekli, hızlı proje oluşturma formu.
 ![Create Project Preview](./docs/assets/create_project_preview.png)
 
+### 4. Aydınlık Tema Desteği
+Göz yormayan, modern ve ferah yeni aydınlık tema seçeneği.
+![Light Mode Preview](./docs/assets/dashboard_light.png)
+
 ---
 
 ## 🛠️ Teknoloji Yığını
