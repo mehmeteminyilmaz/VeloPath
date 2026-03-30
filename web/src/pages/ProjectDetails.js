@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, CheckCircle, Circle, Activity, Trash2, Sparkles } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-
-const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask }) => {
+import WeeklyPlan from '../components/WeeklyPlan';
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, reorderTasks }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = projects.find(p => p.id === parseInt(id));
   const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskWeek, setNewTaskWeek] = useState(1);
+  const [newTaskDependsOn, setNewTaskDependsOn] = useState('');
 
   if (!project) {
     return (
@@ -15,7 +17,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         <Sidebar />
         <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card" style={{ textAlign: 'center' }}>
-            <h1 style={{ color: 'white' }}>Proje Bulunamadı</h1>
+            <h1 style={{ color: 'var(--text-primary)' }}>Proje Bulunamadı</h1>
             <Link to="/" className="button" style={{ marginTop: '2rem' }}>Dashboard'a Dön</Link>
           </div>
         </div>
@@ -26,8 +28,9 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   const handleAddTask = (e) => {
     e.preventDefault();
     if (newTaskText.trim()) {
-      addTask(id, newTaskText);
+      addTask(id, newTaskText, parseInt(newTaskWeek), newTaskDependsOn ? parseInt(newTaskDependsOn) : null);
       setNewTaskText('');
+      setNewTaskDependsOn('');
     }
   };
 
@@ -36,10 +39,10 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
   // Renk belirleyici fonksiyon
-  const getStatusColor = (progress) => {
-    if (progress === 100) return 'var(--status-done)';
-    if (progress > 70) return 'var(--status-high)';
-    if (progress > 30) return 'var(--status-mid)';
+  const getStatusColor = (prog) => {
+    if (prog === 100) return 'var(--status-done)';
+    if (prog > 70) return 'var(--status-high)';
+    if (prog > 30) return 'var(--status-mid)';
     return 'var(--status-low)';
   };
 
@@ -100,97 +103,68 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
           </div>
         </header>
 
-        <section className="animate-slide-up delay-100" style={{ maxWidth: '800px' }}>
-          <div className="card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Activity size={20} color="var(--primary)" />
-                <h3 style={{ color: 'white' }}>Görevler ({completedCount} / {totalCount})</h3>
-              </div>
-              <button 
-                onClick={() => alert('Yapay Zeka (AI) entegrasyonu Backend aşamasında (Hafta 5 ve Sonrası) aktif edilecektir! 🚀')} 
-                style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)', border: 'none', padding: '8px 16px', borderRadius: '20px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)', transition: 'transform 0.2s' }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <Sparkles size={16} /> AI ile Dağılım Çıkar
-              </button>
+        <section className="animate-slide-up delay-100" style={{ maxWidth: '900px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Activity size={20} color="var(--primary)" />
+              <h2 style={{ color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 700 }}>Görev Dağılımı</h2>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {project.tasks.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)', marginTop: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ background: 'rgba(99, 102, 241, 0.1)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                    <Activity size={32} color="var(--primary)" />
-                  </div>
-                  <h4 style={{ color: 'white', fontSize: '1.2rem', marginBottom: '0.5rem' }}>Harika Bir Başlangıç!</h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Görünüşe göre bu proje için henüz bir adım planlamadınız. Yeni bir görev ekleyerek hedeflerinize ulaşmaya başlayın.</p>
-                </div>
-              ) : (
-                project.tasks.map(task => (
-                  <div 
-                    key={task.id} 
-                    className="task-item" 
-                    onClick={() => toggleTask(id, task.id)} 
-                    style={{ 
-                      cursor: 'pointer', 
-                      background: 'rgba(255,255,255,0.02)',
-                      borderRadius: '8px',
-                      padding: '12px 16px',
-                      borderBottom: 'none',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {task.completed ? <CheckCircle size={20} color="var(--accent)" /> : <Circle size={20} color="var(--text-secondary)" />}
-                    <span style={{ 
-                      color: task.completed ? 'var(--text-secondary)' : 'white', 
-                      textDecoration: task.completed ? 'line-through' : 'none',
-                      fontSize: '1rem',
-                      flex: 1
-                    }}>
-                      {task.text}
-                    </span>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteTask(id, task.id);
-                      }}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px', opacity: 0.6 }}
-                      title="Görevi Sil"
-                      onMouseOver={(e) => e.currentTarget.style.color = 'var(--danger)'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-            
-            <form onSubmit={handleAddTask} style={{ marginTop: '2.5rem', display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={() => alert('Yapay Zeka (AI) entegrasyonu Backend aşamasında (Hafta 5 ve Sonrası) aktif edilecektir! 🚀')} 
+              style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)', border: 'none', padding: '8px 16px', borderRadius: '20px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)', transition: 'transform 0.2s' }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <Sparkles size={16} /> AI ile Planı Optimize Et
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <WeeklyPlan project={project} toggleTask={toggleTask} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} />
+          </div>
+          
+          <form className="card" onSubmit={handleAddTask} style={{ marginTop: '3rem' }}>
+            <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontSize: '1rem' }}>Yeni Görev Planla</h4>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '1rem' }}>
               <input 
                 type="text" 
-                placeholder="Yeni bir görev ekleyin..." 
+                placeholder="Görev adı..." 
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
-                style={{ 
-                  flex: 1, 
-                  background: 'rgba(0,0,0,0.2)', 
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '10px',
-                  padding: '12px 16px',
-                  color: 'white'
-                }}
+                className="glass-input"
+                style={{ flex: 2 }}
               />
-              <button type="submit" className="button" style={{ padding: '12px 16px' }}>
+              <input 
+                type="number" 
+                min="1"
+                placeholder="Hafta No (Örn: 1)"
+                value={newTaskWeek}
+                onChange={(e) => setNewTaskWeek(e.target.value)}
+                className="glass-input"
+                style={{ flex: 0.5 }}
+                title="Hangi haftaya ekleneceğini belirleyin"
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <select 
+                value={newTaskDependsOn}
+                onChange={(e) => setNewTaskDependsOn(e.target.value)}
+                className="glass-input"
+                style={{ flex: 1 }}
+              >
+                <option value="">Bağımlılık Yok</option>
+                {project.tasks.map(t => <option key={t.id} value={t.id}>Bağımlı: {t.text}</option>)}
+              </select>
+              <button type="submit" className="button" style={{ padding: '12px 24px' }}>
                 <PlusCircle size={20} /> Ekle
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
         </section>
       </main>
     </div>
   );
 };
+
 
 export default ProjectDetails;

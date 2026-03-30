@@ -22,9 +22,9 @@ function App() {
         deadline: "2026-04-15",
         status: "Devam Ediyor",
         tasks: [
-          { id: 1, text: "React Router Kurulumu", completed: true },
-          { id: 2, text: "Dashboard Tasarımı", completed: true },
-          { id: 3, text: "State Management Entegrasyonu", completed: false }
+          { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null },
+          { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1 },
+          { id: 3, text: "State Management Entegrasyonu", completed: false, week: 2, dependsOn: 2 }
         ] 
       }
     ];
@@ -35,18 +35,30 @@ function App() {
     localStorage.setItem('velopath_projects', JSON.stringify(projects));
   }, [projects]);
 
+  // Tema yükleme
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('velopath_theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+  }, []);
+
   // Yeni proje ekleme fonksiyonu
   const addProject = (newProject) => {
-    setProjects([...projects, { ...newProject, id: projects.length + 1, tasks: [] }]);
+    const { initialTasks = [], ...projectData } = newProject;
+    setProjects([...projects, { 
+      ...projectData, 
+      id: projects.length + 1, 
+      tasks: initialTasks 
+    }]);
   };
 
   // Görev ekleme fonksiyonu
-  const addTask = (projectId, taskText) => {
+  const addTask = (projectId, taskText, week = 1, dependsOn = null) => {
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
+        const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => t.id)) + 1 : 1;
         return {
           ...p,
-          tasks: [...p.tasks, { id: p.tasks.length + 1, text: taskText, completed: false }]
+          tasks: [...p.tasks, { id: nextId, text: taskText, completed: false, week, dependsOn }]
         };
       }
       return p;
@@ -77,8 +89,33 @@ function App() {
       if (p.id === parseInt(projectId)) {
         return {
           ...p,
-          tasks: p.tasks.filter(t => t.id !== taskId)
+          tasks: p.tasks
+            .filter(t => t.id !== taskId)
+            .map(t => t.dependsOn === taskId ? { ...t, dependsOn: null } : t)
         };
+      }
+      return p;
+    }));
+  };
+
+  // Görev notu ekleme/düzenleme
+  const updateTaskNote = (projectId, taskId, newNote) => {
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return {
+          ...p,
+          tasks: p.tasks.map(t => t.id === taskId ? { ...t, notes: newNote } : t)
+        };
+      }
+      return p;
+    }));
+  };
+
+  // Görevleri yeniden sıralama (Drag & Drop)
+  const reorderTasks = (projectId, newTasksArray) => {
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return { ...p, tasks: newTasksArray };
       }
       return p;
     }));
@@ -87,11 +124,10 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <div className="aurora-bg"></div>
         <Routes>
           <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} />} />
           <Route path="/create" element={<CreateProject addProject={addProject} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} />} />
         </Routes>
       </div>
     </Router>

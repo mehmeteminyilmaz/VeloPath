@@ -55,21 +55,21 @@ const Dashboard = ({ projects, deleteProject }) => {
             <div className="stat-icon"><Briefcase size={24} /></div>
             <div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Toplam Proje</p>
-              <h3 style={{ color: 'white', fontSize: '1.5rem' }}>{stats.total}</h3>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{stats.total}</h3>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent)' }}><Activity size={24} /></div>
             <div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Bekleyen Görevler</p>
-              <h3 style={{ color: 'white', fontSize: '1.5rem' }}>{stats.activeTasks}</h3>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{stats.activeTasks}</h3>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: 'var(--status-done)' }}><CheckCircle size={24} /></div>
             <div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Tamamlananlar</p>
-              <h3 style={{ color: 'white', fontSize: '1.5rem' }}>{stats.completed}</h3>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{stats.completed}</h3>
             </div>
           </div>
           <div className="stat-card progress-card">
@@ -77,7 +77,7 @@ const Dashboard = ({ projects, deleteProject }) => {
           </div>
         </section>
 
-        <h2 className="animate-slide-up delay-200" style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <h2 className="animate-slide-up delay-200" style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Layout size={20} color="var(--primary)" /> Projelerim
         </h2>
 
@@ -101,7 +101,7 @@ const Dashboard = ({ projects, deleteProject }) => {
                   style={{ textDecoration: 'none' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ color: 'white', fontSize: '1.1rem' }}>{project.title}</h3>
+                    <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{project.title}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className="status-badge" style={{ color: info.color }}>{project.status || info.label}</span>
                       <button 
