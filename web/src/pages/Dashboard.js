@@ -2,6 +2,7 @@ import React from 'react';
 import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import ProgressChart from '../components/ProgressChart';
 
 const Dashboard = ({ projects, deleteProject }) => {
   // İstatistikleri hesaplayalım
@@ -10,6 +11,19 @@ const Dashboard = ({ projects, deleteProject }) => {
     activeTasks: projects.reduce((acc, p) => acc + p.tasks.filter(t => !t.completed).length, 0),
     completed: projects.filter(p => p.tasks.length > 0 && p.tasks.every(t => t.completed)).length
   };
+
+  // Tüm projelerin genel ilerleme ortalamasını hesaplayalım
+  const calculateGlobalProgress = () => {
+    if (projects.length === 0) return 0;
+    const totalProgress = projects.reduce((acc, p) => {
+      const completed = p.tasks.filter(t => t.completed).length;
+      const total = p.tasks.length;
+      return acc + (total === 0 ? 0 : (completed / total) * 100);
+    }, 0);
+    return Math.round(totalProgress / projects.length);
+  };
+
+  const globalProgress = calculateGlobalProgress();
 
   // İlerleme durumuna göre renk ve etiket belirleyen fonksiyon
   const getProgressInfo = (progress) => {
@@ -57,6 +71,9 @@ const Dashboard = ({ projects, deleteProject }) => {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Tamamlananlar</p>
               <h3 style={{ color: 'white', fontSize: '1.5rem' }}>{stats.completed}</h3>
             </div>
+          </div>
+          <div className="stat-card progress-card">
+            <ProgressChart progress={globalProgress} />
           </div>
         </section>
 

@@ -124,7 +124,7 @@ body {
 /* İstatistik Paneli */
 .stats-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
@@ -311,4 +311,69 @@ body {
 .button:active,
 .task-item:active {
   transform: scale(0.98);
+}
+
+/* --- Circular Progress Chart --- */
+.progress-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.circular-chart {
+  display: block;
+  margin: 10px auto;
+  max-width: 100%;
+  max-height: 180px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease-in-out;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+.chart-text {
+  fill: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.5em;
+  text-anchor: middle;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.chart-label {
+  fill: var(--text-secondary);
+  font-size: 0.15em;
+  text-anchor: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Project Progress Card on Dashboard */
+.progress-card {
+  grid-column: span 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+@keyframes progress-anim {
+  0% { stroke-dasharray: 0, 100; }
+}
+
+.circle {
+  animation: progress-anim 1.5s ease-out forwards;
 }
