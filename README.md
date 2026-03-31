@@ -15,6 +15,7 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 - 📁 **Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
 - ☀️🌙 **Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
 - ⚡ **Hızlı Aksiyonlar:** Görevleri hızlıca silebilir, proje durumlarını anlık güncelleyebilirsiniz.
+- 📦 **Proje Arşivleme:** Tamamlanan projeleri arşive taşıyarak çalışma alanınızı düzenli tutun.
 - 💾 **Kalıcı Veri:** Tüm verileriniz `Local Storage` üzerinde güvenle saklanır.
 
 ---
@@ -36,6 +37,10 @@ Not editörü ve görev bağımlılıklarının yönetim alanı.
 ### 4. Aydınlık Tema Desteği
 Göz yormayan, modern ve ferah yeni aydınlık tema seçeneği.
 ![Light Mode Preview](./docs/assets/dashboard_light.png)
+
+### 5. Proje Arşivi
+Tamamlanan projelerin toplandığı, düzenli arşiv alanı.
+![Project Archive Preview](./docs/assets/dashboard_archive.png)
 
 ---
 
