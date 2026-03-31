@@ -42,6 +42,11 @@ Göz yormayan, modern ve ferah yeni aydınlık tema seçeneği.
 Tamamlanan projelerin toplandığı, düzenli arşiv alanı.
 ![Project Archive Preview](./docs/assets/dashboard_archive.png)
 
+### 6. Görev Bağımlılığı ve Kilit Sistemi
+"Şu bitmeden bu başlayamaz" mantığıyla çalışan akıllı kilit sistemi.
+![Task Dependency Locked](./docs/assets/task_dependency_locked.png)
+![Task Dependency Unlocked](./docs/assets/task_dependency_unlocked.png)
+
 ---
 
 ## 🛠️ Teknoloji Yığını
