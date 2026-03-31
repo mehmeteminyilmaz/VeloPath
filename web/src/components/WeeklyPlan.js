@@ -24,6 +24,7 @@ import { useDroppable } from '@dnd-kit/core';
 
 // --- Bireysel Görev (Sortable) Bileşeni ---
 const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen }) => {
+  const [isShaking, setIsShaking] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
     id: task.id,
     data: { type: 'Task', week: task.week }
@@ -40,11 +41,14 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
     <div 
       ref={setNodeRef} 
       style={style}
-      className={`weekly-task-item ${locked ? 'task-locked' : ''} ${task.completed ? 'task-completed' : ''} ${isDragging ? 'dragging' : ''}`}
+      className={`weekly-task-item ${locked ? 'task-locked' : ''} ${task.completed ? 'task-completed' : ''} ${isDragging ? 'dragging' : ''} ${isShaking ? 'shake' : ''}`}
       onClick={(e) => {
         if (isDragging) return;
         if (locked) {
-          alert(`Bu göreve başlamadan önce "${dependency.text}" görevini tamamlamalısınız!`);
+          setIsShaking(true);
+          setTimeout(() => setIsShaking(false), 500);
+          // Alert yerine daha yumuşak bir geri bildirim için sadece sarsıntı da yeterli olabilir
+          // ama kullanıcının nedenini bilmesi için tooltip veya küçük bir mesaj eklenebilir.
         } else {
           onToggle(task.id);
         }
