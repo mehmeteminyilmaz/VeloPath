@@ -17,6 +17,7 @@ function App() {
         deadline: "2026-04-15",
         status: "Devam Ediyor",
         archived: false,
+        color: "#6366f1", // Indigo
         tasks: [
           { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null },
           { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1 },
@@ -31,6 +32,7 @@ function App() {
         deadline: "2026-03-01",
         status: "Tamamlandı",
         archived: true,
+        color: "#10b981", // Emerald
         tasks: [
           { id: 1, text: "Port Scanner Geliştirme", completed: true, week: 1, dependsOn: null },
           { id: 2, text: "Network Sniffer Modülü", completed: true, week: 2, dependsOn: 1 }
@@ -44,6 +46,7 @@ function App() {
         deadline: "2026-02-15",
         status: "Tamamlandı",
         archived: true,
+        color: "#f59e0b", // Amber
         tasks: [
           { id: 1, text: "Sesli Not Özelliği", completed: true, week: 1, dependsOn: null },
           { id: 2, text: "AI Chat Entegrasyonu", completed: true, week: 2, dependsOn: 1 }
@@ -57,6 +60,7 @@ function App() {
         deadline: "2026-01-20",
         status: "Tamamlandı",
         archived: true,
+        color: "#ef4444", // Rose/Red
         tasks: [
           { id: 1, text: "Firebase Veritabanı Kurulumu", completed: true, week: 1, dependsOn: null },
           { id: 2, text: "Bitki Takibi Arayüzü", completed: true, week: 1, dependsOn: 1 }
@@ -98,7 +102,8 @@ function App() {
       ...projectData, 
       id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1, 
       tasks: initialTasks,
-      archived: false
+      archived: false,
+      color: newProject.color || '#6366f1'
     }]);
   };
 

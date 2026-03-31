@@ -120,6 +120,16 @@ body {
   border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-color-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
 }
 
 .card:hover {
@@ -855,10 +865,33 @@ body {
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-.markdown-preview pre code {
-  background: transparent;
-  padding: 0;
-  color: #a78bfa;
+/* --- Color Picker --- */
+.color-picker-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-option:hover {
+  transform: scale(1.15);
+}
+
+.color-option.selected {
+  border-color: white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
 }
 
 .note-modal-footer {

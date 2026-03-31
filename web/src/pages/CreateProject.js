@@ -17,6 +17,18 @@ const CreateProject = ({ addProject }) => {
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState('Devam Ediyor');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedColor, setSelectedColor] = useState('#6366f1'); // Default Indigo
+  
+  const colors = [
+    { name: 'Indigo', code: '#6366f1' },
+    { name: 'Emerald', code: '#10b981' },
+    { name: 'Amber', code: '#f59e0b' },
+    { name: 'Rose', code: '#f43f5e' },
+    { name: 'Cyan', code: '#06b6d4' },
+    { name: 'Violet', code: '#8b5cf6' },
+    { name: 'Blue', code: '#3b82f6' },
+    { name: 'Slate', code: '#64748b' }
+  ];
   
   const navigate = useNavigate();
 
@@ -46,7 +58,7 @@ const CreateProject = ({ addProject }) => {
         }));
       }
 
-      addProject({ title, description, priority, deadline, status, initialTasks });
+      addProject({ title, description, priority, deadline, status, color: selectedColor, initialTasks });
       navigate('/');
     }
   };
@@ -202,6 +214,22 @@ const CreateProject = ({ addProject }) => {
                 <option value="Tamamlandı">Tamamlandı</option>
               </select>
             </div>
+
+            <div className="input-group" style={{ marginBottom: '2rem' }}>
+              <label>Proje Rengi</label>
+              <div className="color-picker-container">
+                {colors.map(color => (
+                  <div 
+                    key={color.code}
+                    className={`color-option ${selectedColor === color.code ? 'selected' : ''}`}
+                    style={{ backgroundColor: color.code }}
+                    onClick={() => setSelectedColor(color.code)}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+            </div>
+
             <button type="submit" className="button" style={{ width: '100%', justifyContent: 'center' }}>
               Projeyi Kaydet ve Başlat
             </button>
