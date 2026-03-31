@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 
 const Dashboard = ({ projects, deleteProject, archiveProject }) => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
 
   // İstatistikleri hesaplayalım
@@ -131,12 +132,19 @@ const Dashboard = ({ projects, deleteProject, archiveProject }) => {
               const info = getProgressInfo(progress);
 
               return (
-                <Link 
+                <div 
                   key={project.id} 
-                  to={`/project/${project.id}`} 
+                  onClick={(e) => {
+                    // Eğer tıklanan yer veya üstündeki herhangi bir eleman bir buton ise yönlendirme yapma
+                    if (e.target.closest('button')) return;
+                    navigate(`/project/${project.id}`);
+                  }}
                   className={`card ${info.glow ? 'glow-card' : ''}`} 
-                  style={{ textDecoration: 'none' }}
+                  style={{ cursor: 'pointer', textDecoration: 'none', position: 'relative', overflow: 'hidden' }}
                 >
+                  {/* Renk Şeridi (Stripe) */}
+                  <div className="project-color-stripe" style={{ backgroundColor: project.color || '#6366f1' }}></div>
+                  
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{project.title}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -147,12 +155,12 @@ const Dashboard = ({ projects, deleteProject, archiveProject }) => {
                           e.stopPropagation();
                           archiveProject(project.id);
                         }}
-                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.6, transition: '0.2s' }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '10px', opacity: 1, transition: '0.2s', zIndex: 10, position: 'relative' }}
                         title={project.archived ? "Arşivden Çıkar" : "Arşivle"}
                         onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
                         onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                       >
-                        {project.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
+                        {project.archived ? <ArchiveRestore size={20} style={{ pointerEvents: 'none' }} /> : <Archive size={20} style={{ pointerEvents: 'none' }} />}
                       </button>
                       <button 
                         onClick={(e) => {
@@ -162,12 +170,12 @@ const Dashboard = ({ projects, deleteProject, archiveProject }) => {
                             deleteProject(project.id);
                           }
                         }}
-                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.6, transition: '0.2s' }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '10px', opacity: 1, transition: '0.2s', zIndex: 10, position: 'relative' }}
                         title="Projeyi Sil"
                         onMouseOver={(e) => e.currentTarget.style.color = 'var(--danger)'}
                         onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={20} style={{ pointerEvents: 'none' }} />
                       </button>
                     </div>
                   </div>
@@ -190,12 +198,12 @@ const Dashboard = ({ projects, deleteProject, archiveProject }) => {
                   </p>
                   
                   <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${progress}%`, background: info.color }}></div>
+                    <div className="progress-fill" style={{ width: `${progress}%`, background: project.color || info.color }}></div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                    <p style={{ fontSize: '0.8rem', color: info.color, fontWeight: 'bold' }}>%{progress}</p>
+                    <p style={{ fontSize: '0.8rem', color: project.color || info.color, fontWeight: 'bold' }}>%{progress}</p>
                   </div>
-                </Link>
+                </div>
               );
             })
           )}

@@ -46,7 +46,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
     return 'var(--status-low)';
   };
 
-  const statusColor = getStatusColor(progress);
+  const statusColor = project.color || getStatusColor(progress);
 
   return (
     <div className="auth-layout">
