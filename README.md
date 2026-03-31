@@ -45,7 +45,14 @@ Tamamlanan projelerin toplandığı, düzenli arşiv alanı.
 ### 6. Görev Bağımlılığı ve Kilit Sistemi
 "Şu bitmeden bu başlayamaz" mantığıyla çalışan akıllı kilit sistemi.
 ![Task Dependency Locked](./docs/assets/task_dependency_locked.png)
-![Task Dependency Unlocked](./docs/assets/task_dependency_unlocked.png)
+
+### 7. Haftalık İlerleme Özeti
+Her hafta sonunda başarı durumunu özetleyen akıllı motivasyon kartları.
+![Weekly Summary](./docs/assets/weekly_summary.png)
+
+### 8. Gelişmiş Arayüz Deneyimi
+Hafta bazlı görev girişi ve temalar arası tam uyumluluk (Aydınlık/Karanlık).
+![UI Improvements](./docs/assets/ui_improvements_week.png)
 
 ---
 
