@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
-const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, reorderTasks }) => {
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, reorderTasks, archiveProject }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = projects.find(p => p.id === parseInt(id));
@@ -78,6 +78,13 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
                   {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
                </span>
+               <button
+                 onClick={() => archiveProject(project.id)}
+                 style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
+                 title={project.archived ? "Arşivden Çıkar" : "Arşivle"}
+               >
+                 {project.archived ? <><ArchiveRestore size={16} /> Geri Yükle</> : <><Archive size={16} /> Arşivle</>}
+               </button>
                <button
                  onClick={() => {
                    if(window.confirm('Bu projeyi tamamen silmek istediğinize emin misiniz?')) {

@@ -1,16 +1,22 @@
-import React from 'react';
-import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 
-const Dashboard = ({ projects, deleteProject }) => {
+const Dashboard = ({ projects, deleteProject, archiveProject }) => {
+  const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
+
   // İstatistikleri hesaplayalım
   const stats = {
     total: projects.length,
+    activeProjects: projects.filter(p => !p.archived).length,
+    archivedProjects: projects.filter(p => p.archived).length,
     activeTasks: projects.reduce((acc, p) => acc + p.tasks.filter(t => !t.completed).length, 0),
     completed: projects.filter(p => p.tasks.length > 0 && p.tasks.every(t => t.completed)).length
   };
+
+  const filteredProjects = projects.filter(p => viewMode === 'active' ? !p.archived : p.archived);
 
   // Tüm projelerin genel ilerleme ortalamasını hesaplayalım
   const calculateGlobalProgress = () => {
@@ -54,8 +60,8 @@ const Dashboard = ({ projects, deleteProject }) => {
           <div className="stat-card">
             <div className="stat-icon"><Briefcase size={24} /></div>
             <div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Toplam Proje</p>
-              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{stats.total}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{viewMode === 'active' ? 'Aktif Projeler' : 'Arşivlenmiş'}</p>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{viewMode === 'active' ? stats.activeProjects : stats.archivedProjects}</h3>
             </div>
           </div>
           <div className="stat-card">
@@ -77,17 +83,48 @@ const Dashboard = ({ projects, deleteProject }) => {
           </div>
         </section>
 
-        <h2 className="animate-slide-up delay-200" style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Layout size={20} color="var(--primary)" /> Projelerim
-        </h2>
+        <div className="animate-slide-up delay-200" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ color: 'var(--text-primary)', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+            <Layout size={20} color="var(--primary)" /> {viewMode === 'active' ? 'Projelerim' : 'Proje Arşivi'}
+          </h2>
+          
+          <div style={{ display: 'flex', background: 'var(--card-bg)', borderRadius: '12px', padding: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <button 
+              onClick={() => setViewMode('active')}
+              style={{ 
+                padding: '6px 16px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem',
+                background: viewMode === 'active' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                color: viewMode === 'active' ? 'var(--primary)' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'active' ? 600 : 400,
+                transition: '0.3s'
+              }}
+            >
+              Aktif
+            </button>
+            <button 
+              onClick={() => setViewMode('archived')}
+              style={{ 
+                padding: '6px 16px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem',
+                background: viewMode === 'archived' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                color: viewMode === 'archived' ? 'var(--primary)' : 'var(--text-secondary)',
+                fontWeight: viewMode === 'archived' ? 600 : 400,
+                transition: '0.3s'
+              }}
+            >
+              Arşiv
+            </button>
+          </div>
+        </div>
 
         <section className="grid animate-slide-up delay-300">
-          {projects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>Henüz bir projeniz yok. İlkini oluşturmaya ne dersiniz?</p>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                {viewMode === 'active' ? 'Henüz aktif bir projeniz yok.' : 'Arşivlenmiş projeniz bulunmuyor.'}
+              </p>
             </div>
           ) : (
-            projects.map(project => {
+            filteredProjects.map(project => {
               const completedTasks = project.tasks.filter(t => t.completed).length;
               const totalTasks = project.tasks.length;
               const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
@@ -104,6 +141,19 @@ const Dashboard = ({ projects, deleteProject }) => {
                     <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{project.title}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className="status-badge" style={{ color: info.color }}>{project.status || info.label}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          archiveProject(project.id);
+                        }}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '4px', opacity: 0.6, transition: '0.2s' }}
+                        title={project.archived ? "Arşivden Çıkar" : "Arşivle"}
+                        onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                      >
+                        {project.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
+                      </button>
                       <button 
                         onClick={(e) => {
                           e.preventDefault();

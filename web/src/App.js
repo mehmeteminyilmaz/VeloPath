@@ -8,12 +8,7 @@ import './styles/App.css';
 function App() {
   // Global State: İlk yüklemede LocalStorage'dan kontrol et
   const [projects, setProjects] = useState(() => {
-    const savedProjects = localStorage.getItem('velopath_projects');
-    if (savedProjects) {
-      return JSON.parse(savedProjects);
-    }
-    // Yoksa varsayılan datayı döndür
-    return [
+    const defaultProjects = [
       { 
         id: 1, 
         title: "VeloPath Web Geliştirme", 
@@ -21,13 +16,68 @@ function App() {
         priority: "Yüksek",
         deadline: "2026-04-15",
         status: "Devam Ediyor",
+        archived: false,
         tasks: [
           { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null },
           { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1 },
           { id: 3, text: "State Management Entegrasyonu", completed: false, week: 2, dependsOn: 2 }
         ] 
+      },
+      {
+        id: 2,
+        title: "cybersec",
+        description: "Siber güvenlik araçları ve projeleri monorepo.",
+        priority: "Orta",
+        deadline: "2026-03-01",
+        status: "Tamamlandı",
+        archived: true,
+        tasks: [
+          { id: 1, text: "Port Scanner Geliştirme", completed: true, week: 1, dependsOn: null },
+          { id: 2, text: "Network Sniffer Modülü", completed: true, week: 2, dependsOn: 1 }
+        ]
+      },
+      {
+        id: 3,
+        title: "gunce",
+        description: "Dart/Flutter ile kişisel günlük ve hafıza asistanı.",
+        priority: "Düşük",
+        deadline: "2026-02-15",
+        status: "Tamamlandı",
+        archived: true,
+        tasks: [
+          { id: 1, text: "Sesli Not Özelliği", completed: true, week: 1, dependsOn: null },
+          { id: 2, text: "AI Chat Entegrasyonu", completed: true, week: 2, dependsOn: 1 }
+        ]
+      },
+      {
+        id: 4,
+        title: "TarimAsistan",
+        description: "Bitki takibi ve tarım yönetim uygulaması.",
+        priority: "Yüksek",
+        deadline: "2026-01-20",
+        status: "Tamamlandı",
+        archived: true,
+        tasks: [
+          { id: 1, text: "Firebase Veritabanı Kurulumu", completed: true, week: 1, dependsOn: null },
+          { id: 2, text: "Bitki Takibi Arayüzü", completed: true, week: 1, dependsOn: 1 }
+        ]
       }
     ];
+
+    const savedProjects = localStorage.getItem('velopath_projects');
+    if (savedProjects) {
+      const parsed = JSON.parse(savedProjects);
+      // Eğer kullanıcıda hiç proje yoksa veya yeni örnekleri eklemek istiyorsak:
+      // Burada sadece eksik olan "cybersec", "gunce", "TarimAsistan" gibi projeleri ekleyebiliriz.
+      const existingTitles = parsed.map(p => p.title);
+      const missingSamples = defaultProjects.filter(p => !existingTitles.includes(p.title));
+      
+      if (missingSamples.length > 0) {
+        return [...parsed, ...missingSamples];
+      }
+      return parsed;
+    }
+    return defaultProjects;
   });
 
   // Projeler değiştiğinde localStorage'a kaydet
@@ -46,9 +96,20 @@ function App() {
     const { initialTasks = [], ...projectData } = newProject;
     setProjects([...projects, { 
       ...projectData, 
-      id: projects.length + 1, 
-      tasks: initialTasks 
+      id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1, 
+      tasks: initialTasks,
+      archived: false
     }]);
+  };
+
+  // Proje arşivleme/geri yükleme fonksiyonu
+  const archiveProject = (projectId) => {
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return { ...p, archived: !p.archived };
+      }
+      return p;
+    }));
   };
 
   // Görev ekleme fonksiyonu
@@ -125,9 +186,9 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} />} />
+          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} />} />
           <Route path="/create" element={<CreateProject addProject={addProject} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} />} />
         </Routes>
       </div>
     </Router>
