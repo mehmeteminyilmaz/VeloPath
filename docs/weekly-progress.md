@@ -15,33 +15,36 @@
 ---
 
 ## Hafta 2
-Planlandı
+### Yapılanlar
+- [x] UI Tasarım Sistemi (Glassmorphism & Dark Mode) oluşturuldu.
+- [x] React Router ile sayfa yönlendirme altyapısı kuruldu.
+- [x] Global renk paleti ve CSS değişkenleri (CSS Variables) tanımlandı.
+- [x] Temel sayfa yapıları (Dashboard, CreateProject) oluşturuldu.
 
 ## Hafta 3
-Planlandı
+### Yapılanlar
+- [x] LocalStorage entegrasyonu ile veri kalıcılığı sağlandı.
+- [x] Dinamik proje ekleme ve listeleyebilme özellikleri eklendi.
+- [x] Görev ekleme, tamamlama ve silme mantığı kuruldu.
+- [x] İlerleme çubuğu (Progress Bar) hesaplamaları yapıldı.
 
 ## Hafta 4
 ### Yapılanlar
-- [x] React Router kurulumu ve sayfa yönlendirmeleri eklendi.
-- [x] State Management; projelerin ve görevlerin state içinde tutulması sağlandı.
-- [x] Dinamik Proje Oluşturma formu Dashboard ile bağlandı.
-- [x] Proje Detay sayfasında görev ekleme ve ilerleme çubuğu (progress bar) aktif edildi.
-- [x] Premium (Dark mode + Glassmorphism) UI tasarımı uygulandı.
+- [x] Haftalık Planlama modülü geliştirildi (Hafta bazlı görev girişi).
+- [x] Görevlerin haftalara göre filtrelenmesi sağlandı.
+- [x] Dashboard istatistik kartları ve performans grafikleri eklendi.
 
 ## Hafta 5
-Planlandı
+### Yapılanlar
+- [x] Görev Bağımlılığı (Dependencies) sistemi eklendi (Kilitli görev mantığı).
+- [x] Proje Şablonları kütüphanesi oluşturuldu.
+- [x] Haftalık İlerleme Özet Kartları ve motivasyon mesajları eklendi.
 
 ## Hafta 6
-Planlandı
+### Yapılanlar
+- [x] Proje Renk Etiketi sistemi (Renk seçici ve şeritler) geliştirildi.
+- [x] Dashboard görsel senkronizasyonu (Yüzdelerin ve çubukların renklenmesi) tamamlandı.
+- [x] Pano navigasyon ve silme/arşivleme izolasyonu sağlandı.
 
-## Hafta 7
-Planlandı
-
-## Hafta 8
-Planlandı
-
-## Hafta 9
-Planlandı
-
-## Hafta 10
-Planlandı
+## Hafta 7-10
+Planlandı (Test süreçleri ve optimizasyon).
