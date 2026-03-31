@@ -54,6 +54,10 @@ Her hafta sonunda başarı durumunu özetleyen akıllı motivasyon kartları.
 Hafta bazlı görev girişi ve temalar arası tam uyumluluk (Aydınlık/Karanlık).
 ![UI Improvements](./docs/assets/ui_improvements_week.png)
 
+### 9. Proje Renk Etiketi
+Projeleri görsel olarak ayırmak için kişiselleştirilebilir renk paleti ve pano şeritleri.
+![Project Colors](./docs/assets/project_colors.png)
+
 ---
 
 ## 🛠️ Teknoloji Yığını
