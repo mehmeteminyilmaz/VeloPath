@@ -1,50 +1,44 @@
-# VeloPath Haftalık İlerleme
+# VeloPath Haftalık İlerleme Raporu
 
-## Hafta 1
+## 1. Hafta – Proje Analizi ve Geliştirme Ortamının Kurulması
+- [x] Proje genel kapsamı ve gereksinim analizi tamamlandı.
+- [x] Web arayüzü için gerekli araçlar (React, Node.js) kuruldu.
+- [x] Proje klasör yapısı ve dosya düzeni oluşturuldu.
+- [x] GitHub üzerinde proje deposu (Repository) açılarak sürüm kontrolü aktif edildi.
 
-### Yapılanlar
-- Proje konusu belirlendi
-- Teknoloji seçildi
-- GitHub repo oluşturuldu
-- Proje klasörleri oluşturuldu
+## 2. Hafta – Sistem Tasarımı ve Arayüz Planlaması
+- [x] Genel sistem mimarisi planlandı.
+- [x] Proje oluşturma, görev ekleme ve dashboard ekranlarının temel taslakları hazırlandı.
+- [x] Kullanıcı deneyimi (UX) hedefleri belirlendi ve tasarlandı.
 
-### Sonraki Hafta
-- UI tasarım
-- Wireframe
+## 3. Hafta – Backend Altyapısının Oluşturulması
+- [/] Sunucu tarafı altyapı hazırlıkları (Mock veri modelleri ile frontend hazırlığı yapıldı).
+- [ ] Node.js ve MongoDB veritabanı bağlantısı (Gelecek planında).
 
----
+## 4. Hafta – API Geliştirme ve Veritabanı İşlemleri
+- [/] Temel API mantığı (LocalStorage üzerinden veri yönetimi) kuruldu.
+- [ ] Kullanıcı API ve Proje API full-stack entegrasyonu (Planlandı).
 
-## Hafta 2
-### Yapılanlar
-- [x] UI Tasarım Sistemi (Glassmorphism & Dark Mode) oluşturuldu.
-- [x] React Router ile sayfa yönlendirme altyapısı kuruldu.
-- [x] Global renk paleti ve CSS değişkenleri (CSS Variables) tanımlandı.
-- [x] Temel sayfa yapıları (Dashboard, CreateProject) oluşturuldu.
+## 5. Hafta – Web Arayüzünün Geliştirilmesi
+- [x] React kullanılarak Web Arayüzü geliştirildi (Dashboard, Proje Ekrani).
+- [x] Modern tasarım (Dark Mode + Glassmorphism) ve animasyonlar eklendi.
+- [x] Dinamik proje CRUD (Ekleme/Silme/Görüntüleme) işlemleri arayüzde aktif edildi.
 
-## Hafta 3
-### Yapılanlar
-- [x] LocalStorage entegrasyonu ile veri kalıcılığı sağlandı.
-- [x] Dinamik proje ekleme ve listeleyebilme özellikleri eklendi.
-- [x] Görev ekleme, tamamlama ve silme mantığı kuruldu.
-- [x] İlerleme çubuğu (Progress Bar) hesaplamaları yapıldı.
+## 6. Hafta – Mobil Uygulama Arayüzünün Geliştirilmesi
+- [ ] React Native kurulumu ve mobil uyarlama (Planlandı).
 
-## Hafta 4
-### Yapılanlar
-- [x] Haftalık Planlama modülü geliştirildi (Hafta bazlı görev girişi).
-- [x] Görevlerin haftalara göre filtrelenmesi sağlandı.
-- [x] Dashboard istatistik kartları ve performans grafikleri eklendi.
+## 7. Hafta – Proje İlerleme Takip Özelliği
+- [x] Proje ilerleme durumunu gösteren % göstergeleri ve grafikler eklendi.
+- [x] **YENİ:** Her proje için özel renk etiketi ve bu renkle uyumlu ilerleme çubuğu/yüzde desteği eklendi.
+- [x] Görev tamamlandığında ilerlemenin otomatik dashboard'a yansıması sağlandı.
 
-## Hafta 5
-### Yapılanlar
-- [x] Görev Bağımlılığı (Dependencies) sistemi eklendi (Kilitli görev mantığı).
-- [x] Proje Şablonları kütüphanesi oluşturuldu.
-- [x] Haftalık İlerleme Özet Kartları ve motivasyon mesajları eklendi.
+## 8. Hafta – AI Destekli Öneri Sistemi
+- [ ] AI tabanlı görev önerici yapısı (Planlandı).
 
-## Hafta 6
-### Yapılanlar
-- [x] Proje Renk Etiketi sistemi (Renk seçici ve şeritler) geliştirildi.
-- [x] Dashboard görsel senkronizasyonu (Yüzdelerin ve çubukların renklenmesi) tamamlandı.
-- [x] Pano navigasyon ve silme/arşivleme izolasyonu sağlandı.
+## 9. Hafta – Test Süreci ve Hata Düzeltmeleri
+- [/] Web versiyonu üzerinde kapsamlı UI testleri yapıldı.
+- [x] Pano (Dashboard) navigasyon ve buton çakışma hataları giderildi.
 
-## Hafta 7-10
-Planlandı (Test süreçleri ve optimizasyon).
+## 10. Hafta – Son Düzenlemeler ve Proje Teslimi
+- [ ] Dokümantasyonun (README, Roadmap) son haline getirilmesi.
+- [x] Proje dosyalarının GitHub üzerinde en güncel haliyle senkronize edilmesi.

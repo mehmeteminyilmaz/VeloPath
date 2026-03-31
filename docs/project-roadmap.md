@@ -1,61 +1,38 @@
 # VeloPath Proje Yol Haritası
 
-## Proje Adı
-VeloPath – AI Destekli Proje Planlama ve İlerleme Takip Sistemi
-
-## Proje Amacı
-Kullanıcıların projelerini planlayabileceği, görevlerini oluşturabileceği ve ilerlemelerini takip edebileceği AI destekli bir sistem geliştirmek.
+## Proje Tanımı
+VeloPath – AI Destekli Proje Planlama ve İlerleme Takip Sistemi. Kullanıcıların projelerini planlayabileceği, görevlerini oluşturabileceği ve ilerlemelerini takip edebileceği AI destekli bir sistemdir.
 
 ---
 
-# Haftalık Geliştirme Planı
+# 10 Haftalık Geliştirme Planı
 
-## Hafta 1 – Proje Planlama
-- Proje konusu belirleme
-- Gereksinim analizi
-- Teknoloji seçimi
-- GitHub repo oluşturma
+## 1. Hafta – Proje Analizi ve Geliştirme Ortamının Kurulması
+Bu haftada projenin genel kapsamı ve gereksinimleri gözden geçirilerek geliştirme sürecinin planlaması yapılacaktır. Kullanılacak teknolojiler belirlenerek geliştirme ortamı hazırlanacaktır. Web ve mobil uygulama geliştirme süreçleri için gerekli araçlar kurulacak, proje klasör yapısı oluşturulacak ve GitHub üzerinde proje deposu açılarak sürüm kontrol sistemi aktif hale getirilecektir.
 
-## Hafta 2 – Sistem Tasarımı
-- UI tasarım planı
-- Wireframe oluşturma
-- Sayfa yapısı belirleme
+## 2. Hafta – Sistem Tasarımı ve Arayüz Planlaması
+Uygulamanın genel sistem yapısı planlanacaktır. Kullanıcıların uygulama içerisinde karşılaşacağı sayfaların temel tasarımları hazırlanacaktır. Proje oluşturma, görev ekleme ve görev listeleme ekranlarının arayüz taslakları oluşturularak uygulamanın genel kullanıcı deneyimi belirlenmeye başlanacaktır.
 
-## Hafta 3 – Web Projesi Kurulumu
-- React kurulumu
-- Proje klasör yapısı
-- Dashboard taslağı
+## 3. Hafta – Backend Altyapısının Oluşturulması
+Bu haftada uygulamanın sunucu tarafı geliştirilmeye başlanacaktır. Node.js ve Express.js kullanılarak backend projesi oluşturulacak ve MongoDB veritabanı bağlantısı kurulacaktır. Kullanıcı, proje ve görev verilerini saklayacak veri modelleri tasarlanacaktır.
 
-## Hafta 4 – Web Arayüzü ve Temel Fonksiyonlar
-- [x] Dashboard ve Proje Detay tasarımı
-- [x] Proje oluşturma ve görev yönetim mantığı
-- [x] LocalStorage veri kalıcılığı entegrasyonu
+## 4. Hafta – API Geliştirme ve Veritabanı İşlemleri
+Backend tarafında projeler ve görevler ile ilgili temel API işlemleri geliştirilecektir. Kullanıcıların proje oluşturabilmesi, görev ekleyebilmesi ve görevleri görüntüleyebilmesi için gerekli veri işlemleri kodlanacaktır. Bu sayede uygulamanın veri yönetimi altyapısı oluşturulacaktır.
 
-## Hafta 5 – Gelişmiş Özellikler ve Verimlilik
-- [x] Haftalık Planlama modülü (Hafta bazlı görev girişi)
-- [x] Görev Bağımlılığı (Successor/Predecessor) sistemi
-- [x] Proje Şablonları (Templates) kütüphanesi
+## 5. Hafta – Web Arayüzünün Geliştirilmesi
+React kullanılarak web arayüzünün geliştirilmesine başlanacaktır. Kullanıcıların proje oluşturabileceği, görev ekleyebileceği ve görevleri görüntüleyebileceği temel sayfalar tasarlanacaktır. Arayüz ile backend sistemi arasında veri alışverişi sağlanacaktır.
 
-## Hafta 6 – Görsel Kimlik ve UX Optimizasyonu
-- [x] Proje Renk Etiketi sistemi (Renk şeritleri ve seçici)
-- [x] Dashboard görsel senkronizasyonu (Yüzdelerin renklenmesi)
-- [x] Pano navigasyon ve silme/arşivleme izolasyonu (Fixler)
+## 6. Hafta – Mobil Uygulama Arayüzünün Geliştirilmesi
+React Native kullanılarak mobil uygulama arayüzü geliştirilmeye başlanacaktır. Web uygulamasında bulunan temel özellikler mobil uygulamaya uyarlanacaktır. Kullanıcıların mobil cihazlar üzerinden projelerini görüntüleyebilmesi ve görevlerini yönetebilmesi sağlanacaktır.
 
-## Hafta 7 – Backend & API Altyapısı
-- Node.js kurulumu ve Express API temel yapısı
-- MongoDB Veri Tabanı bağlantısı (Database Design)
-- Kullanıcı Yetkilendirme (Auth) altyapısı
+## 7. Hafta – Proje İlerleme Takip Özelliği
+Kullanıcıların projelerinin ilerleme durumunu görebileceği bir takip sistemi geliştirilecektir. Tamamlanan görevlerin proje ilerlemesine etkisini gösteren basit görsel ilerleme göstergeleri veya grafik yapıları oluşturulacaktır.
 
-## Hafta 8 – Backend Geliştirme ve CRUD APIleri
-- Proje, Görev ve Kullanıcı API'lerinin tamamlanması
-- Web Frontend ile Backend entegrasyonu (Axios/Fetch)
-- Mobil uygulama hazırlık süreci (React Native)
+## 8. Hafta – AI Destekli Öneri Sistemi
+Bu haftada uygulamaya temel bir yapay zeka destekli öneri sistemi entegre edilecektir. Kullanıcıların proje planlarını oluştururken yapay zekadan basit öneriler alabilmesi veya proje ilerleme durumuna göre geri bildirim alabilmesi sağlanacaktır.
 
-## Hafta 9 – Mobil Uygulama ve API Bağlantısı
-- Mobil UI tasarımı ve API bağlantısı
-- Mobil cihaz testleri ve bildirim (Notification) sistemi
+## 9. Hafta – Test Süreci ve Hata Düzeltmeleri
+Uygulamanın web ve mobil versiyonları üzerinde genel testler yapılacaktır. Kullanıcı arayüzünde oluşabilecek hatalar, veri akışı problemleri veya performans sorunları tespit edilerek gerekli düzeltmeler gerçekleştirilecektir.
 
-## Hafta 10 – AI Entegrasyonu ve Final Teslim
-- AI tabanlı görev öneri sistemi
-- Genel sistem testleri ve hata ayıklama
-- Projenin final yayını (Deployment) ve dokümantasyon
+## 10. Hafta – Son Düzenlemeler ve Proje Teslimi
+Uygulamanın genel yapısı gözden geçirilerek son düzenlemeler yapılacaktır. Dokümantasyon tamamlanacak, proje GitHub üzerinde son haliyle güncellenecek ve proje sunum için hazır hale getirilecektir.
