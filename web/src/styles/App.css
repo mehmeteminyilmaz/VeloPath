@@ -658,7 +658,55 @@ body {
   border-radius: 16px;
 }
 
-/* --- Modal Styles --- */
+/* --- Haftalık Özet Kartı --- */
+.weekly-summary-card {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(99, 102, 241, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.4s ease;
+}
+
+.weekly-summary-card.all-done {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+.summary-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.all-done .summary-icon-box {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent);
+}
+
+.summary-content h4 {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.summary-content p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.all-done .summary-content h4 {
+  color: var(--accent);
+}
 .modal-overlay {
   position: fixed;
   top: 0;

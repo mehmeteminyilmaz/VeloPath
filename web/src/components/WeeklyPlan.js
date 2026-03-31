@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp } from 'lucide-react';
 import TaskNoteModal from './TaskNoteModal';
 
 import { 
@@ -321,6 +321,26 @@ const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, reorderTa
                     );
                   })}
                 </SortableContext>
+                
+                {tasksInWeek.length > 0 && (
+                  <div className={`weekly-summary-card ${isAllDone ? 'all-done' : ''}`}>
+                    <div className="summary-icon-box">
+                      {isAllDone ? <Award size={22} /> : <TrendingUp size={22} />}
+                    </div>
+                    <div className="summary-content">
+                      <h4>
+                        {isAllDone 
+                          ? "Harika bir hafta! 🎉" 
+                          : weekProgress > 50 
+                            ? "Güçlü ilerleme! 💪" 
+                            : "Yolun başındasın! 🚀"}
+                      </h4>
+                      <p>
+                        Bu hafta <b>{completedInWeek}</b> görev tamamladın, <b>%{weekProgress}</b> ilerleme kaydettin.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </DroppableWeekContent>
             </div>
           );

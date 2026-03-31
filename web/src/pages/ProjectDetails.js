@@ -141,16 +141,19 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                 className="glass-input"
                 style={{ flex: 2 }}
               />
-              <input 
-                type="number" 
-                min="1"
-                placeholder="Hafta No (Örn: 1)"
-                value={newTaskWeek}
-                onChange={(e) => setNewTaskWeek(e.target.value)}
-                className="glass-input"
-                style={{ flex: 0.5 }}
-                title="Hangi haftaya ekleneceğini belirleyin"
-              />
+              <div style={{ flex: 0.6, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <span style={{ position: 'absolute', left: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)', pointerEvents: 'none', fontWeight: 600, zIndex: 1 }}>Hafta</span>
+                <input 
+                  type="number" 
+                  min="1"
+                  placeholder="No"
+                  value={newTaskWeek}
+                  onChange={(e) => setNewTaskWeek(e.target.value)}
+                  className="glass-input"
+                  style={{ paddingLeft: '55px', position: 'relative' }}
+                  title="Hangi haftaya ekleneceğini belirleyin"
+                />
+              </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <select 
