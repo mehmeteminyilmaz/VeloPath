@@ -28,19 +28,23 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 
 ### 1. Modern Dashboard ve Verimlilik Takibi
 Yenilenmiş dairesel ilerleme göstergeleri, bildirim hatırlatıcı ve pürüzsüz proje kartları.
-![Dashboard Preview](./docs/assets/dashboard_final.png)
+![Dashboard Preview](docs/assets/dashboard_final.png)
 
-### 2. İstatistik ve Verimlilik Paneli
+### 2. Karşılama Sihirbazı (Onboarding)
+Yeni kullanıcılar için hazırlanan, uygulamanın temel özelliklerini anlatan interaktif sihirbaz.
+![Onboarding Welcome](docs/assets/onboarding_welcome.png)
+
+### 3. İstatistik ve Verimlilik Paneli
 Kullanıcı istikrarını analiz eden detaylı metrikler ve son 7 günlük aktivite grafiği.
-![Statistics Dashboard](./docs/assets/stats_final.png)
+![Statistics Dashboard](docs/assets/stats_final.png)
 
-### 3. Görev Aktivite Geçmişi (Timeline)
+### 4. Görev Aktivite Geçmişi (Timeline)
 Görevlerin tüm yaşam döngüsünü takip edebileceğiniz detaylı zaman çizelgesi günlüğü.
-![Task Activity History](./docs/assets/timeline_final.png)
+![Task Activity History](docs/assets/timeline_final.png)
 
-### 4. Haftalık Planlama Arayüzü
+### 5. Haftalık Planlama Arayüzü
 Projelerin haftalık bazda pürüzsüz organizasyonu ve sürükle-bırak desteği.
-![Project Planning Preview](./docs/assets/planning_final.png)
+![Project Planning Preview](docs/assets/planning_final.png)
 
 ---
 
