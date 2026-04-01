@@ -3,7 +3,7 @@ import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRest
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
-const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, reorderTasks, archiveProject }) => {
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, reorderTasks, archiveProject, resetData }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = projects.find(p => p.id === parseInt(id));
@@ -50,7 +50,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
 
   return (
     <div className="auth-layout">
-      <Sidebar />
+      <Sidebar resetData={resetData} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>

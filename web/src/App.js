@@ -5,84 +5,99 @@ import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import './styles/App.css';
 
+const defaultProjects = [
+  { 
+    id: 1, 
+    title: "VeloPath Web Geliştirme", 
+    description: "React ile ana kontrol paneli oluşturma.",
+    priority: "Yüksek",
+    deadline: "2026-04-15",
+    status: "Devam Ediyor",
+    archived: false,
+    color: "#6366f1", // Indigo
+    tasks: [
+      { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-03-25T10:00:00Z').toISOString(), completedAt: new Date('2026-03-25T12:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-25T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
+      { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1, createdAt: new Date('2026-03-26T09:00:00Z').toISOString(), completedAt: new Date('2026-03-27T15:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-26T09:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
+      { id: 3, text: "State Management Entegrasyonu", completed: false, week: 2, dependsOn: 2, createdAt: new Date('2026-03-28T14:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-28T14:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
+    ] 
+  },
+  {
+    id: 2,
+    title: "cybersec",
+    description: "Siber güvenlik araçları ve projeleri monorepo.",
+    priority: "Orta",
+    deadline: "2026-03-01",
+    status: "Tamamlandı",
+    archived: true,
+    color: "#10b981", // Emerald
+    tasks: [
+      { id: 1, text: "Port Scanner Geliştirme", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-02-20T08:00:00Z').toISOString(), completedAt: new Date('2026-02-21T18:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-02-20T08:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
+      { id: 2, text: "Network Sniffer Modülü", completed: true, week: 2, dependsOn: 1, createdAt: new Date('2026-02-22T10:00:00Z').toISOString(), completedAt: new Date('2026-02-25T14:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-02-22T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
+    ]
+  },
+  {
+    id: 3,
+    title: "gunce",
+    description: "Dart/Flutter ile kişisel günlük ve hafıza asistanı.",
+    priority: "Düşük",
+    deadline: "2026-02-15",
+    status: "Tamamlandı",
+    archived: true,
+    color: "#f59e0b", // Amber
+    tasks: [
+      { id: 1, text: "Sesli Not Özelliği", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-01-10T11:00:00Z').toISOString(), completedAt: new Date('2026-01-12T16:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-10T11:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
+      { id: 2, text: "AI Chat Entegrasyonu", completed: true, week: 2, dependsOn: 1, createdAt: new Date('2026-01-13T09:00:00Z').toISOString(), completedAt: new Date('2026-01-20T12:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-13T09:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
+    ]
+  },
+  {
+    id: 4,
+    title: "TarimAsistan",
+    description: "Bitki takibi ve tarım yönetim uygulaması.",
+    priority: "Yüksek",
+    deadline: "2026-01-20",
+    status: "Tamamlandı",
+    archived: true,
+    color: "#ef4444", // Rose/Red
+    tasks: [
+      { id: 1, text: "Firebase Veritabanı Kurulumu", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-01-01T10:00:00Z').toISOString(), completedAt: new Date('2026-01-02T15:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-01T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
+      { id: 2, text: "Bitki Takibi Arayüzü", completed: true, week: 1, dependsOn: 1, createdAt: new Date('2026-01-03T11:00:00Z').toISOString(), completedAt: new Date('2026-01-10T17:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-03T11:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
+    ]
+  }
+];
+
 function App() {
   // Global State: İlk yüklemede LocalStorage'dan kontrol et
   const [projects, setProjects] = useState(() => {
-    const defaultProjects = [
-      { 
-        id: 1, 
-        title: "VeloPath Web Geliştirme", 
-        description: "React ile ana kontrol paneli oluşturma.",
-        priority: "Yüksek",
-        deadline: "2026-04-15",
-        status: "Devam Ediyor",
-        archived: false,
-        color: "#6366f1", // Indigo
-        tasks: [
-          { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null },
-          { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1 },
-          { id: 3, text: "State Management Entegrasyonu", completed: false, week: 2, dependsOn: 2 }
-        ] 
-      },
-      {
-        id: 2,
-        title: "cybersec",
-        description: "Siber güvenlik araçları ve projeleri monorepo.",
-        priority: "Orta",
-        deadline: "2026-03-01",
-        status: "Tamamlandı",
-        archived: true,
-        color: "#10b981", // Emerald
-        tasks: [
-          { id: 1, text: "Port Scanner Geliştirme", completed: true, week: 1, dependsOn: null },
-          { id: 2, text: "Network Sniffer Modülü", completed: true, week: 2, dependsOn: 1 }
-        ]
-      },
-      {
-        id: 3,
-        title: "gunce",
-        description: "Dart/Flutter ile kişisel günlük ve hafıza asistanı.",
-        priority: "Düşük",
-        deadline: "2026-02-15",
-        status: "Tamamlandı",
-        archived: true,
-        color: "#f59e0b", // Amber
-        tasks: [
-          { id: 1, text: "Sesli Not Özelliği", completed: true, week: 1, dependsOn: null },
-          { id: 2, text: "AI Chat Entegrasyonu", completed: true, week: 2, dependsOn: 1 }
-        ]
-      },
-      {
-        id: 4,
-        title: "TarimAsistan",
-        description: "Bitki takibi ve tarım yönetim uygulaması.",
-        priority: "Yüksek",
-        deadline: "2026-01-20",
-        status: "Tamamlandı",
-        archived: true,
-        color: "#ef4444", // Rose/Red
-        tasks: [
-          { id: 1, text: "Firebase Veritabanı Kurulumu", completed: true, week: 1, dependsOn: null },
-          { id: 2, text: "Bitki Takibi Arayüzü", completed: true, week: 1, dependsOn: 1 }
-        ]
-      }
-    ];
+    try {
+      const savedProjects = localStorage.getItem('velopath_projects');
+      if (savedProjects) {
+        const parsed = JSON.parse(savedProjects);
+        
+        // Eğer kullanıcıda hiç aktif proje yoksa, defaultları geri yükleyelim
+        if (parsed.length === 0) return defaultProjects;
 
-    const savedProjects = localStorage.getItem('velopath_projects');
-    if (savedProjects) {
-      const parsed = JSON.parse(savedProjects);
-      // Eğer kullanıcıda hiç proje yoksa veya yeni örnekleri eklemek istiyorsak:
-      // Burada sadece eksik olan "cybersec", "gunce", "TarimAsistan" gibi projeleri ekleyebiliriz.
-      const existingTitles = parsed.map(p => p.title);
-      const missingSamples = defaultProjects.filter(p => !existingTitles.includes(p.title));
-      
-      if (missingSamples.length > 0) {
-        return [...parsed, ...missingSamples];
+        const existingTitles = parsed.map(p => p.title);
+        const missingSamples = defaultProjects.filter(p => !existingTitles.includes(p.title));
+        
+        if (missingSamples.length > 0) {
+          return [...parsed, ...missingSamples];
+        }
+        return parsed;
       }
-      return parsed;
+    } catch (error) {
+      console.error("LocalStorage load error:", error);
     }
     return defaultProjects;
   });
+
+  // Verileri fabrika ayarlarına döndür
+  const resetData = () => {
+    if (window.confirm('Tüm veriler silinecek ve örnek veriler geri yüklenecek. Emin misiniz?')) {
+      setProjects(defaultProjects);
+      localStorage.setItem('velopath_projects', JSON.stringify(defaultProjects));
+      window.location.reload(); // Temiz bir başlangıç için
+    }
+  };
 
   // Projeler değiştiğinde localStorage'a kaydet
   React.useEffect(() => {
@@ -122,9 +137,19 @@ function App() {
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
         const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => t.id)) + 1 : 1;
+        const now = new Date().toISOString();
+        const newTask = { 
+          id: nextId, 
+          text: taskText, 
+          completed: false, 
+          week, 
+          dependsOn,
+          createdAt: now,
+          history: [{ timestamp: now, action: 'Görevi oluşturdu.' }]
+        };
         return {
           ...p,
-          tasks: [...p.tasks, { id: nextId, text: taskText, completed: false, week, dependsOn }]
+          tasks: [...p.tasks, newTask]
         };
       }
       return p;
@@ -133,11 +158,27 @@ function App() {
 
   // Görev durumu değiştirme
   const toggleTask = (projectId, taskId) => {
+    const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
         return {
           ...p,
-          tasks: p.tasks.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t)
+          tasks: p.tasks.map(t => {
+            if (t.id === taskId) {
+              const isNowCompleted = !t.completed;
+              const historyEntry = {
+                timestamp: now,
+                action: isNowCompleted ? 'Görevi tamamlandı olarak işaretledi.' : 'Görevi tekrar aktif hale getirdi.'
+              };
+              return { 
+                ...t, 
+                completed: isNowCompleted,
+                completedAt: isNowCompleted ? now : null,
+                history: [...(t.history || []), historyEntry]
+              };
+            }
+            return t;
+          })
         };
       }
       return p;
@@ -166,11 +207,25 @@ function App() {
 
   // Görev notu ekleme/düzenleme
   const updateTaskNote = (projectId, taskId, newNote) => {
+    const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
         return {
           ...p,
-          tasks: p.tasks.map(t => t.id === taskId ? { ...t, notes: newNote } : t)
+          tasks: p.tasks.map(t => {
+            if (t.id === taskId) {
+              const historyEntry = {
+                timestamp: now,
+                action: 'Görev notunu güncelledi.'
+              };
+              return { 
+                ...t, 
+                notes: newNote,
+                history: [...(t.history || []), historyEntry]
+              };
+            }
+            return t;
+          })
         };
       }
       return p;
@@ -179,9 +234,25 @@ function App() {
 
   // Görevleri yeniden sıralama (Drag & Drop)
   const reorderTasks = (projectId, newTasksArray) => {
+    const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
-        return { ...p, tasks: newTasksArray };
+        // Hafta değişikliklerini kontrol et
+        const updatedTasks = newTasksArray.map(newTask => {
+          const oldTask = p.tasks.find(ot => ot.id === newTask.id);
+          if (oldTask && oldTask.week !== newTask.week) {
+            const historyEntry = {
+              timestamp: now,
+              action: `Görevi Hafta ${oldTask.week}'den Hafta ${newTask.week}'e taşıdı.`
+            };
+            return { 
+              ...newTask, 
+              history: [...(newTask.history || []), historyEntry]
+            };
+          }
+          return newTask;
+        });
+        return { ...p, tasks: updatedTasks };
       }
       return p;
     }));
@@ -191,9 +262,9 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} />} />
-          <Route path="/create" element={<CreateProject addProject={addProject} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} />} />
+          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} />} />
+          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} />} />
         </Routes>
       </div>
     </Router>

@@ -10,6 +10,7 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 
 - 📊 **Haftalık Plan Görünümü:** Her projeyi haftalara bölün ve dairesel grafiklerle ilerlemeyi takip edin.
 - 🏗️ **Sürükle-Bırak (Drag & Drop):** `@dnd-kit` ile görevlerinizi haftalar arası veya içinde pürüzsüzce sıralayın.
+- 📜 **Görev Aktivite Geçmişi:** Her görevin ne zaman oluşturulduğu, tamamlandığı veya taşındığına dair detaylı zaman çizelgesi (Timeline) günlüğü.
 - 📝 **Markdown Görev Notları:** Görevlerinize özel, zengin metin düzenleyicisi ile detaylı notlar ekleyin.
 - 🔗 **Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
 - 📁 **Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
@@ -22,41 +23,17 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 
 ## 📸 Ekran Görüntüleri
 
-### 1. Haftalık Plan ve Organizasyon
-Görevlerin haftalara dağılımı ve sürükle-bırak sistemi.
-![Weekly Plan Preview](./docs/assets/dashboard_v2.png)
+### 1. Modern Dashboard ve Verimlilik Takibi
+Yenilenmiş dairesel ilerleme göstergeleri ve pürüzsüz proje kartları.
+![Dashboard Preview](./docs/assets/dashboard_v2.png)
 
-### 2. Görev Detayları ve Markdown Notlar
-Not editörü ve görev bağımlılıklarının yönetim alanı.
-![Project Details Preview](./docs/assets/project_details_preview.png)
+### 2. Görev Aktivite Geçmişi (Timeline)
+Görevlerin tüm yaşam döngüsünü takip edebileceğiniz yeni Aktivite sekmesi.
+![Task Activity History](./docs/assets/task_activity_history.png)
 
-### 3. Yeni Proje ve Şablon Sistemi
-Önizleme destekli, hızlı proje oluşturma formu.
-![Create Project Preview](./docs/assets/create_project_preview.png)
-
-### 4. Aydınlık Tema Desteği
-Göz yormayan, modern ve ferah yeni aydınlık tema seçeneği.
-![Light Mode Preview](./docs/assets/dashboard_light.png)
-
-### 5. Proje Arşivi
-Tamamlanan projelerin toplandığı, düzenli arşiv alanı.
-![Project Archive Preview](./docs/assets/dashboard_archive.png)
-
-### 6. Görev Bağımlılığı ve Kilit Sistemi
-"Şu bitmeden bu başlayamaz" mantığıyla çalışan akıllı kilit sistemi.
-![Task Dependency Locked](./docs/assets/task_dependency_locked.png)
-
-### 7. Haftalık İlerleme Özeti
-Her hafta sonunda başarı durumunu özetleyen akıllı motivasyon kartları.
-![Weekly Summary](./docs/assets/weekly_summary.png)
-
-### 8. Gelişmiş Arayüz Deneyimi
-Hafta bazlı görev girişi ve temalar arası tam uyumluluk (Aydınlık/Karanlık).
-![UI Improvements](./docs/assets/ui_improvements_week.png)
-
-### 9. Proje Renk Etiketi ve Görsel Senkronizasyon
-Projeleri görsel olarak ayırmak için kişiselleştirilebilir renk paleti, pano şeritleri ve renkli ilerleme göstergeleri.
-![Project Colors](./docs/assets/dashboard_final_ui.png)
+### 3. Haftalık Planlama Arayüzü
+Projelerin haftalık bazda pürüzsüz organizasyonu.
+![Project Planning Preview](./docs/assets/project_planning.png)
 
 ---
 

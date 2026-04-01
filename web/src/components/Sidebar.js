@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Briefcase, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ resetData }) => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
   const [theme, setTheme] = useState(localStorage.getItem('velopath_theme') || 'dark');
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('velopath_theme', newTheme);
-    document.body.setAttribute('data-theme', newTheme);
-  };
 
   useEffect(() => {
     const handleStorageSync = () => {
@@ -81,6 +74,13 @@ const Sidebar = () => {
         <Link to="#" className="nav-item">
           <Settings size={20} /> Ayarlar
         </Link>
+        <div 
+          className="nav-item" 
+          style={{ cursor: 'pointer', color: 'var(--danger)', marginTop: '8px', background: 'rgba(239, 68, 68, 0.05)' }} 
+          onClick={resetData}
+        >
+          <LogOut size={20} /> Verileri Sıfırla
+        </div>
         <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }}>
           <LogOut size={20} /> Çıkış Yap
         </div>

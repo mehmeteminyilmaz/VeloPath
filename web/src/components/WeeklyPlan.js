@@ -81,7 +81,7 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
         <button 
           className={`task-action-btn ${task.notes ? 'has-notes' : ''}`}
           onClick={(e) => { e.stopPropagation(); onNoteOpen(task.id); }}
-          title="Görev Notları"
+          title="Görev Detayları ve Geçmişi"
         >
           <FileText size={18} />
         </button>

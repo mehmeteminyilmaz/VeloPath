@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 
-const Dashboard = ({ projects, deleteProject, archiveProject }) => {
+const Dashboard = ({ projects, deleteProject, archiveProject, resetData }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
 
@@ -42,7 +42,7 @@ const Dashboard = ({ projects, deleteProject, archiveProject }) => {
 
   return (
     <div className="auth-layout">
-      <Sidebar />
+      <Sidebar resetData={resetData} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
