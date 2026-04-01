@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Sidebar from '../components/Sidebar';
-import { BarChart, Clock, Award, CheckCircle, TrendingUp, Calendar } from 'lucide-react';
+import { BarChart, Clock, Award, CheckCircle, TrendingUp, Calendar, Zap } from 'lucide-react';
 
 const Stats = ({ projects, resetData, requestNotificationPermission }) => {
   // Veriyi İşle
@@ -11,31 +11,30 @@ const Stats = ({ projects, resetData, requestNotificationPermission }) => {
     // 1. Toplam Tamamlanan
     const totalCompleted = completedTasks.length;
 
-    // 2. Ortalama Tamamlama Süresi
-    let totalDuration = 0;
-    let validDurations = 0;
-    completedTasks.forEach(t => {
-      const start = new Date(t.createdAt);
-      const end = new Date(t.completedAt);
-      if (!isNaN(start) && !isNaN(end)) {
-        totalDuration += Math.max(0, end - start);
-        validDurations++;
-      }
-    });
-    
-    const avgDurationMs = validDurations > 0 ? totalDuration / validDurations : 0;
-    const avgMinutes = Math.floor(avgDurationMs / (1000 * 60));
-    const avgHours = Math.floor(avgMinutes / 60);
-    const avgDays = Math.floor(avgHours / 24);
-    
-    const displayDays = avgDays;
-    const displayHours = avgHours % 24;
-    const displayMinutes = avgMinutes % 60;
+    // 2. En Uzun Seri (Ardışık Günler)
+    const completionDates = Array.from(new Set(
+      completedTasks.map(t => t.completedAt.split('T')[0])
+    )).sort();
 
-    let timeStr = '0dk';
-    if (displayDays > 0) timeStr = `${displayDays}g ${displayHours}sa`;
-    else if (displayHours > 0) timeStr = `${displayHours}sa ${displayMinutes}dk`;
-    else if (displayMinutes > 0) timeStr = `${displayMinutes}dk`;
+    let longestStreak = 0;
+    let currentStreak = 0;
+    let prevDate = null;
+
+    completionDates.forEach(dateStr => {
+      const currentDate = new Date(dateStr);
+      if (prevDate) {
+        const diffInDays = (currentDate - prevDate) / (1000 * 60 * 60 * 24);
+        if (diffInDays === 1) {
+          currentStreak++;
+        } else {
+          currentStreak = 1;
+        }
+      } else {
+        currentStreak = 1;
+      }
+      longestStreak = Math.max(longestStreak, currentStreak);
+      prevDate = currentDate;
+    });
 
     // 3. En Verimli Gün (Haftanın Günleri)
     const dayNames = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
@@ -85,7 +84,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission }) => {
 
     return {
       totalCompleted,
-      avgTime: timeStr,
+      streak: longestStreak,
       bestDay: totalCompleted > 0 ? dayNames[bestDayIndex] : '-',
       bestWeek: totalCompleted > 0 ? `Hafta ${bestWeekNum}` : '-',
       last7Days
@@ -118,11 +117,11 @@ const Stats = ({ projects, resetData, requestNotificationPermission }) => {
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent)' }}>
-              <Clock size={24} />
+              <Zap size={24} />
             </div>
             <div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Ort. Bitirme Süresi</p>
-              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{statsData.avgTime}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>En Uzun Seri</p>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{statsData.streak} Gün</h3>
             </div>
           </div>
           <div className="stat-card">
