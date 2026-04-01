@@ -15,48 +15,56 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 - 🔔 **Bildirim Hatırlatıcı:** Browser Notification API ile "Haftalık Görev Özeti" bildirimleri alın.
 - 🚀 **Karşılama Sihirbazı (Onboarding):** Yeni kullanıcılar için 4 adımlı interaktif uygulama rehberi.
 - 📈 **İstatistik ve Verimlilik Paneli:** Tamamlanan görev sayıları, en uzun çalışma seriniz (Streak) ve en verimli günlerinizin detaylı analizi.
+- 🎨 **Boş Durum Tasarımı (Empty States):** Henüz veri yokken kullanıcıyı yönlendiren şık illüstrasyonlar ve aksiyon butonları.
 - 🔗 **Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
 - 📁 **Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
 - ☀️🌙 **Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
 - ⚡ **Hızlı Aksiyonlar:** Görevleri hızlıca silebilir, proje durumlarını anlık güncelleyebilirsiniz.
 - 🔄 **Gelişmiş Veri Yönetimi:** "Verileri Sıfırla" butonu ile Local Storage senkronizasyonunu tek tıkla onarın.
 - 💾 **Kalıcı Veri:** Tüm verileriniz `Local Storage` üzerinde güvenle saklanır.
-- 🎨 **Boş Durum Tasarımı (Empty States):** Henüz veri yokken kullanıcıyı yönlendiren şık illüstrasyonlar ve aksiyon butonları.
 
 ---
 
 ## 📸 Ekran Görüntüleri
 
-### 1. Modern Dashboard ve Verimlilik Takibi
-Yenilenmiş dairesel ilerleme göstergeleri, bildirim hatırlatıcı ve pürüzsüz proje kartları.
-![Dashboard Preview](docs/assets/dashboard_final.png)
+### 1. Kontrol Paneli (Dashboard)
+Aktif projeler, istatistik kartları, genel verimlilik göstergesi ve renk kodlu proje kartları.
+![Dashboard](docs/assets/dashboard_final.png)
 
 ### 2. Karşılama Sihirbazı (Onboarding)
-Yeni kullanıcılar için hazırlanan, uygulamanın temel özelliklerini anlatan interaktif sihirbaz.
-![Onboarding Welcome](docs/assets/onboarding_welcome.png)
+İlk girişte kullanıcıyı karşılayan 4 adımlı interaktif rehber — şeffaf "Atla" butonu tasarımıyla.
+![Onboarding](docs/assets/onboarding_welcome.png)
 
-### 3. İstatistik ve Verimlilik Paneli
-Kullanıcı istikrarını analiz eden detaylı metrikler ve son 7 günlük aktivite grafiği.
-![Statistics Dashboard](docs/assets/stats_final.png)
+### 3. Boş Durum Tasarımı (Empty States)
+Proje yokken veya arşiv boşken kullanıcıya yol gösteren şık illüstrasyon ekranları.
+![Empty State](docs/assets/dashboard_empty.png)
 
-### 4. Görev Aktivite Geçmişi (Timeline)
-Görevlerin tüm yaşam döngüsünü takip edebileceğiniz detaylı zaman çizelgesi günlüğü.
-![Task Activity History](docs/assets/timeline_final.png)
+### 4. Proje Detay & Haftalık Plan
+Görev yokken yönlendirici boş durum, varken haftalık gruplandırma ve ilerleme takibi.
+![Project Detail](docs/assets/project_empty.png)
 
-### 5. Haftalık Planlama Arayüzü
-Projelerin haftalık bazda pürüzsüz organizasyonu ve sürükle-bırak desteği.
-![Project Planning Preview](docs/assets/planning_final.png)
+### 5. İstatistik ve Verimlilik Raporu
+Tamamlanan görevler, en uzun seri (streak), en verimli gün/hafta ve 7 günlük aktivite grafiği.
+![Statistics](docs/assets/stats_final.png)
+
+### 6. Aktif Proje Yönetimi
+Haftalık plan görünümü, sürükle-bırak görev sıralaması ve ilerleme özeti.
+![Planning](docs/assets/planning_final.png)
 
 ---
 
 ## 🛠️ Teknoloji Yığını
 
-- **Frontend:** React.js
-- **Sürükle-Bırak:** @dnd-kit
-- **Metin Düzenleme:** React Markdown
-- **İkonlar:** Lucide-React
-- **Tasarım:** Vanilla CSS (Modern Glassmorphism)
-- **State Yönetimi:** React Hooks
+| Teknoloji | Kullanım |
+|---|---|
+| **React.js** | Frontend framework |
+| **@dnd-kit** | Sürükle-bırak sistemi |
+| **React Markdown** | Görev notu düzenleyici |
+| **Lucide-React** | İkon kütüphanesi |
+| **Vanilla CSS** | Modern Glassmorphism tasarım |
+| **React Hooks** | State yönetimi |
+| **Browser Notification API** | Bildirim sistemi |
+| **localStorage** | Kalıcı veri depolama |
 
 ---
 
