@@ -10,7 +10,7 @@ const iconMap = {
   Layers: Layers
 };
 
-const CreateProject = ({ addProject, resetData }) => {
+const CreateProject = ({ addProject, resetData, requestNotificationPermission }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Orta');
@@ -66,7 +66,7 @@ const CreateProject = ({ addProject, resetData }) => {
   return (
     <div className="auth-layout">
       {/* Sidebar Navigation */}
-      <Sidebar resetData={resetData} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} />
 
       {/* Main Content */}
       <main className="main-content">

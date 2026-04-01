@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 
-const Dashboard = ({ projects, deleteProject, archiveProject, resetData }) => {
+const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
+  
+  useEffect(() => {
+    if (Notification.permission === 'granted') {
+      sendTaskNotification();
+    }
+  }, [sendTaskNotification]);
 
   // İstatistikleri hesaplayalım
   const stats = {
@@ -42,7 +48,7 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData }) => {
 
   return (
     <div className="auth-layout">
-      <Sidebar resetData={resetData} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>

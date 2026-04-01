@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = ({ resetData }) => {
+const Sidebar = ({ resetData, requestNotificationPermission }) => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
   const [theme, setTheme] = useState(localStorage.getItem('velopath_theme') || 'dark');
+
+  const [permissionStatus, setPermissionStatus] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  );
 
   useEffect(() => {
     const handleStorageSync = () => {
@@ -15,6 +19,13 @@ const Sidebar = ({ resetData }) => {
     window.addEventListener('storage', handleStorageSync);
     return () => window.removeEventListener('storage', handleStorageSync);
   }, []);
+
+  const handleNotificationClick = async () => {
+    await requestNotificationPermission();
+    if (typeof Notification !== 'undefined') {
+      setPermissionStatus(Notification.permission);
+    }
+  };
 
   return (
     <div className="sidebar" style={{ transition: 'background-color 0.4s ease' }}>
@@ -74,12 +85,29 @@ const Sidebar = ({ resetData }) => {
         <Link to="#" className="nav-item">
           <Settings size={20} /> Ayarlar
         </Link>
+
+        {/* Bildirim Hatırlatıcı Butonu */}
+        <div 
+          className="nav-item" 
+          onClick={handleNotificationClick}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
+        >
+          <Bell 
+            size={20} 
+            strokeWidth={2} 
+            color={permissionStatus === 'granted' ? 'var(--primary)' : 'currentColor'} 
+            style={{ opacity: permissionStatus === 'granted' ? 1 : 0.7 }}
+          />
+          <span>Bildirim Hatırlatıcı</span>
+        </div>
         <div 
           className="nav-item" 
           style={{ cursor: 'pointer', color: 'var(--danger)', marginTop: '8px', background: 'rgba(239, 68, 68, 0.05)' }} 
           onClick={resetData}
+          title="Tüm verileri varsayılana döndür"
         >
-          <LogOut size={20} /> Verileri Sıfırla
+          <RotateCcw size={20} strokeWidth={2.5} />
+          <span style={{ fontWeight: 600 }}>Verileri Sıfırla</span>
         </div>
         <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }}>
           <LogOut size={20} /> Çıkış Yap

@@ -110,6 +110,60 @@ function App() {
     document.body.setAttribute('data-theme', savedTheme);
   }, []);
 
+  // Bildirim İzni İste
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("Bu tarayıcı bildirimleri desteklemiyor.");
+      return;
+    }
+
+    if (Notification.permission !== "granted") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        sendTaskNotification();
+      }
+    } else {
+      sendTaskNotification();
+    }
+  };
+
+  // Aktif haftadaki tamamlanmamış görev sayısını hesapla
+  const getIncompleteTaskCount = () => {
+    let totalIncomplete = 0;
+    
+    projects.filter(p => !p.archived).forEach(project => {
+      if (project.tasks.length === 0) return;
+      
+      // En küçük tamamlanmamış görev haftasını bul
+      const incompleteTasks = project.tasks.filter(t => !t.completed);
+      if (incompleteTasks.length === 0) return;
+      
+      const minWeek = Math.min(...incompleteTasks.map(t => t.week));
+      const activeWeekTasks = incompleteTasks.filter(t => t.week === minWeek);
+      
+      totalIncomplete += activeWeekTasks.length;
+    });
+    
+    return totalIncomplete;
+  };
+
+  // Bildirim Gönder
+  const sendTaskNotification = () => {
+    const count = getIncompleteTaskCount();
+    
+    if (count > 0) {
+      new Notification("VeloPath Hatırlatıcı 🚀", {
+        body: `Bu hafta tamamlaman gereken ${count} adet görev seni bekliyor. Başarılar!`,
+        icon: "/favicon.ico"
+      });
+    } else {
+      new Notification("VeloPath 🚀", {
+        body: "Bu hafta için bekleyen göreviniz bulunmuyor. Harika gidiyorsunuz!",
+        icon: "/favicon.ico"
+      });
+    }
+  };
+
   // Yeni proje ekleme fonksiyonu
   const addProject = (newProject) => {
     const { initialTasks = [], ...projectData } = newProject;
@@ -262,9 +316,9 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} />} />
-          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} />} />
+          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} />} />
+          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
         </Routes>
       </div>
     </Router>
