@@ -13,6 +13,7 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 - 📜 **Görev Aktivite Geçmişi:** Her görevin ne zaman oluşturulduğu, tamamlandığı veya taşındığına dair detaylı zaman çizelgesi (Timeline) günlüğü.
 - 📝 **Markdown Görev Notları:** Görevlerinize özel, zengin metin düzenleyicisi ile detaylı notlar ekleyin.
 - 🔔 **Bildirim Hatırlatıcı:** Browser Notification API ile "Haftalık Görev Özeti" bildirimleri alın.
+- 📈 **İstatistik ve Verimlilik Paneli:** Tamamlanan görev sayıları, ortalama bitirme süreleri ve en verimli günlerinizin detaylı analizi.
 - 🔗 **Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
 - 📁 **Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
 - ☀️🌙 **Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
@@ -32,11 +33,15 @@ Yenilenmiş dairesel ilerleme göstergeleri, bildirim hatırlatıcı ve pürüzs
 İşlevlerine göre özelleştirilmiş, net ve modern ikon setine sahip yeni Sidebar.
 ![Notification Feature](./docs/assets/notification_feature.png)
 
-### 3. Görev Aktivite Geçmişi (Timeline)
+### 3. İstatistik ve Verimlilik Paneli
+Kullanıcı verimliliğini analiz eden detaylı metrikler ve son 7 günlük aktivite grafiği.
+![Statistics Dashboard](./docs/assets/stats_dashboard.png)
+
+### 4. Görev Aktivite Geçmişi (Timeline)
 Görevlerin tüm yaşam döngüsünü takip edebileceğiniz yeni Aktivite sekmesi.
 ![Task Activity History](./docs/assets/task_activity_history.png)
 
-### 4. Haftalık Planlama Arayüzü
+### 5. Haftalık Planlama Arayüzü
 Projelerin haftalık bazda pürüzsüz organizasyonu.
 ![Project Planning Preview](./docs/assets/project_planning.png)
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw, BarChart2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ resetData, requestNotificationPermission }) => {
@@ -36,6 +36,9 @@ const Sidebar = ({ resetData, requestNotificationPermission }) => {
         </Link>
         <Link to="/create" className={`nav-item ${isActive('/create') ? 'active' : ''}`}>
           <PlusCircle size={20} /> Proje Oluştur
+        </Link>
+        <Link to="/stats" className={`nav-item ${isActive('/stats') ? 'active' : ''}`}>
+          <BarChart2 size={20} /> İstatistikler
         </Link>
         <div style={{ flexGrow: 1 }}></div>
 
