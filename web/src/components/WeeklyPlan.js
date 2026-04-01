@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp } from 'lucide-react';
 import TaskNoteModal from './TaskNoteModal';
+import EmptyState from './EmptyState';
+import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp, Sparkles } from 'lucide-react';
 
 import { 
   DndContext, 
@@ -240,11 +241,11 @@ const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, reorderTa
 
   if (weeks.length === 0) {
     return (
-      <div className="card empty-state animate-slide-up">
-        <Calendar size={48} color="var(--primary)" style={{ opacity: 0.5, marginBottom: '1rem' }} />
-        <h4 style={{ color: 'var(--text-primary)' }}>Henüz Görev Planlanmadı</h4>
-        <p style={{ color: 'var(--text-secondary)' }}>Projenizin adımlarını haftalara bölerek başlayabilirsiniz.</p>
-      </div>
+      <EmptyState 
+        icon={Calendar}
+        title="Henüz Görev Planlanmadı"
+        description="Projeniz için henüz bir görev eklenmemiş. 'Düzenle' moduna geçerek veya şablonları kullanarak ilk görevinizi planlayabilirsiniz."
+      />
     );
   }
 

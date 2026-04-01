@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 import Onboarding from '../components/Onboarding';
+import EmptyState from '../components/EmptyState';
+import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore, FolderOpen, Inbox } from 'lucide-react';
 
 const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission }) => {
   const navigate = useNavigate();
@@ -134,11 +135,16 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
 
         <section className="grid animate-slide-up delay-300">
           {filteredProjects.length === 0 ? (
-            <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem' }}>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                {viewMode === 'active' ? 'Henüz aktif bir projeniz yok.' : 'Arşivlenmiş projeniz bulunmuyor.'}
-              </p>
-            </div>
+            <EmptyState 
+              icon={viewMode === 'active' ? FolderOpen : Inbox}
+              title={viewMode === 'active' ? "Henüz Aktif Projeniz Yok" : "Arşivde Proje Bulunmuyor"}
+              description={viewMode === 'active' 
+                ? "Hayallerinizi gerçekleştirmek için ilk adımınızı atın. Yeni bir proje oluşturarak planlamaya başlayın!" 
+                : "Arşivlediğiniz projeler burada görünecektir."}
+              actionLink={viewMode === 'active' ? "/create" : null}
+              actionLabel={viewMode === 'active' ? "İlk Projeni Oluştur" : null}
+              actionIcon={PlusCircle}
+            />
           ) : (
             filteredProjects.map(project => {
               const completedTasks = project.tasks.filter(t => t.completed).length;
