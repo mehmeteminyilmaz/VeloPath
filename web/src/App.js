@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import UndoToast from './components/UndoToast';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
@@ -66,8 +67,14 @@ const defaultProjects = [
   }
 ];
 
+const UNDO_DELAY = 5000;
+
 function App() {
   // Global State: İlk yüklemede LocalStorage'dan kontrol et
+  // Undo toast state
+  const [undoToasts, setUndoToasts] = useState([]);
+  const undoTimers = useRef({});
+
   const [projects, setProjects] = useState(() => {
     try {
       const savedProjects = localStorage.getItem('velopath_projects');
@@ -240,25 +247,112 @@ function App() {
     }));
   };
 
+  // --- Undo helpers ---
+  const addUndoToast = useCallback((toastData) => {
+    const id = `toast-${Date.now()}-${Math.random()}`;
+    setUndoToasts(prev => [...prev, { id, ...toastData }]);
+    return id;
+  }, []);
+
+  const dismissToast = useCallback((toastId) => {
+    setUndoToasts(prev => prev.filter(t => t.id !== toastId));
+    if (undoTimers.current[toastId]) {
+      undoTimers.current[toastId].commit();
+      delete undoTimers.current[toastId];
+    }
+  }, []);
+
+  const undoToast = useCallback((toastId) => {
+    setUndoToasts(prev => prev.filter(t => t.id !== toastId));
+    if (undoTimers.current[toastId]) {
+      clearTimeout(undoTimers.current[toastId].timer);
+      undoTimers.current[toastId].cancel();
+      delete undoTimers.current[toastId];
+    }
+  }, []);
+
   // Proje silme fonksiyonu
-  const deleteProject = (projectId) => {
-    setProjects(projects.filter(p => p.id !== parseInt(projectId)));
-  };
+  const deleteProject = useCallback((projectId) => {
+    const pid = parseInt(projectId);
+    const project = projects.find(p => p.id === pid);
+    if (!project) return;
+
+    // Geçici olarak projeden kaldır (anlık UI güncellemesi)
+    setProjects(prev => prev.filter(p => p.id !== pid));
+
+    let committed = false;
+    const toastId = addUndoToast({ label: project.title, type: 'project' });
+
+    const timer = setTimeout(() => {
+      committed = true;
+      setUndoToasts(prev => prev.filter(t => t.id !== toastId));
+      delete undoTimers.current[toastId];
+    }, UNDO_DELAY);
+
+    undoTimers.current[toastId] = {
+      timer,
+      commit: () => { committed = true; },
+      cancel: () => {
+        if (!committed) {
+          // Geri yükle
+          setProjects(prev => {
+            const exists = prev.find(p => p.id === pid);
+            if (exists) return prev;
+            const insertAt = prev.findIndex(p => p.id > pid);
+            if (insertAt === -1) return [...prev, project];
+            const next = [...prev];
+            next.splice(insertAt, 0, project);
+            return next;
+          });
+        }
+      }
+    };
+  }, [projects, addUndoToast]);
 
   // Görev silme fonksiyonu
-  const deleteTask = (projectId, taskId) => {
-    setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
-        return {
-          ...p,
-          tasks: p.tasks
-            .filter(t => t.id !== taskId)
-            .map(t => t.dependsOn === taskId ? { ...t, dependsOn: null } : t)
-        };
-      }
-      return p;
+  const deleteTask = useCallback((projectId, taskId) => {
+    const pid = parseInt(projectId);
+    const project = projects.find(p => p.id === pid);
+    if (!project) return;
+    const task = project.tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    // Anlık UI güncellemesi
+    setProjects(prev => prev.map(p => {
+      if (p.id !== pid) return p;
+      return {
+        ...p,
+        tasks: p.tasks
+          .filter(t => t.id !== taskId)
+          .map(t => t.dependsOn === taskId ? { ...t, dependsOn: null } : t)
+      };
     }));
-  };
+
+    let committed = false;
+    const toastId = addUndoToast({ label: task.text, type: 'task' });
+
+    const timer = setTimeout(() => {
+      committed = true;
+      setUndoToasts(prev => prev.filter(t => t.id !== toastId));
+      delete undoTimers.current[toastId];
+    }, UNDO_DELAY);
+
+    undoTimers.current[toastId] = {
+      timer,
+      commit: () => { committed = true; },
+      cancel: () => {
+        if (!committed) {
+          // Görevi geri yükle
+          setProjects(prev => prev.map(p => {
+            if (p.id !== pid) return p;
+            const exists = p.tasks.find(t => t.id === taskId);
+            if (exists) return p;
+            return { ...p, tasks: [...p.tasks, task] };
+          }));
+        }
+      }
+    };
+  }, [projects, addUndoToast]);
 
   // Görev notu ekleme/düzenleme
   const updateTaskNote = (projectId, taskId, newNote) => {
@@ -322,6 +416,8 @@ function App() {
           <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
           <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
         </Routes>
+        {/* Global Undo Toast */}
+        <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />
       </div>
     </Router>
   );

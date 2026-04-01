@@ -4,11 +4,13 @@ import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
 import Onboarding from '../components/Onboarding';
 import EmptyState from '../components/EmptyState';
-import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore, FolderOpen, Inbox } from 'lucide-react';
+import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore, FolderOpen, Inbox, Search, X } from 'lucide-react';
 
 const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterPriority, setFilterPriority] = useState('All');
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem('onboardingDone') !== 'true';
   });
@@ -30,7 +32,16 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
     completed: projects.filter(p => p.tasks.length > 0 && p.tasks.every(t => t.completed)).length
   };
 
-  const filteredProjects = projects.filter(p => viewMode === 'active' ? !p.archived : p.archived);
+  const filteredProjects = projects.filter(p => {
+    // Arama terimi varsa arşivdeki projeleri de kapsar, yoksa mevcut viewMode filtrelemesini kullanır
+    const matchesViewMode = searchTerm ? true : (viewMode === 'active' ? !p.archived : p.archived);
+    
+    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesPriority = filterPriority === 'All' || p.priority === filterPriority;
+    
+    return matchesViewMode && matchesSearch && matchesPriority;
+  });
 
   // Tüm projelerin genel ilerleme ortalamasını hesaplayalım
   const calculateGlobalProgress = () => {
@@ -130,6 +141,38 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
           </div>
         </div>
 
+        {/* Proje Arama ve Filtreleme */}
+        <div className="search-filter-bar animate-slide-up delay-200" style={{ marginBottom: '2rem' }}>
+          <div className="search-box">
+            <Search size={20} className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Proje ara (başlık veya açıklama)..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            {searchTerm && (
+              <button className="clear-search" onClick={() => setSearchTerm('')}>
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          <div className="filter-pills">
+            <span className="filter-label">Öncelik :</span>
+            {['All', 'Yüksek', 'Orta', 'Düşük'].map((priority) => (
+              <button
+                key={priority}
+                onClick={() => setFilterPriority(priority)}
+                className={`filter-pill ${filterPriority === priority ? 'active' : ''} priority-${priority.toLowerCase()}`}
+              >
+                {priority === 'All' ? 'Tümü' : priority}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <section className="grid animate-slide-up delay-300">
           {filteredProjects.length === 0 ? (
             <EmptyState 
@@ -184,9 +227,7 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          if(window.confirm('Bu projeyi tamamen silmek istediğinize emin misiniz?')) {
-                            deleteProject(project.id);
-                          }
+                          deleteProject(project.id);
                         }}
                         style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', padding: '10px', opacity: 1, transition: '0.2s', zIndex: 10, position: 'relative' }}
                         title="Projeyi Sil"

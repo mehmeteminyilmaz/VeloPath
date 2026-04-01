@@ -87,10 +87,8 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                </button>
                <button
                  onClick={() => {
-                   if(window.confirm('Bu projeyi tamamen silmek istediğinize emin misiniz?')) {
-                     deleteProject(project.id);
-                     navigate('/');
-                   }
+                   deleteProject(project.id);
+                   navigate('/');
                  }}
                  style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
                >

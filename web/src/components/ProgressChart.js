@@ -6,7 +6,7 @@ const ProgressChart = ({ progress = 0 }) => {
 
   return (
     <div className="progress-chart-container">
-      <svg viewBox="0 0 36 36" className="circular-chart">
+      <svg viewBox="0 0 36 36" className="circular-chart" fill="none">
         <defs>
           <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#8b5cf6" />
@@ -33,3 +33,4 @@ const ProgressChart = ({ progress = 0 }) => {
 };
 
 export default ProgressChart;
+

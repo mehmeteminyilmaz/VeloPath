@@ -16,6 +16,8 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 - 🚀 **Karşılama Sihirbazı (Onboarding):** Yeni kullanıcılar için 4 adımlı interaktif uygulama rehberi.
 - 📈 **İstatistik ve Verimlilik Paneli:** Tamamlanan görev sayıları, en uzun çalışma seriniz (Streak) ve en verimli günlerinizin detaylı analizi.
 - 🎨 **Boş Durum Tasarımı (Empty States):** Henüz veri yokken kullanıcıyı yönlendiren şık illüstrasyonlar ve aksiyon butonları.
+- 🖼️ **Gelişmiş Arama ve Filtreleme:** Projelerinizi başlık veya açıklamaya göre arayın, öncelik bazlı (Yüksek, Orta, Düşük) anlık filtreleyin. Arama artık arşivlenmiş projeleri de kapsar!
+- ↩️ **Geri Alma (Undo) Sistemi:** Yanlışlıkla silinen görev veya projeleri 5 saniyelik "Geri Al" bildirimi ile anında kurtarın.
 - 🔗 **Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
 - 📁 **Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
 - ☀️🌙 **Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
@@ -47,9 +49,17 @@ Görev yokken yönlendirici boş durum, varken haftalık gruplandırma ve ilerle
 Tamamlanan görevler, en uzun seri (streak), en verimli gün/hafta ve 7 günlük aktivite grafiği.
 ![Statistics](docs/assets/stats_final.png)
 
-### 6. Aktif Proje Yönetimi
-Haftalık plan görünümü, sürükle-bırak görev sıralaması ve ilerleme özeti.
-![Planning](docs/assets/planning_final.png)
+### 6. Gelişmiş Arama ve Öncelik Filtreleme
+Kontrol panelinde projelerinizi anlık olarak filtreleyebileceğiniz, arşivdeki kayıtları da tarayan akıllı arama çubuğu ve öncelik butonları.
+![Search & Filter](docs/assets/dashboard_search_filter.png)
+
+### 7. Geri Alma (Undo) Bildirimi
+Kazara silinen verileri kurtarmak için 5 saniyelik dinamik ilerleme çubuğuna sahip interaktif bildirim sistemi.
+![Undo Notification](docs/assets/undo_notification.png)
+
+### 8. İstatistikler & Verimlilik
+Yenilenmiş stat kartları ve hatasız verimlilik çemberi grafiği ile detaylı performans analizi.
+![Statistics Fixed](docs/assets/verimlilik_fixed.png)
 
 ---
 
