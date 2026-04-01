@@ -13,11 +13,8 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
     return localStorage.getItem('onboardingDone') !== 'true';
   });
   
-  useEffect(() => {
-    if (Notification.permission === 'granted') {
-      sendTaskNotification();
-    }
-  }, [sendTaskNotification]);
+  // Bildirimler artık sadece kullanıcı sidebar'daki zil ikonuna tıkladığında gönderilir.
+  // Otomatik gönderim kaldırıldı.
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('onboardingDone', 'true');
