@@ -3,16 +3,25 @@ import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, 
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProgressChart from '../components/ProgressChart';
+import Onboarding from '../components/Onboarding';
 
 const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return localStorage.getItem('onboardingDone') !== 'true';
+  });
   
   useEffect(() => {
     if (Notification.permission === 'granted') {
       sendTaskNotification();
     }
   }, [sendTaskNotification]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('onboardingDone', 'true');
+    setShowOnboarding(false);
+  };
 
   // İstatistikleri hesaplayalım
   const stats = {
@@ -215,6 +224,8 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
           )}
         </section>
       </main>
+
+      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
     </div>
   );
 };
