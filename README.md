@@ -35,15 +35,27 @@ VeloPath, en iyi modern kullanıcı deneyimini (UX) sunmak için Linear ve Verce
 Giriş yaparken kullanıcıyı karşılayan, kişiselleştirilmiş isim girişi ve cam morfoloji etkili premium karşılama ekranı.
 ![Login Premium](docs/assets/login_premium.png)
 
-### 2. Kontrol Paneli (Daraltılabilir Menü)
+### 2. Kontrol Paneli (Genişletilmiş Menü)
+Tüm menü etiketlerinin görünür olduğu, kullanıcıyı ismiyle karşılayan standart dashboard görünümü.
+![Dashboard Expanded](docs/assets/dashboard_expanded.png)
+
+### 3. Kontrol Paneli (Daraltılabilir Menü)
 Çalışma alanını genişletmek için menüyü küçülten (mini-sidebar) yeni modern düzen.
 ![Dashboard Collapsed](docs/assets/sidebar_collapsed.png)
 
-### 3. İstatistik ve Verimlilik Raporu
+### 4. Görev Aktivite Geçmişi (Timeline)
+Her görevin oluşturulma, tamamlanma ve taşınma geçmişini gösteren premium zaman çizelgesi özelliği.
+![Task Activity](docs/assets/task_activity.png)
+
+### 5. Görev Bağımlılıkları & Kilit Modeli
+Bir görevin tamamlanması için başka bir göreve olan bağımlılığını yöneten akıllı kilit sistemi.
+![Task Dependencies](docs/assets/task_dependencies.png)
+
+### 6. İstatistik ve Verimlilik Raporu
 Tamamlanan görevler, en uzun seri (streak) ve 7 günlük aktivite grafiği ile güncel analiz paneli.
 ![Statistics Premium](docs/assets/stats_premium.png)
 
-### 4. Karşılama Sihirbazı (Onboarding)
+### 7. Karşılama Sihirbazı (Onboarding)
 İlk girişte kullanıcıyı karşılayan 4 adımlı interaktif rehber.
 ![Onboarding](docs/assets/onboarding_welcome.png)
 
