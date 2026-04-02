@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import UndoToast from './components/UndoToast';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
+import Login from './pages/Login';
 import './styles/App.css';
 
 const defaultProjects = [
@@ -74,6 +75,44 @@ function App() {
   // Undo toast state
   const [undoToasts, setUndoToasts] = useState([]);
   const undoTimers = useRef({});
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('velopath_sidebar_collapsed') === 'true';
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('velopath_authenticated') === 'true';
+  });
+
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem('velopath_username') || '';
+  });
+
+  const onLogin = (name) => {
+    setUsername(name);
+    setIsAuthenticated(true);
+    localStorage.setItem('velopath_username', name);
+    localStorage.setItem('velopath_authenticated', 'true');
+  };
+
+  const onLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.setItem('velopath_authenticated', 'false');
+  };
+
+  // Sidebar Daraltma Klavye Kısayolları ( [ ve Z )
+  useEffect(() => {
+    localStorage.setItem('velopath_sidebar_collapsed', isSidebarCollapsed);
+    
+    const handleKeyDown = (e) => {
+      if (e.key === '[' || e.key === 'z' || e.key === 'Z') {
+        // Eğer input/textarea içindeyse tetikleme
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        setIsSidebarCollapsed(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarCollapsed]);
 
   const [projects, setProjects] = useState(() => {
     try {
@@ -407,15 +446,21 @@ function App() {
     }));
   };
 
+  if (!isAuthenticated) {
+    return <Login onLogin={onLogin} />;
+  }
+
   return (
     <Router>
-      <div className="App">
+      <div className={`App ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} />} />
-          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
-          <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} />} />
+          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
+          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
+          <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
+          <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
         </Routes>
+        
         {/* Global Undo Toast */}
         <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />
       </div>

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import Sidebar from '../components/Sidebar';
 import { BarChart, Clock, Award, CheckCircle, TrendingUp, Calendar, Zap } from 'lucide-react';
 
-const Stats = ({ projects, resetData, requestNotificationPermission }) => {
+const Stats = ({ projects, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout }) => {
   // Veriyi İşle
   const statsData = useMemo(() => {
     const allTasks = projects.flatMap(p => p.tasks.map(t => ({ ...t, projectTitle: p.title })));
@@ -96,7 +96,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission }) => {
 
   return (
     <div className="auth-layout">
-      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>

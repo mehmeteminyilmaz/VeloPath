@@ -6,7 +6,7 @@ import Onboarding from '../components/Onboarding';
 import EmptyState from '../components/EmptyState';
 import { PlusCircle, Briefcase, CheckCircle, Activity, Layout, Trash2, Archive, ArchiveRestore, FolderOpen, Inbox, Search, X } from 'lucide-react';
 
-const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission }) => {
+const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, username, onLogout }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('active'); // 'active' veya 'archived'
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,13 +66,13 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
 
   return (
     <div className="auth-layout">
-      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
             <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Kontrol Paneli</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, Mehmet! Bugün neler yapıyoruz?</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, {username || 'Misafir'}! Bugün neler yapıyoruz?</p>
           </div>
           <Link to="/create" className="button">
             <PlusCircle size={20} />

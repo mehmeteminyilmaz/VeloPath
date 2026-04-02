@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw, BarChart2, Monitor, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = ({ resetData, requestNotificationPermission }) => {
+const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed, setIsSidebarCollapsed, onLogout }) => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
@@ -28,26 +28,59 @@ const Sidebar = ({ resetData, requestNotificationPermission }) => {
   };
 
   return (
-    <div className="sidebar" style={{ transition: 'background-color 0.4s ease' }}>
-      <h2 className="text-gradient" style={{ marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 800 }}>VeloPath</h2>
+    <div className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: isSidebarCollapsed ? 'center' : 'space-between', marginBottom: '2rem' }}>
+        {!isSidebarCollapsed && <h2 className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>VeloPath</h2>}
+        {isSidebarCollapsed && <h2 className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>V</h2>}
+        <button 
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          style={{ 
+            background: 'transparent', 
+            border: 'none', 
+            color: 'var(--text-secondary)', 
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '4px',
+            transition: '0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
+          onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+          title={isSidebarCollapsed ? "Menüyü Genişlet" : "Menüyü Daralt"}
+        >
+          {isSidebarCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
+        </button>
+      </div>
       <nav style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
-          <LayoutDashboard size={20} /> Dashboard
+        <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`} title="Dashboard">
+          <LayoutDashboard size={20} /> {!isSidebarCollapsed && <span>Dashboard</span>}
         </Link>
-        <Link to="/create" className={`nav-item ${isActive('/create') ? 'active' : ''}`}>
-          <PlusCircle size={20} /> Proje Oluştur
+        <Link to="/create" className={`nav-item ${isActive('/create') ? 'active' : ''}`} title="Proje Oluştur">
+          <PlusCircle size={20} /> {!isSidebarCollapsed && <span>Proje Oluştur</span>}
         </Link>
-        <Link to="/stats" className={`nav-item ${isActive('/stats') ? 'active' : ''}`}>
-          <BarChart2 size={20} /> İstatistikler
+        <Link to="/stats" className={`nav-item ${isActive('/stats') ? 'active' : ''}`} title="İstatistikler">
+          <BarChart2 size={20} /> {!isSidebarCollapsed && <span>İstatistikler</span>}
         </Link>
         <div style={{ flexGrow: 1 }}></div>
 
         {/* --- Modern Tema Seçimi Alanı --- */}
-        <div style={{ margin: '1rem 0', padding: '0 8px' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', paddingLeft: '8px', fontWeight: 600 }}>
-            Tema
-          </div>
-          <div style={{ display: 'flex', background: 'var(--glass-deep, rgba(0,0,0,0.1))', borderRadius: '12px', padding: '4px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ margin: '1rem 0', padding: isSidebarCollapsed ? '0' : '0 8px' }}>
+          {!isSidebarCollapsed && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', paddingLeft: '8px', fontWeight: 600 }}>
+              Tema
+            </div>
+          )}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: isSidebarCollapsed ? 'column' : 'row',
+            background: 'var(--glass-deep, rgba(0,0,0,0.1))', 
+            borderRadius: '12px', 
+            padding: '4px', 
+            border: '1px solid rgba(255,255,255,0.05)',
+            gap: isSidebarCollapsed ? '4px' : '0'
+          }}>
             <button 
               onClick={() => {
                 setTheme('light');
@@ -85,8 +118,9 @@ const Sidebar = ({ resetData, requestNotificationPermission }) => {
           </div>
         </div>
 
-        <Link to="#" className="nav-item">
-          <Settings size={20} /> Ayarlar
+
+        <Link to="#" className="nav-item" title="Ayarlar">
+          <Settings size={20} /> {!isSidebarCollapsed && <span>Ayarlar</span>}
         </Link>
 
         {/* Bildirim Hatırlatıcı Butonu */}
@@ -94,6 +128,7 @@ const Sidebar = ({ resetData, requestNotificationPermission }) => {
           className="nav-item" 
           onClick={handleNotificationClick}
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
+          title="Bildirim Hatırlatıcı"
         >
           <Bell 
             size={20} 
@@ -101,19 +136,19 @@ const Sidebar = ({ resetData, requestNotificationPermission }) => {
             color={permissionStatus === 'granted' ? 'var(--primary)' : 'currentColor'} 
             style={{ opacity: permissionStatus === 'granted' ? 1 : 0.7 }}
           />
-          <span>Bildirim Hatırlatıcı</span>
+          {!isSidebarCollapsed && <span>Bildirim Hatırlatıcı</span>}
         </div>
         <div 
           className="nav-item" 
           style={{ cursor: 'pointer', color: 'var(--danger)', marginTop: '8px', background: 'rgba(239, 68, 68, 0.05)' }} 
           onClick={resetData}
-          title="Tüm verileri varsayılana döndür"
+          title="Verileri Sıfırla"
         >
           <RotateCcw size={20} strokeWidth={2.5} />
-          <span style={{ fontWeight: 600 }}>Verileri Sıfırla</span>
+          {!isSidebarCollapsed && <span style={{ fontWeight: 600 }}>Verileri Sıfırla</span>}
         </div>
-        <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }}>
-          <LogOut size={20} /> Çıkış Yap
+        <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }} title="Çıkış Yap" onClick={onLogout}>
+          <LogOut size={20} /> {!isSidebarCollapsed && <span>Çıkış Yap</span>}
         </div>
       </nav>
     </div>

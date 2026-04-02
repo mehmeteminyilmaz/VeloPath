@@ -10,7 +10,7 @@ const iconMap = {
   Layers: Layers
 };
 
-const CreateProject = ({ addProject, resetData, requestNotificationPermission }) => {
+const CreateProject = ({ addProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Orta');
@@ -66,7 +66,7 @@ const CreateProject = ({ addProject, resetData, requestNotificationPermission })
   return (
     <div className="auth-layout">
       {/* Sidebar Navigation */}
-      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
 
       {/* Main Content */}
       <main className="main-content">
