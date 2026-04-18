@@ -1714,7 +1714,255 @@ body {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
+/* ================================================
+   GÖREV ÖNCELİĞİ & ALT GÖREVLER
+   ================================================ */
 
+/* Görev kartındaki küçük öncelik badge'i */
+.task-priority-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  opacity: 0.85;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.weekly-task-item:hover .task-priority-badge { opacity: 1; }
+
+/* Alt Görev mini progress bar (görev kartı altı) */
+.subtask-mini-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  width: 100%;
+  max-width: 280px;
+  padding-left: 30px;
+}
+.subtask-mini-progress {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.subtask-mini-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.subtask-mini-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* task-priority-selector (modal header) */
+.task-priority-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.priority-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.priority-chip:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+  color: white;
+}
+.priority-chip.active {
+  color: var(--chip-color, white);
+  border-color: var(--chip-color, rgba(255,255,255,0.3));
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--chip-color, transparent) 30%, transparent);
+}
+
+/* Subtask tab badge */
+.subtask-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: white;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+/* ---- Alt Görevler Sekmesi İçeriği ---- */
+.subtasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.subtask-progress-area {
+  padding-bottom: 4px;
+}
+
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 200px;
+  padding-right: 4px;
+}
+
+.subtask-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+.subtask-item:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+}
+.subtask-item.subtask-done .subtask-text {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.subtask-check-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: 0.2s;
+}
+.subtask-check-btn:hover { color: var(--accent); }
+
+.subtask-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: border-color 0.2s;
+}
+.subtask-check-btn:hover .subtask-circle { border-color: var(--accent); }
+
+.subtask-text {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.subtask-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.subtask-item:hover .subtask-delete-btn { opacity: 0.6; }
+.subtask-delete-btn:hover {
+  opacity: 1 !important;
+  color: var(--danger);
+  background: rgba(239,68,68,0.1);
+}
+
+.subtask-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.subtask-add-btn {
+  background: var(--primary);
+  border: none;
+  color: white;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: 0.2s;
+}
+.subtask-add-btn:hover {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+/* Light theme uyumu */
+[data-theme='light'] .subtask-item {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.06);
+}
+[data-theme='light'] .subtask-item:hover {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme='light'] .priority-chip {
+  border-color: rgba(0,0,0,0.1);
+  background: rgba(0,0,0,0.02);
+  color: var(--text-secondary);
+}
+[data-theme='light'] .priority-chip:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--text-primary);
+}
+[data-theme='light'] .priority-chip.active {
+  background: rgba(0,0,0,0.03);
+}
+[data-theme='light'] .task-priority-badge {
+  background: rgba(0,0,0,0.03);
+}
+[data-theme='light'] .subtask-mini-progress {
+  background: rgba(0,0,0,0.06);
+}
 [data-theme='light'] .search-input {
   background: rgba(255, 255, 255, 0.8) !important;
   border-color: rgba(0, 0, 0, 0.08);
@@ -1748,3 +1996,249 @@ body {
   }
 }
 
+
+/* ================================================
+   GÖREV ETİKETLERİ (TAGS)
+   ================================================ */
+
+.task-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+  padding-left: 30px;
+}
+
+.task-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--tag-color, #6366f1) 50%, transparent);
+  background: color-mix(in srgb, var(--tag-color, #6366f1) 12%, transparent);
+  color: var(--tag-color, #6366f1);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.tag-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--tag-color, #6366f1) 40%, transparent);
+  background: color-mix(in srgb, var(--tag-color, #6366f1) 10%, transparent);
+  color: var(--tag-color, #6366f1);
+  transition: 0.2s;
+}
+.tag-chip:hover { filter: brightness(1.1); }
+
+.tag-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  opacity: 0.7;
+  transition: 0.15s;
+  margin-left: 2px;
+}
+.tag-remove-btn:hover { opacity: 1; transform: scale(1.2); }
+
+.tag-suggest-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 11px;
+  border-radius: 99px;
+  border: 1px dashed color-mix(in srgb, var(--tag-color, #6366f1) 50%, transparent);
+  background: color-mix(in srgb, var(--tag-color, #6366f1) 5%, transparent);
+  color: var(--tag-color, #6366f1);
+  cursor: pointer;
+  transition: 0.2s;
+}
+.tag-suggest-btn:hover {
+  background: color-mix(in srgb, var(--tag-color, #6366f1) 15%, transparent);
+  border-style: solid;
+}
+
+.tags-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+.tags-current { min-height: 60px; }
+.tag-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 12px;
+}
+.tag-suggestions {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 12px;
+}
+
+/* ================================================
+   PROJE NOTLARI
+   ================================================ */
+
+.project-notes-panel {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.project-notes-toggle {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  border: none;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.project-notes-toggle:hover { background: rgba(99, 102, 241, 0.06); }
+
+.notes-has-badge {
+  color: var(--primary);
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
+
+.project-notes-body {
+  background: rgba(10, 15, 30, 0.3);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.project-notes-textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.93rem;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: 'Inter', monospace;
+  display: block;
+}
+.project-notes-textarea:focus { outline: none; }
+.project-notes-textarea::placeholder { color: var(--text-secondary); opacity: 0.6; }
+.project-notes-preview { padding: 16px 20px; min-height: 120px; }
+
+[data-theme='light'] .project-notes-toggle { background: rgba(255,255,255,0.6); }
+[data-theme='light'] .project-notes-toggle:hover { background: rgba(99,102,241,0.04); }
+[data-theme='light'] .project-notes-body { background: rgba(248,250,252,0.5); }
+[data-theme='light'] .project-notes-textarea { color: #0f172a; }
+[data-theme='light'] .tag-add-row,
+[data-theme='light'] .tag-suggestions { border-color: rgba(0,0,0,0.07); }
+[data-theme='light'] .tag-chip { background: color-mix(in srgb, var(--tag-color) 8%, white); }
+[data-theme='light'] .tag-suggest-btn { background: color-mix(in srgb, var(--tag-color) 4%, white); }
+[data-theme='light'] .task-tag-chip { background: color-mix(in srgb, var(--tag-color) 8%, white); }
+
+/* ================================================
+   KANBAN PANOSU
+   ================================================ */
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.kanban-column {
+  background: rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  transition: border-color 0.3s;
+}
+.kanban-column:hover { border-color: rgba(255,255,255,0.11); }
+
+.kanban-col-header {
+  padding: 16px 18px 12px;
+  background: rgba(255,255,255,0.02);
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.kanban-col-accent-bar {
+  position: absolute;
+  top: 0; left: 0;
+  height: 3px;
+  width: 100%;
+  opacity: 0.85;
+}
+
+.kanban-col-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.kanban-col-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-secondary);
+}
+
+.kanban-col-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.kanban-col-body .card { margin: 0; border-radius: 12px; }
+.kanban-col-body .card:hover { transform: translateY(-2px); }
+
+.kanban-empty-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  opacity: 0.6;
+  flex: 1;
+  border: 1px dashed rgba(255,255,255,0.07);
+  border-radius: 10px;
+}
+
+[data-theme='light'] .kanban-column { background: rgba(255,255,255,0.5); border-color: rgba(0,0,0,0.06); }
+[data-theme='light'] .kanban-col-header { background: rgba(0,0,0,0.02); }
+[data-theme='light'] .kanban-col-count { background: rgba(0,0,0,0.04); }
+[data-theme='light'] .kanban-empty-col { border-color: rgba(0,0,0,0.08); }
+
+@media (max-width: 900px) {
+  .kanban-board { grid-template-columns: 1fr; }
+}

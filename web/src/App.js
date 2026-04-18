@@ -234,7 +234,7 @@ function App() {
   };
 
   // Görev ekleme fonksiyonu
-  const addTask = (projectId, taskText, week = 1, dependsOn = null) => {
+  const addTask = (projectId, taskText, week = 1, dependsOn = null, priority = 'Orta') => {
     setProjects(projects.map(p => {
       if (p.id === parseInt(projectId)) {
         const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => t.id)) + 1 : 1;
@@ -245,6 +245,8 @@ function App() {
           completed: false, 
           week, 
           dependsOn,
+          priority,
+          subtasks: [],
           createdAt: now,
           history: [{ timestamp: now, action: 'Görevi oluşturdu.' }]
         };
@@ -255,6 +257,82 @@ function App() {
       }
       return p;
     }));
+  };
+
+  // Görev önceliği güncelleme
+  const updateTaskPriority = (projectId, taskId, priority) => {
+    const now = new Date().toISOString();
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return {
+          ...p,
+          tasks: p.tasks.map(t => {
+            if (t.id === taskId) {
+              return {
+                ...t,
+                priority,
+                history: [...(t.history || []), { timestamp: now, action: `Görev önceliğini '${priority}' olarak güncelledi.` }]
+              };
+            }
+            return t;
+          })
+        };
+      }
+      return p;
+    }));
+  };
+
+  // Alt görev ekleme / toggle / silme
+  const updateTaskSubtasks = (projectId, taskId, subtasks) => {
+    const now = new Date().toISOString();
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return {
+          ...p,
+          tasks: p.tasks.map(t => {
+            if (t.id === taskId) {
+              return {
+                ...t,
+                subtasks,
+                history: [...(t.history || []), { timestamp: now, action: 'Alt görevleri güncelledi.' }]
+              };
+            }
+            return t;
+          })
+        };
+      }
+      return p;
+    }));
+  };
+
+  // Görev etiketleri güncelleme
+  const updateTaskTags = (projectId, taskId, tags) => {
+    const now = new Date().toISOString();
+    setProjects(projects.map(p => {
+      if (p.id === parseInt(projectId)) {
+        return {
+          ...p,
+          tasks: p.tasks.map(t => {
+            if (t.id === taskId) {
+              return {
+                ...t,
+                tags,
+                history: [...(t.history || []), { timestamp: now, action: `Etiketleri güncelledi: ${tags.join(', ') || '(temizlendi)'}` }]
+              };
+            }
+            return t;
+          })
+        };
+      }
+      return p;
+    }));
+  };
+
+  // Proje notları güncelleme
+  const updateProjectNotes = (projectId, notes) => {
+    setProjects(projects.map(p =>
+      p.id === parseInt(projectId) ? { ...p, projectNotes: notes } : p
+    ));
   };
 
   // Görev durumu değiştirme
@@ -456,7 +534,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
           <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
           <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
           <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
         </Routes>

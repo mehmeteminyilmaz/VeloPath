@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import TaskNoteModal from './TaskNoteModal';
 import EmptyState from './EmptyState';
-import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp, Tag } from 'lucide-react';
 
 import { 
   DndContext, 
@@ -24,6 +24,17 @@ import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 
 // --- Bireysel Görev (Sortable) Bileşeni ---
+const PRIORITY_COLOR = {
+  'Yüksek': 'var(--danger)',
+  'Orta': 'var(--status-low)',
+  'Düşük': 'var(--status-high)',
+};
+const PRIORITY_LABEL = {
+  'Yüksek': '🔴',
+  'Orta': '🟡',
+  'Düşük': '🟢',
+};
+
 const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen }) => {
   const [isShaking, setIsShaking] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
@@ -34,8 +45,20 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0 : 1, // Drag sırasında asıl item boş görünür ki Overlay gözüksün
+    opacity: isDragging ? 0 : 1,
     zIndex: isDragging ? 2 : 1,
+  };
+
+  const subtasks = task.subtasks || [];
+  const completedSubs = subtasks.filter(s => s.completed).length;
+  const subProgress = subtasks.length === 0 ? 0 : Math.round((completedSubs / subtasks.length) * 100);
+  const tags = task.tags || [];
+
+  // Her etiket için tutarlı renk
+  const TAG_PALETTE = ['#6366f1','#8b5cf6','#ec4899','#ef4444','#f59e0b','#10b981','#3b82f6','#06b6d4','#84cc16','#f97316'];
+  const getTagColor = (tag) => {
+    let h = 0; for (let i = 0; i < tag.length; i++) h = tag.charCodeAt(i) + ((h << 5) - h);
+    return TAG_PALETTE[Math.abs(h) % TAG_PALETTE.length];
   };
 
   return (
@@ -48,8 +71,6 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
         if (locked) {
           setIsShaking(true);
           setTimeout(() => setIsShaking(false), 500);
-          // Alert yerine daha yumuşak bir geri bildirim için sadece sarsıntı da yeterli olabilir
-          // ama kullanıcının nedenini bilmesi için tooltip veya küçük bir mesaj eklenebilir.
         } else {
           onToggle(task.id);
         }
@@ -64,17 +85,56 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
         <GripVertical size={16} />
       </div>
 
-      <div className="task-left" style={{ flex: 1 }}>
-        {locked ? (
-          <Lock size={20} className="task-icon locked-icon" />
-        ) : task.completed ? (
-          <CheckCircle size={20} className="task-icon completed-icon" color="var(--accent)" />
-        ) : (
-          <Circle size={20} className="task-icon pending-icon" />
+      <div className="task-left" style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+          {locked ? (
+            <Lock size={20} className="task-icon locked-icon" />
+          ) : task.completed ? (
+            <CheckCircle size={20} className="task-icon completed-icon" color="var(--accent)" />
+          ) : (
+            <Circle size={20} className="task-icon pending-icon" />
+          )}
+          <span className="task-text">{task.text}</span>
+          {/* Öncelik Badge */}
+          {task.priority && !locked && (
+            <span
+              className="task-priority-badge"
+              style={{ color: PRIORITY_COLOR[task.priority] }}
+              title={`Öncelik: ${task.priority}`}
+            >
+              {PRIORITY_LABEL[task.priority]} {task.priority}
+            </span>
+          )}
+          {locked && (
+            <span className="locked-badge">Beklenen: {dependency.text}</span>
+          )}
+        </div>
+
+        {/* Etiket chip'leri */}
+        {tags.length > 0 && (
+          <div className="task-tags-row">
+            {tags.slice(0, 4).map(tag => (
+              <span key={tag} className="task-tag-chip" style={{ '--tag-color': getTagColor(tag) }}>
+                <Tag size={10} style={{ marginRight: 3 }} />{tag}
+              </span>
+            ))}
+            {tags.length > 4 && (
+              <span className="task-tag-chip" style={{ '--tag-color': '#64748b' }}>+{tags.length - 4}</span>
+            )}
+          </div>
         )}
-        <span className="task-text">{task.text}</span>
-        {locked && (
-          <span className="locked-badge">Beklenen: {dependency.text}</span>
+
+        {/* Alt Görev Mini Bar */}
+        {subtasks.length > 0 && (
+          <div className="subtask-mini-bar">
+            <div className="subtask-mini-progress">
+              <div 
+                className="subtask-mini-fill" 
+                style={{ width: `${subProgress}%`, background: subProgress === 100 ? 'var(--accent)' : 'var(--primary)' }} 
+              />
+            </div>
+            <span className="subtask-mini-label">{completedSubs}/{subtasks.length} alt görev</span>
+          </div>
         )}
       </div>
 
@@ -115,7 +175,7 @@ const DroppableWeekContent = ({ weekId, children, isExpanded }) => {
 };
 
 
-const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, reorderTasks }) => {
+const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, reorderTasks }) => {
   const [activeTaskNote, setActiveTaskNote] = useState(null);
   const [activeDragId, setActiveDragId] = useState(null);
   
@@ -256,8 +316,12 @@ const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, reorderTa
       {activeTaskNote && (
         <TaskNoteModal 
           task={project.tasks.find(t => t.id === activeTaskNote)}
+          projectId={project.id}
           onClose={() => setActiveTaskNote(null)}
           onSave={(taskId, newNote) => updateTaskNote(project.id, taskId, newNote)}
+          onPriorityChange={updateTaskPriority ? (taskId, p) => updateTaskPriority(project.id, taskId, p) : null}
+          onSubtasksChange={updateTaskSubtasks ? (taskId, subs) => updateTaskSubtasks(project.id, taskId, subs) : null}
+          onTagsChange={updateTaskTags ? (taskId, tags) => updateTaskTags(project.id, taskId, tags) : null}
         />
       )}
 
