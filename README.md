@@ -1,8 +1,7 @@
 <div align="center">
 
 # VeloPath 🚀
-
-**Haftalık bazda akıllı proje planlama, Kanban panosu ve gelişmiş görev yönetimi.**
+**Kişisel projelerinizi hafta hafta planlayın, Kanban tablosuyla rahatça yönetin.**
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
 [![dnd-kit](https://img.shields.io/badge/dnd--kit-Drag%20%26%20Drop-10b981?style=flat-square)](https://dndkit.com)
