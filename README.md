@@ -1,7 +1,7 @@
 <div align="center">
 
 # VeloPath 🚀
-**Kişisel projelerinizi hafta hafta planlayın, Kanban tablosuyla rahatça yönetin.**
+**Karmaşık projeleri basitleştirin. Haftalık planlar ve modern Kanban panosuyla kendi ritminizde çalışın.**
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
 [![dnd-kit](https://img.shields.io/badge/dnd--kit-Drag%20%26%20Drop-10b981?style=flat-square)](https://dndkit.com)
