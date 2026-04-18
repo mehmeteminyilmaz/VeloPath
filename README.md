@@ -15,7 +15,7 @@
 
 ## 🎬 Genel Bakış
 
-VeloPath, **Linear** ve **Vercel** esintili Glassmorphism tasarım diliyle inşa edilmiş, tam işlevsel bir proje yönetim SaaS platformudur. Sezgisel arayüzü ve zengin özellikleriyle projenizi baştan sona planlayın, takip edin ve tamamlayın.
+VeloPath, proje yönetimini daha kolay ve görsel hale getirmek için geliştirdiğim bir web uygulaması. Haftalık plan, Kanban panosu, etiketler, alt görevler gibi ihtiyaç duyduğum özellikleri bir araya getirip modern bir arayüzle sunmayı istedim. Hâlâ gelişmeye devam ediyor.
 
 ---
 
@@ -37,7 +37,7 @@ Tüm projelerinizi tek bir panelden yönetin. İstatistik kartları, genel ilerl
 
 ### 🗂️ Kanban Panosu
 
-Grid görünümüne ek olarak **Kanban moduna** geçin; projeleriniz ilerleme yüzdesine göre otomatik olarak **Yapılacak → Devam Ediyor → Tamamlandı** sütunlarına dağılır.
+Bazen listeye bakmak yerine büyük resmi görmek istersiniz. Kanban modunda projeleriniz ilerleme durumuna göre **Yapılacak → Devam Ediyor → Tamamlandı** sütunlarına otomatik olarak ayrılır.
 
 ![Kanban Panosu](docs/assets/showcase_kanban.png)
 
