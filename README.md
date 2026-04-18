@@ -145,27 +145,4 @@ npm start
 
 ➡️ `http://localhost:3000` adresinde açılır.
 
----
 
-## 🗺️ Yol Haritası
-
-- [x] Haftalık plan & drag-drop
-- [x] Görev bağımlılıkları & kilit sistemi  
-- [x] Proje şablonları & arşivleme
-- [x] Markdown notlar & aktivite geçmişi
-- [x] Geri alma (Undo) & arama/filtre
-- [x] Kanban panosu görünümü
-- [x] Görev etiketleri, alt görevler, bireysel öncelik
-- [x] Proje notları (Markdown)
-- [ ] Takvim görünümü
-- [ ] Görev zamanlayıcı (Pomodoro)  
-- [ ] Gerçek backend (Firebase / Supabase)
-- [ ] Mobil uygulama (Flutter)
-
----
-
-<div align="center">
-
-Made with ❤️ by [mehmeteminyilmaz](https://github.com/mehmeteminyilmaz)
-
-</div>
