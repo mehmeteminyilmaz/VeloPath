@@ -69,16 +69,17 @@ const CreateProject = ({ addProject, resetData, requestNotificationPermission, s
       <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
 
       {/* Main Content */}
-      <main className="main-content">
-        <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
-            <ArrowLeft size={16} /> Dashboard'a Dön
-          </Link>
-          <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Yeni Proje Başlat</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Projenin detaylarını belirleyerek hedefine bir adım daha yaklaş.</p>
-        </header>
+      <main className="main-content" style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '700px', padding: '1rem 0' }}>
+          <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem', width: 'fit-content' }}>
+              <ArrowLeft size={16} /> Dashboard'a Dön
+            </Link>
+            <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Yeni Proje Başlat</h1>
+            <p style={{ color: 'var(--text-secondary)' }}>Projenin detaylarını belirleyerek hedefine bir adım daha yaklaş.</p>
+          </header>
 
-        <section className="animate-slide-up delay-100" style={{ maxWidth: '600px' }}>
+          <section className="animate-slide-up delay-100">
           {/* Şablon Seçimi */}
           <div style={{ marginBottom: '2rem' }}>
             <label style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '1rem', fontSize: '0.9rem' }}>Bir Şablonla Hızlan (Opsiyonel)</label>
@@ -235,6 +236,7 @@ const CreateProject = ({ addProject, resetData, requestNotificationPermission, s
             </button>
           </form>
         </section>
+        </div>
       </main>
     </div>
   );

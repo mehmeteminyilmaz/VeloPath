@@ -145,10 +145,12 @@ Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomod
 | Teknoloji | Kullanım |
 |---|---|
 | **React.js 18** | Frontend framework |
+| **Node.js & Express** | REST API & Backend sunucusu |
+| **MongoDB (Atlas)** | Bulut tabanlı kalıcı veritabanı |
 | **React Router v6** | Sayfa yönlendirme |
 | **@dnd-kit** | Sürükle-bırak sistemi |
 | **React Markdown** | Görev notu + proje notu editörü |
-| **Lucide-React** | İkon kütüphanesi |
+| **Axios** | Frontend-Backend arası veri iletişimi |
 | **Vanilla CSS** | Glassmorphism & CSS Custom Properties |
 | **localStorage** | Kalıcı veri depolama |
 | **Browser Notification API** | Bildirim sistemi |
