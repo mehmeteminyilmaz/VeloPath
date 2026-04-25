@@ -287,33 +287,51 @@ function App() {
   };
 
   // Görev ekleme fonksiyonu
-  const addTask = (projectId, taskText, week = 1, dependsOn = null, priority = 'Orta') => {
+  const addTask = async (projectId, taskText, week = 1, dependsOn = null, priority = 'Orta') => {
+    const pid = projectId.toString();
+    const now = new Date().toISOString();
+    const tempId = Date.now().toString();
+
+    const newTask = { 
+      id: tempId, 
+      text: taskText, 
+      completed: false, 
+      week, 
+      dependsOn,
+      priority,
+      subtasks: [],
+      createdAt: now,
+      history: [{ timestamp: now, action: 'Görevi oluşturdu.' }]
+    };
+
     setProjects(projects.map(p => {
-      if (p.id.toString() === projectId.toString()) {
-        const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => typeof t.id === 'number' ? t.id : 0)) + 1 : 1;
-        const now = new Date().toISOString();
-        const newTask = { 
-          id: Date.now().toString(), // Use string ID
-          text: taskText, 
-          completed: false, 
-          week, 
-          dependsOn,
-          priority,
-          subtasks: [],
-          createdAt: now,
-          history: [{ timestamp: now, action: 'Görevi oluşturdu.' }]
-        };
-        return {
-          ...p,
-          tasks: [...p.tasks, newTask]
-        };
+      if (p.id.toString() === pid) {
+        return { ...p, tasks: [...p.tasks, newTask] };
       }
       return p;
     }));
+
+    try {
+      const savedTask = await api.createTask({
+        projectId: pid,
+        title: taskText,
+        weekIndex: week,
+        priority: priority === 'Yüksek' ? 'high' : priority === 'Orta' ? 'medium' : 'low',
+        dependsOn,
+        history: newTask.history
+      });
+      
+      setProjects(prev => prev.map(p => p.id.toString() === pid ? {
+        ...p, tasks: p.tasks.map(t => t.id === tempId ? { ...newTask, id: savedTask._id } : t)
+      } : p));
+    } catch (error) {
+      console.error(error);
+      setProjects(prev => prev.map(p => p.id.toString() === pid ? { ...p, tasks: p.tasks.filter(t => t.id !== tempId) } : p));
+    }
   };
 
   // Görev önceliği güncelleme
-  const updateTaskPriority = (projectId, taskId, priority) => {
+  const updateTaskPriority = async (projectId, taskId, priority) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
@@ -333,10 +351,15 @@ function App() {
       }
       return p;
     }));
+
+    try {
+      const priorityEnum = priority === 'Yüksek' ? 'high' : priority === 'Orta' ? 'medium' : 'low';
+      await api.updateTaskAPI(taskId, { priority: priorityEnum });
+    } catch (err) { console.error(err); }
   };
 
   // Alt görev ekleme / toggle / silme
-  const updateTaskSubtasks = (projectId, taskId, subtasks) => {
+  const updateTaskSubtasks = async (projectId, taskId, subtasks) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
@@ -356,10 +379,11 @@ function App() {
       }
       return p;
     }));
+    try { await api.updateTaskAPI(taskId, { subtasks }); } catch (err) { console.error(err); }
   };
 
   // Görev etiketleri güncelleme
-  const updateTaskTags = (projectId, taskId, tags) => {
+  const updateTaskTags = async (projectId, taskId, tags) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
@@ -379,25 +403,29 @@ function App() {
       }
       return p;
     }));
+    try { await api.updateTaskAPI(taskId, { tags }); } catch (err) { console.error(err); }
   };
 
   // Proje notları güncelleme
-  const updateProjectNotes = (projectId, notes) => {
+  const updateProjectNotes = async (projectId, notes) => {
     setProjects(projects.map(p =>
       p.id.toString() === projectId.toString() ? { ...p, projectNotes: notes } : p
     ));
+    try { await api.updateProject(projectId, { notes }); } catch(err) { console.error(err); }
   };
 
   // Görev durumu değiştirme
-  const toggleTask = (projectId, taskId) => {
+  const toggleTask = async (projectId, taskId) => {
     const now = new Date().toISOString();
+    let isNowCompleted = false;
+
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
             if (t.id.toString() === taskId.toString()) {
-              const isNowCompleted = !t.completed;
+              isNowCompleted = !t.completed;
               const historyEntry = {
                 timestamp: now,
                 action: isNowCompleted ? 'Görevi tamamlandı olarak işaretledi.' : 'Görevi tekrar aktif hale getirdi.'
@@ -415,6 +443,8 @@ function App() {
       }
       return p;
     }));
+
+    try { await api.updateTaskAPI(taskId, { status: isNowCompleted ? 'done' : 'todo' }); } catch(err) { console.error(err); }
   };
 
   // --- Undo helpers ---
@@ -508,15 +538,19 @@ function App() {
     let committed = false;
     const toastId = addUndoToast({ label: task.text, type: 'task' });
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       committed = true;
       setUndoToasts(prev => prev.filter(t => t.id !== toastId));
       delete undoTimers.current[toastId];
+      try { await api.deleteTaskAPI(tid); } catch (err) {}
     }, UNDO_DELAY);
 
     undoTimers.current[toastId] = {
       timer,
-      commit: () => { committed = true; },
+      commit: async () => { 
+        committed = true; 
+        try { await api.deleteTaskAPI(tid); } catch(err) {}
+      },
       cancel: () => {
         if (!committed) {
           // Görevi geri yükle
@@ -532,7 +566,7 @@ function App() {
   }, [projects, addUndoToast]);
 
   // Görev notu ekleme/düzenleme
-  const updateTaskNote = (projectId, taskId, newNote) => {
+  const updateTaskNote = async (projectId, taskId, newNote) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
@@ -556,10 +590,11 @@ function App() {
       }
       return p;
     }));
+    try { await api.updateTaskAPI(taskId, { notes: newNote }); } catch(err) {}
   };
 
   // Görevleri yeniden sıralama (Drag & Drop)
-  const reorderTasks = (projectId, newTasksArray) => {
+  const reorderTasks = async (projectId, newTasksArray) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
@@ -567,6 +602,7 @@ function App() {
         const updatedTasks = newTasksArray.map(newTask => {
           const oldTask = p.tasks.find(ot => ot.id.toString() === newTask.id.toString());
           if (oldTask && oldTask.week !== newTask.week) {
+            api.updateTaskAPI(newTask.id, { weekIndex: newTask.week }).catch(console.error);
             const historyEntry = {
               timestamp: now,
               action: `Görevi Hafta ${oldTask.week}'den Hafta ${newTask.week}'e taşıdı.`
