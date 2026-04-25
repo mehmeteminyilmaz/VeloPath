@@ -123,30 +123,7 @@ const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed,
           <Settings size={20} /> {!isSidebarCollapsed && <span>Ayarlar</span>}
         </Link>
 
-        {/* Bildirim Hatırlatıcı Butonu */}
-        <div 
-          className="nav-item" 
-          onClick={handleNotificationClick}
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
-          title="Bildirim Hatırlatıcı"
-        >
-          <Bell 
-            size={20} 
-            strokeWidth={2} 
-            color={permissionStatus === 'granted' ? 'var(--primary)' : 'currentColor'} 
-            style={{ opacity: permissionStatus === 'granted' ? 1 : 0.7 }}
-          />
-          {!isSidebarCollapsed && <span>Bildirim Hatırlatıcı</span>}
-        </div>
-        <div 
-          className="nav-item" 
-          style={{ cursor: 'pointer', color: 'var(--danger)', marginTop: '8px', background: 'rgba(239, 68, 68, 0.05)' }} 
-          onClick={resetData}
-          title="Verileri Sıfırla"
-        >
-          <RotateCcw size={20} strokeWidth={2.5} />
-          {!isSidebarCollapsed && <span style={{ fontWeight: 600 }}>Verileri Sıfırla</span>}
-        </div>
+
         <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }} title="Çıkış Yap" onClick={onLogout}>
           <LogOut size={20} /> {!isSidebarCollapsed && <span>Çıkış Yap</span>}
         </div>
