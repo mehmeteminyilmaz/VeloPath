@@ -7,6 +7,7 @@ import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
 import Login from './pages/Login';
+import * as api from './api';
 import './styles/App.css';
 
 const defaultProjects = [
@@ -138,6 +139,19 @@ function App() {
     return defaultProjects;
   });
 
+  // Backend'den verileri yükle
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadData = async () => {
+        const data = await api.fetchAllData();
+        if (data && data.length > 0) {
+          setProjects(data);
+        }
+      };
+      loadData();
+    }
+  }, [isAuthenticated]);
+
   // Verileri fabrika ayarlarına döndür
   const resetData = () => {
     if (window.confirm('Tüm veriler silinecek ve örnek veriler geri yüklenecek. Emin misiniz?')) {
@@ -213,35 +227,73 @@ function App() {
   };
 
   // Yeni proje ekleme fonksiyonu
-  const addProject = (newProject) => {
+  const addProject = async (newProject) => {
     const { initialTasks = [], ...projectData } = newProject;
-    setProjects([...projects, { 
+    
+    // Optimiztik UI: Önce UI'ı güncelle
+    const tempId = Date.now().toString();
+    const tempProject = { 
       ...projectData, 
-      id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1, 
+      id: tempId, 
       tasks: initialTasks,
       archived: false,
       color: newProject.color || '#6366f1'
-    }]);
+    };
+    
+    setProjects(prev => [...prev, tempProject]);
+
+    // Backend'e kaydet
+    try {
+      const savedProject = await api.createProject(projectData);
+      
+      // Eğer görevler varsa, onları da arka arkaya kaydet (gerçek hayatta Promise.all kullanılır)
+      let savedTasks = [];
+      if (initialTasks.length > 0) {
+        savedTasks = await Promise.all(initialTasks.map(t => 
+          api.createTask({ ...t, projectId: savedProject._id, title: t.text })
+        ));
+      }
+
+      // Geçici ID'yi gerçek MongoDB ID'si ile değiştir
+      setProjects(prev => prev.map(p => p.id === tempId ? { ...savedProject, id: savedProject._id, tasks: savedTasks.map(t => ({...t, id: t._id, text: t.title})) } : p));
+    } catch (error) {
+      console.error("Proje eklenirken hata:", error);
+      // Hata durumunda UI'ı geri al
+      setProjects(prev => prev.filter(p => p.id !== tempId));
+    }
   };
 
   // Proje arşivleme/geri yükleme fonksiyonu
-  const archiveProject = (projectId) => {
+  const archiveProject = async (projectId) => {
+    const project = projects.find(p => p.id.toString() === projectId.toString());
+    if (!project) return;
+    
+    // Optimistic UI
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return { ...p, archived: !p.archived };
       }
       return p;
     }));
+
+    // API Call
+    try {
+      await api.updateProject(project.id, { archived: !project.archived });
+    } catch (error) {
+      console.error(error);
+      // Revert on error
+      setProjects(projects.map(p => p.id.toString() === projectId.toString() ? { ...p, archived: project.archived } : p));
+    }
   };
 
   // Görev ekleme fonksiyonu
   const addTask = (projectId, taskText, week = 1, dependsOn = null, priority = 'Orta') => {
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
-        const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => t.id)) + 1 : 1;
+      if (p.id.toString() === projectId.toString()) {
+        const nextId = p.tasks.length > 0 ? Math.max(...p.tasks.map(t => typeof t.id === 'number' ? t.id : 0)) + 1 : 1;
         const now = new Date().toISOString();
         const newTask = { 
-          id: nextId, 
+          id: Date.now().toString(), // Use string ID
           text: taskText, 
           completed: false, 
           week, 
@@ -264,11 +316,11 @@ function App() {
   const updateTaskPriority = (projectId, taskId, priority) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
-            if (t.id === taskId) {
+            if (t.id.toString() === taskId.toString()) {
               return {
                 ...t,
                 priority,
@@ -287,11 +339,11 @@ function App() {
   const updateTaskSubtasks = (projectId, taskId, subtasks) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
-            if (t.id === taskId) {
+            if (t.id.toString() === taskId.toString()) {
               return {
                 ...t,
                 subtasks,
@@ -310,11 +362,11 @@ function App() {
   const updateTaskTags = (projectId, taskId, tags) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
-            if (t.id === taskId) {
+            if (t.id.toString() === taskId.toString()) {
               return {
                 ...t,
                 tags,
@@ -332,7 +384,7 @@ function App() {
   // Proje notları güncelleme
   const updateProjectNotes = (projectId, notes) => {
     setProjects(projects.map(p =>
-      p.id === parseInt(projectId) ? { ...p, projectNotes: notes } : p
+      p.id.toString() === projectId.toString() ? { ...p, projectNotes: notes } : p
     ));
   };
 
@@ -340,11 +392,11 @@ function App() {
   const toggleTask = (projectId, taskId) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
-            if (t.id === taskId) {
+            if (t.id.toString() === taskId.toString()) {
               const isNowCompleted = !t.completed;
               const historyEntry = {
                 timestamp: now,
@@ -391,36 +443,42 @@ function App() {
 
   // Proje silme fonksiyonu
   const deleteProject = useCallback((projectId) => {
-    const pid = parseInt(projectId);
-    const project = projects.find(p => p.id === pid);
+    const pid = projectId.toString();
+    const project = projects.find(p => p.id.toString() === pid);
     if (!project) return;
 
     // Geçici olarak projeden kaldır (anlık UI güncellemesi)
-    setProjects(prev => prev.filter(p => p.id !== pid));
+    setProjects(prev => prev.filter(p => p.id.toString() !== pid));
 
     let committed = false;
     const toastId = addUndoToast({ label: project.title, type: 'project' });
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       committed = true;
       setUndoToasts(prev => prev.filter(t => t.id !== toastId));
       delete undoTimers.current[toastId];
+      
+      // Backend'den sil
+      try {
+        await api.deleteProjectAPI(pid);
+      } catch (err) {
+        console.error(err);
+      }
     }, UNDO_DELAY);
 
     undoTimers.current[toastId] = {
       timer,
-      commit: () => { committed = true; },
+      commit: async () => { 
+        committed = true; 
+        try { await api.deleteProjectAPI(pid); } catch(err) {}
+      },
       cancel: () => {
         if (!committed) {
           // Geri yükle
           setProjects(prev => {
-            const exists = prev.find(p => p.id === pid);
+            const exists = prev.find(p => p.id.toString() === pid);
             if (exists) return prev;
-            const insertAt = prev.findIndex(p => p.id > pid);
-            if (insertAt === -1) return [...prev, project];
-            const next = [...prev];
-            next.splice(insertAt, 0, project);
-            return next;
+            return [...prev, project];
           });
         }
       }
@@ -429,20 +487,21 @@ function App() {
 
   // Görev silme fonksiyonu
   const deleteTask = useCallback((projectId, taskId) => {
-    const pid = parseInt(projectId);
-    const project = projects.find(p => p.id === pid);
+    const pid = projectId.toString();
+    const tid = taskId.toString();
+    const project = projects.find(p => p.id.toString() === pid);
     if (!project) return;
-    const task = project.tasks.find(t => t.id === taskId);
+    const task = project.tasks.find(t => t.id.toString() === tid);
     if (!task) return;
 
     // Anlık UI güncellemesi
     setProjects(prev => prev.map(p => {
-      if (p.id !== pid) return p;
+      if (p.id.toString() !== pid) return p;
       return {
         ...p,
         tasks: p.tasks
-          .filter(t => t.id !== taskId)
-          .map(t => t.dependsOn === taskId ? { ...t, dependsOn: null } : t)
+          .filter(t => t.id.toString() !== tid)
+          .map(t => t.dependsOn?.toString() === tid ? { ...t, dependsOn: null } : t)
       };
     }));
 
@@ -462,8 +521,8 @@ function App() {
         if (!committed) {
           // Görevi geri yükle
           setProjects(prev => prev.map(p => {
-            if (p.id !== pid) return p;
-            const exists = p.tasks.find(t => t.id === taskId);
+            if (p.id.toString() !== pid) return p;
+            const exists = p.tasks.find(t => t.id.toString() === tid);
             if (exists) return p;
             return { ...p, tasks: [...p.tasks, task] };
           }));
@@ -476,11 +535,11 @@ function App() {
   const updateTaskNote = (projectId, taskId, newNote) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         return {
           ...p,
           tasks: p.tasks.map(t => {
-            if (t.id === taskId) {
+            if (t.id.toString() === taskId.toString()) {
               const historyEntry = {
                 timestamp: now,
                 action: 'Görev notunu güncelledi.'
@@ -503,10 +562,10 @@ function App() {
   const reorderTasks = (projectId, newTasksArray) => {
     const now = new Date().toISOString();
     setProjects(projects.map(p => {
-      if (p.id === parseInt(projectId)) {
+      if (p.id.toString() === projectId.toString()) {
         // Hafta değişikliklerini kontrol et
         const updatedTasks = newTasksArray.map(newTask => {
-          const oldTask = p.tasks.find(ot => ot.id === newTask.id);
+          const oldTask = p.tasks.find(ot => ot.id.toString() === newTask.id.toString());
           if (oldTask && oldTask.week !== newTask.week) {
             const historyEntry = {
               timestamp: now,
