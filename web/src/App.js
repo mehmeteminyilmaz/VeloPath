@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import UndoToast from './components/UndoToast';
+import PomodoroTimer from './components/PomodoroTimer';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
@@ -541,6 +542,9 @@ function App() {
         
         {/* Global Undo Toast */}
         <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />
+
+        {/* Global Pomodoro Timer */}
+        <PomodoroTimer />
       </div>
     </Router>
   );

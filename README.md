@@ -66,6 +66,14 @@ Her göreve tıklayın; **markdown not editörü**, **alt görevler**, **etiketl
 
 ---
 
+### ⏱️ Pomodoro ve Zaman Yönetimi
+
+Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomodoro sayacı. Özelleştirilebilir çalışma ve mola süreleri ile otomatik sistem bildirimleri.
+
+![Pomodoro Sayacı](docs/assets/showcase_pomodoro.png)
+
+---
+
 ## ✨ Özellik Listesi
 
 <details>
@@ -108,6 +116,7 @@ Her göreve tıklayın; **markdown not editörü**, **alt görevler**, **etiketl
 | **Boş Durum Tasarımı** | Veri yokken şık yönlendirici ekranlar |
 | **Gelişmiş Arama & Filtre** | Başlık/açıklama arama + öncelik filtresi |
 | **Bildirim Sistemi** | Browser Notification API ile hatırlatmalar |
+| **Pomodoro Sayacı** | Global, özelleştirilebilir odaklanma aracı |
 
 </details>
 
