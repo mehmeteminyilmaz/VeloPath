@@ -88,10 +88,7 @@ Her göreve tıklayın; **markdown not editörü**, **alt görevler**, **etiketl
 
 7 günlük aktivite grafiği, en uzun çalışma seriniz (streak), en verimli gününüz ve tamamlanan görev analizleriyle çalışma alışkanlıklarınızı keşfedin.
 
-![İstatistik Sayfası](docs/assets/showcase_stats.png)
-
-*(İstatistik ekranının aydınlık tema görünümü)*
-![İstatistik Sayfası Aydınlık](docs/assets/showcase_stats_light.png)
+![İstatistik Sayfası](docs/assets/stats_final.png)
 
 ---
 
