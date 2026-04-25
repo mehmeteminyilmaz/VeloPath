@@ -60,6 +60,14 @@ Bazen listeye bakmak yerine büyük resmi görmek istersiniz. Kanban modunda pro
 
 ---
 
+### ☀️ Aydınlık Tema Desteği (Light Mode)
+
+VeloPath sadece karanlıkta değil, aydınlıkta da harika görünür. Tek tıkla tamamen duyarlı, ferah ve modern bir Light temaya geçiş yapabilirsiniz. Renkler ve gölgeler aydınlık temaya göre özel optimize edilmiştir.
+
+![Aydınlık Tema Kontrol Paneli](docs/assets/showcase_dashboard_light.png)
+
+---
+
 ### 📅 Haftalık Görev Planlama
 
 Projenizi haftalara bölün, görevleri **sürükle-bırak** ile yeniden sıralayın, haftalar arası taşıyın. Bağımlılık kilitleri, mini ilerleme grafikleri ve anlık etiket/öncelik rozetleriyle tam kontrol.
@@ -81,6 +89,17 @@ Her göreve tıklayın; **markdown not editörü**, **alt görevler**, **etiketl
 7 günlük aktivite grafiği, en uzun çalışma seriniz (streak), en verimli gününüz ve tamamlanan görev analizleriyle çalışma alışkanlıklarınızı keşfedin.
 
 ![İstatistik Sayfası](docs/assets/showcase_stats.png)
+
+*(İstatistik ekranının aydınlık tema görünümü)*
+![İstatistik Sayfası Aydınlık](docs/assets/showcase_stats_light.png)
+
+---
+
+### ➕ Şablonlarla Hızlı Başlangıç
+
+Yeni bir projeye başlarken saatlerce görev yazmak zorunda değilsiniz. "Modern Web Projesi", "Mobil Uygulama" veya "Full-Stack SaaS" şablonlarından birini seçerek projenizi saniyeler içinde onlarca görevle birlikte başlatın.
+
+![Proje Oluşturma Ekranı](docs/assets/create_project_preview.png)
 
 ---
 
