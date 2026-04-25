@@ -16,6 +16,24 @@
 
 VeloPath, proje yönetimini daha kolay ve görsel hale getirmek için geliştirdiğim bir web uygulaması. Haftalık plan, Kanban panosu, etiketler, alt görevler gibi ihtiyaç duyduğum özellikleri bir araya getirip modern bir arayüzle sunmayı istedim. Hâlâ gelişmeye devam ediyor.
 
+### ✨ Ana Özellikler
+
+- **📅 Haftalık Plan:** Projelerinizi haftalara bölün ve dairesel grafiklerle ilerlemeyi takip edin.
+- **🖱️ Sürükle-Bırak (Drag & Drop):** `@dnd-kit` ile görevlerinizi haftalar arası veya içinde pürüzsüzce sıralayın.
+- **⏳ Görev Aktivite Geçmişi:** Her görevin ne zaman oluşturulduğu, tamamlandığı veya taşındığına dair detaylı zaman çizelgesi (Timeline) günlüğü.
+- **📝 Markdown Görev Notları:** Görevlerinize özel, zengin metin düzenleyicisi ile detaylı notlar ekleyin.
+- **🔔 Bildirim Hatırlatıcı:** Browser Notification API ile "Haftalık Görev Özeti" bildirimleri alın.
+- **🚀 Karşılama Sihirbazı (Onboarding):** Yeni kullanıcılar için 4 adımlı interaktif uygulama rehberi.
+- **📈 İstatistik ve Verimlilik Paneli:** Tamamlanan görev sayıları, en uzun çalışma seriniz (Streak) ve en verimli günlerinizin detaylı analizi.
+- **🎨 Boş Durum Tasarımı (Empty States):** Henüz veri yokken kullanıcıyı yönlendiren şık illüstrasyonlar ve aksiyon butonları.
+- **🔗 Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
+- **📁 Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
+- **🌓 Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
+- **⚡ Hızlı Aksiyonlar:** Görevleri hızlıca silebilir, proje durumlarını anlık güncelleyebilirsiniz.
+- **🔄 Gelişmiş Veri Yönetimi:** "Verileri Sıfırla" butonu ile Local Storage senkronizasyonunu tek tıkla onarın.
+- **💾 Kalıcı Veri:** Tüm verileriniz `Local Storage` üzerinde güvenle saklanır.
+- **⏱️ Pomodoro Sayacı:** Odaklanmanızı artırmak için her yerden erişilebilen yüzen Pomodoro aracı.
+
 ---
 
 ### 🔐 Premium Giriş Deneyimi
