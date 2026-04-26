@@ -13,65 +13,7 @@ import './styles/App.css';
 
 const SOCKET_URL = 'http://localhost:5000';
 
-const defaultProjects = [
-  { 
-    id: 1, 
-    title: "VeloPath Web Geliştirme", 
-    description: "React ile ana kontrol paneli oluşturma.",
-    priority: "Yüksek",
-    deadline: "2026-04-15",
-    status: "Devam Ediyor",
-    archived: false,
-    color: "#6366f1", // Indigo
-    tasks: [
-      { id: 1, text: "React Router Kurulumu", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-03-25T10:00:00Z').toISOString(), completedAt: new Date('2026-03-25T12:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-25T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
-      { id: 2, text: "Dashboard Tasarımı", completed: true, week: 1, dependsOn: 1, createdAt: new Date('2026-03-26T09:00:00Z').toISOString(), completedAt: new Date('2026-03-27T15:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-26T09:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
-      { id: 3, text: "State Management Entegrasyonu", completed: false, week: 2, dependsOn: 2, createdAt: new Date('2026-03-28T14:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-03-28T14:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
-    ] 
-  },
-  {
-    id: 2,
-    title: "cybersec",
-    description: "Siber güvenlik araçları ve projeleri monorepo.",
-    priority: "Orta",
-    deadline: "2026-03-01",
-    status: "Tamamlandı",
-    archived: true,
-    color: "#10b981", // Emerald
-    tasks: [
-      { id: 1, text: "Port Scanner Geliştirme", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-02-20T08:00:00Z').toISOString(), completedAt: new Date('2026-02-21T18:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-02-20T08:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
-      { id: 2, text: "Network Sniffer Modülü", completed: true, week: 2, dependsOn: 1, createdAt: new Date('2026-02-22T10:00:00Z').toISOString(), completedAt: new Date('2026-02-25T14:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-02-22T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
-    ]
-  },
-  {
-    id: 3,
-    title: "gunce",
-    description: "Dart/Flutter ile kişisel günlük ve hafıza asistanı.",
-    priority: "Düşük",
-    deadline: "2026-02-15",
-    status: "Tamamlandı",
-    archived: true,
-    color: "#f59e0b", // Amber
-    tasks: [
-      { id: 1, text: "Sesli Not Özelliği", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-01-10T11:00:00Z').toISOString(), completedAt: new Date('2026-01-12T16:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-10T11:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
-      { id: 2, text: "AI Chat Entegrasyonu", completed: true, week: 2, dependsOn: 1, createdAt: new Date('2026-01-13T09:00:00Z').toISOString(), completedAt: new Date('2026-01-20T12:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-13T09:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
-    ]
-  },
-  {
-    id: 4,
-    title: "TarimAsistan",
-    description: "Bitki takibi ve tarım yönetim uygulaması.",
-    priority: "Yüksek",
-    deadline: "2026-01-20",
-    status: "Tamamlandı",
-    archived: true,
-    color: "#ef4444", // Rose/Red
-    tasks: [
-      { id: 1, text: "Firebase Veritabanı Kurulumu", completed: true, week: 1, dependsOn: null, createdAt: new Date('2026-01-01T10:00:00Z').toISOString(), completedAt: new Date('2026-01-02T15:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-01T10:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] },
-      { id: 2, text: "Bitki Takibi Arayüzü", completed: true, week: 1, dependsOn: 1, createdAt: new Date('2026-01-03T11:00:00Z').toISOString(), completedAt: new Date('2026-01-10T17:00:00Z').toISOString(), history: [{ timestamp: new Date('2026-01-03T11:00:00Z').toISOString(), action: 'Görevi oluşturdu.' }] }
-    ]
-  }
-];
+
 
 const UNDO_DELAY = 5000;
 
@@ -132,28 +74,8 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSidebarCollapsed]);
 
-  const [projects, setProjects] = useState(() => {
-    try {
-      const savedProjects = localStorage.getItem('velopath_projects');
-      if (savedProjects) {
-        const parsed = JSON.parse(savedProjects);
-        
-        // Eğer kullanıcıda hiç aktif proje yoksa, defaultları geri yükleyelim
-        if (parsed.length === 0) return defaultProjects;
-
-        const existingTitles = parsed.map(p => p.title);
-        const missingSamples = defaultProjects.filter(p => !existingTitles.includes(p.title));
-        
-        if (missingSamples.length > 0) {
-          return [...parsed, ...missingSamples];
-        }
-        return parsed;
-      }
-    } catch (error) {
-      console.error("LocalStorage load error:", error);
-    }
-    return defaultProjects;
-  });
+  // Projeler artık backend'den geliyor, localStorage init'e gerek yok
+  const [projects, setProjects] = useState([]);
 
   // Backend'den verileri yükle
   const loadData = useCallback(async () => {
@@ -191,19 +113,14 @@ function App() {
     }
   }, [isAuthenticated, userId, loadData]);
 
-  // Verileri fabrika ayarlarına döndür
+  // Çıkış yapıp temizle
   const resetData = () => {
-    if (window.confirm('Tüm veriler silinecek ve örnek veriler geri yüklenecek. Emin misiniz?')) {
-      setProjects(defaultProjects);
-      localStorage.setItem('velopath_projects', JSON.stringify(defaultProjects));
-      window.location.reload(); // Temiz bir başlangıç için
+    if (window.confirm('Oturumu kapatmak istediğinizden emin misiniz?')) {
+      onLogout();
     }
   };
 
-  // Projeler değiştiğinde localStorage'a kaydet
-  React.useEffect(() => {
-    localStorage.setItem('velopath_projects', JSON.stringify(projects));
-  }, [projects]);
+  // NOT: Projeler artık backend'den geliyor, localStorage'a yazmaya gerek yok.
 
   // Tema yükleme
   React.useEffect(() => {

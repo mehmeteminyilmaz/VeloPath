@@ -4,11 +4,12 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
 import ReactMarkdown from 'react-markdown';
+import * as api from '../api';
 
 const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateProjectNotes, reorderTasks, archiveProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const project = projects.find(p => p.id === parseInt(id));
+  const project = projects.find(p => p.id?.toString() === id?.toString());
   const [newTaskText, setNewTaskText] = useState('');
   const [newTaskWeek, setNewTaskWeek] = useState(1);
   const [newTaskDependsOn, setNewTaskDependsOn] = useState('');

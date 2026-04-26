@@ -10,7 +10,13 @@ export const fetchAllData = async (userId) => {
     const projectsWithTasks = projectsRes.data.map(project => ({
       ...project,
       id: project._id, // Frontend uyumluluğu için
-      tasks: project.tasks.map(t => ({ ...t, id: t._id }))
+      tasks: project.tasks.map(t => ({
+        ...t,
+        id: t._id,
+        text: t.title,                      // backend: title → frontend: text
+        completed: t.status === 'done',     // backend: status → frontend: completed
+        week: t.weekIndex || 1,             // backend: weekIndex → frontend: week
+      }))
     }));
 
     return projectsWithTasks;
