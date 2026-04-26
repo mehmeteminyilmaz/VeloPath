@@ -14,99 +14,92 @@
 
 ## 🎬 Genel Bakış
 
-VeloPath, proje yönetimini daha kolay ve görsel hale getirmek için geliştirdiğim bir web uygulaması. Haftalık plan, Kanban panosu, etiketler, alt görevler gibi ihtiyaç duyduğum özellikleri bir araya getirip modern bir arayüzle sunmayı istedim. Hâlâ gelişmeye devam ediyor.
+VeloPath, modern profesyoneller ve ekipler için tasarlanmış, yüksek performanslı bir proje yönetim platformudur. Geleneksel karmaşık araçların aksine; **Haftalık Planlama**, **Gerçek Zamanlı Senkronizasyon** ve **Kişiselleştirilmiş Verimlilik Analizi** özelliklerini tek bir cam morfoloji (glassmorphism) temalı arayüzde birleştirir. Tamamen bulut tabanlı mimarisi (MongoDB) ve canlı iş birliği (Socket.io) desteği ile projelerinizi her yerden ve her cihazdan eşzamanlı olarak yönetmenizi sağlar.
 
 ### ✨ Ana Özellikler
 
-- **⚡ Gerçek Zamanlı Senkronizasyon:** `Socket.io` ile cihazlar arası anlık veri eşitleme (Mobil & Web uyumu).
-- **🤝 Takım Çalışması:** Projelerinizi diğer kullanıcılarla paylaşın ve aynı pano üzerinde eşzamanlı çalışın.
-- **☁️ Bulut Tabanlı Senkronizasyon:** MongoDB altyapısı ve gelişmiş API optimizasyonları (Kullanıcı izolasyonu).
-- **📅 Haftalık Plan:** Projelerinizi haftalara bölün ve dairesel grafiklerle ilerlemeyi takip edin.
-- **🖱️ Sürükle-Bırak (Drag & Drop):** `@dnd-kit` ile görevlerinizi haftalar arası veya içinde pürüzsüzce sıralayın.
-- **⏳ Görev Aktivite Geçmişi:** Her görevin ne zaman oluşturulduğu, tamamlandığı veya taşındığına dair detaylı zaman çizelgesi (Timeline) günlüğü.
-- **📝 Markdown Görev Notları:** Görevlerinize özel, zengin metin düzenleyicisi ile detaylı notlar ekleyin.
-- **🔔 Bildirim Hatırlatıcı:** Browser Notification API ile "Haftalık Görev Özeti" bildirimleri alın.
-- **🚀 Karşılama Sihirbazı (Onboarding):** Yeni kullanıcılar için 4 adımlı interaktif uygulama rehberi.
-- **📈 İstatistik ve Verimlilik Paneli:** Tamamlanan görev sayıları, en uzun çalışma seriniz (Streak) ve en verimli günlerinizin detaylı analizi.
-- **🎨 Boş Durum Tasarımı (Empty States):** Henüz veri yokken kullanıcıyı yönlendiren şık illüstrasyonlar ve aksiyon butonları.
-- **🔗 Görev Bağımlılıkları:** Görevler arası hiyerarşi ve kilit sistemi (Dependency) ile hata payını sıfırlayın.
-- **📁 Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
-- **🌓 Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
-- **⚡ Hızlı Aksiyonlar:** Görevleri hızlıca silebilir, proje durumlarını anlık güncelleyebilirsiniz.
-- **☁️ Modern Veri Mimarisi:** Tüm projeleriniz, görevleriniz ve notlarınız bulutta (MongoDB) güvenle saklanır ve cihazlar arası senkronize edilir.
-- **⏱️ Pomodoro Sayacı:** Odaklanmanızı artırmak için her yerden erişilebilen yüzen Pomodoro aracı.
+- **⚡ Gerçek Zamanlı Senkronizasyon:** `Socket.io` ile cihazlar arası anlık veri eşitleme (Mobil & Web tam uyum).
+- **🤝 Takım Çalışması:** Projelerinizi diğer kullanıcılarla güvenli bir şekilde paylaşın ve aynı pano üzerinde eşzamanlı çalışın.
+- **☁️ Modern Bulut Mimarisi:** MongoDB altyapısı ile sınırsız depolama ve gelişmiş kullanıcı izolasyonu.
+- **📅 Haftalık Planlama:** Projelerinizi yönetilebilir haftalık dilimlere bölün ve dairesel grafiklerle ilerlemeyi takip edin.
+- **🖱️ Akıllı Sürükle-Bırak:** `@dnd-kit` ile görevlerinizi haftalar arası veya içinde pürüzsüzce sıralayın.
+- **⏳ Görev Aktivite Geçmişi:** Her görevin oluşturulma, tamamlanma veya taşınma detaylarını içeren zaman çizelgesi (Timeline) günlüğü.
+- **📝 Markdown Desteği:** Hem proje hem de görev düzeyinde zengin metin düzenleyicisi ile profesyonel notlar tutun.
+- **📈 Verimlilik Analitiği:** 7 günlük aktivite grafikleri, çalışma serileri (streaks) ve en verimli gün analizleri.
+- **🌓 MacOS Tarzı Tema:** MacOS estetiğine sahip, özel optimize edilmiş Aydınlık ve Karanlık mod desteği.
+- **⏱️ Entegre Pomodoro:** Odaklanmanızı artırmak için her sayfadan erişilebilen yüzen Pomodoro zamanlayıcısı.
 
 ---
 
-### 🔐 Premium Giriş Deneyimi
+### 🔐 Güvenli ve Modern Giriş Deneyimi
 
-Aurora animasyonlu, cam morfoloji (glassmorphism) etkili **Midnight Glow** giriş ekranı. Kişiselleştirilmiş hoş geldin deneyimi ve kalıcı oturum yönetimi.
+Bcrypt ile şifrelenmiş güvenli oturum yönetimi ve Aurora animasyonlu, premium **Midnight Glow** giriş ekranı.
 
-![Giriş Ekranı](docs/assets/showcase_login.png)
-
----
-
-### 📊 Akıllı Kontrol Paneli
-
-Tüm projelerinizi tek bir panelden yönetin. İstatistik kartları, genel ilerleme halkası, anlık arama ve öncelik filtreleme ile tam bir komuta merkezi.
-
-![Kontrol Paneli](docs/assets/showcase_dashboard.png)
+![Giriş Ekranı](docs/assets/login_screen.png)
 
 ---
 
-### 🗂️ Kanban Panosu
+### 📊 Akıllı Kontrol Paneli (Dashboard)
 
-Bazen listeye bakmak yerine büyük resmi görmek istersiniz. Kanban modunda projeleriniz ilerleme durumuna göre **Yapılacak → Devam Ediyor → Tamamlandı** sütunlarına otomatik olarak ayrılır.
+Tüm projelerinizi, bekleyen görevlerinizi ve genel verimliliğinizi tek bir bakışta görün. Gelişmiş arama ve öncelik filtreleme ile projelerinizi saniyeler içinde bulun.
 
-![Kanban Panosu](docs/assets/showcase_kanban.png)
-
----
-
-### ☀️ Aydınlık Tema Desteği (Light Mode)
-
-VeloPath sadece karanlıkta değil, aydınlıkta da harika görünür. Tek tıkla tamamen duyarlı, ferah ve modern bir Light temaya geçiş yapabilirsiniz. Renkler ve gölgeler aydınlık temaya göre özel optimize edilmiştir.
-
-![Aydınlık Tema Kontrol Paneli](docs/assets/showcase_dashboard_light.png)
+![Kontrol Paneli](docs/assets/dashboard_view.png)
 
 ---
 
-### 📅 Haftalık Görev Planlama
+### 🗂️ Kanban Panosu Görünümü
 
-Projenizi haftalara bölün, görevleri **sürükle-bırak** ile yeniden sıralayın, haftalar arası taşıyın. Bağımlılık kilitleri, mini ilerleme grafikleri ve anlık etiket/öncelik rozetleriyle tam kontrol.
+Projelerinizi görsel bir akış şemasına dönüştürün. Görevler otomatik olarak **Yapılacak → Devam Ediyor → Tamamlandı** sütunlarına ayrılır.
 
-![Proje Detayları](docs/assets/showcase_project.png)
+![Kanban Panosu](docs/assets/kanban_view.png)
 
 ---
 
-### ✅ Görev Yönetim Merkezi
+### ☀️ Aydınlık Tema (Light Mode)
 
-Her göreve tıklayın; **markdown not editörü**, **alt görevler**, **etiketler**, **öncelik seçici** ve **aktivite geçmişi** sekmeleriyle derinlemesine yönetin.
+VeloPath, ferah ve modern bir görünüm isteyenler için özel olarak tasarlanmış Light Mode desteği sunar. Tüm renk paleti ve gölgeler göz yormayacak şekilde optimize edilmiştir.
 
-![Görev Detay Modalı](docs/assets/showcase_modal.png)
+![Aydınlık Tema](docs/assets/dashboard_light.png)
+
+---
+
+### 📅 Proje Detayları ve Haftalık Plan
+
+Haftalara yayılmış görev listeleri, bağımlılık kilitleri ve mini ilerleme göstergeleri ile projenizin her aşamasını kontrol altında tutun.
+
+![Proje Detayları](docs/assets/project_view.png)
+
+---
+
+### ✅ Gelişmiş Görev Yönetimi
+
+Alt görevler, etiketler, öncelik seviyeleri ve markdown notları ile her görevi detaylıca yapılandırın.
+
+![Görev Detayları](docs/assets/task_modal.png)
 
 ---
 
 ### 📈 Verimlilik ve İstatistik Raporu
 
-7 günlük aktivite grafiği, en uzun çalışma seriniz (streak), en verimli gününüz ve tamamlanan görev analizleriyle çalışma alışkanlıklarınızı keşfedin.
+Çalışma alışkanlıklarınızı veriye dayalı grafiklerle analiz edin ve performansınızı artırın.
 
-![İstatistik Sayfası](docs/assets/stats_final.png)
+![İstatistik Sayfası](docs/assets/stats_view.png)
 
 ---
 
 ### ➕ Şablonlarla Hızlı Başlangıç
 
-Yeni bir projeye başlarken saatlerce görev yazmak zorunda değilsiniz. "Modern Web Projesi", "Mobil Uygulama" veya "Full-Stack SaaS" şablonlarından birini seçerek projenizi saniyeler içinde onlarca görevle birlikte başlatın.
+Web, Mobil veya Full-Stack şablonlarını kullanarak projenizi saniyeler içinde önceden tanımlanmış görevlerle başlatın.
 
-![Proje Oluşturma Ekranı](docs/assets/create_project_preview.png)
+![Proje Oluşturma](docs/assets/create_project.png)
 
 ---
 
-### ⏱️ Pomodoro ve Zaman Yönetimi
+### ⏱️ Odaklanma: Pomodoro Zamanlayıcısı
 
-Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomodoro sayacı. Özelleştirilebilir çalışma ve mola süreleri ile otomatik sistem bildirimleri.
+Özelleştirilebilir çalışma/mola süreleri ve sistem bildirimleri ile dikkatinizi koruyun.
 
-![Pomodoro Sayacı](docs/assets/showcase_pomodoro.png)
+![Pomodoro Zamanlayıcısı](docs/assets/pomodoro_timer.png)
 
 ---
 
@@ -166,37 +159,55 @@ Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomod
 |---|---|
 | **React.js 18** | Frontend framework |
 | **Node.js & Express** | REST API & Backend sunucusu |
-| **MongoDB (Atlas)** | Bulut tabanlı kalıcı veritabanı (Cascade Delete) |
-| **Socket.io** | WebSockets üzerinden gerçek zamanlı veri akışı |
-| **Helmet & CORS** | Güvenlik başlıkları ve API erişim kontrolleri |
-| **React Router v6** | Sayfa yönlendirme |
-| **@dnd-kit** | Sürükle-bırak sistemi |
-| **React Markdown** | Görev notu + proje notu editörü |
-| **Axios** | Frontend-Backend arası veri iletişimi |
-| **Vanilla CSS** | Glassmorphism & CSS Custom Properties |
-| **localStorage** | Kalıcı veri depolama |
-| **Browser Notification API** | Bildirim sistemi |
+| **MongoDB (Atlas)** | Bulut tabanlı kalıcı veritabanı |
+| **Socket.io** | Gerçek zamanlı veri senkronizasyonu |
+| **Bcrypt.js** | Güvenli şifreleme ve kimlik doğrulama |
+| **Helmet & CORS** | XSS/CSRF güvenliği ve API kontrolü |
+| **@dnd-kit** | Gelişmiş sürükle-bırak motoru |
+| **Vanilla CSS** | Modern Glassmorphism tasarımı |
 
 ---
 
-## 🚀 Kurulum
+## 🚀 Kurulum ve Başlatma
 
-Backend ve Frontend servislerini ayrı ayrı başlatmanız gerekmektedir.
+VeloPath'i yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
 
+### 1. Hazırlık
 ```bash
-# Repoyu klonlayın
 git clone https://github.com/mehmeteminyilmaz/VeloPath.git
+cd VeloPath
+```
 
-# 1. Backend'i Başlatın
-cd VeloPath/backend
+### 2. Backend Kurulumu
+```bash
+cd backend
 npm install
+# .env dosyasını oluşturun ve MONGODB_URI bilginizi ekleyin
 npm run dev
+```
 
-# 2. Yeni bir terminal sekmesinde Frontend'i Başlatın
+### 3. Demo Verisi Yükleme (İsteğe Bağlı)
+Eğer hazır projelerle (VeloPath, cybersec vb.) test etmek isterseniz:
+```bash
+node seed.js
+```
+
+### 4. Frontend Kurulumu
+```bash
 cd ../web
 npm install
 npm start
 ```
+
+---
+
+## 🔐 Test Hesabı (Demo)
+
+Uygulamayı hemen denemek için `seed.js` çalıştırdıktan sonra şu bilgilerle giriş yapabilirsiniz:
+- **Kullanıcı Adı:** `emin`
+- **Şifre:** `velopath2026`
+
+---
 
 ➡️ Web uygulaması `http://localhost:3000` adresinde, API sunucusu `http://localhost:5000` adresinde çalışacaktır.
 
