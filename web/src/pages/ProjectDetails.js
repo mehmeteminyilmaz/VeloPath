@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore, FileText, Eye, Edit3 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
@@ -52,6 +52,22 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
     if (updateProjectNotes) updateProjectNotes(id, notesDraft);
   };
 
+  const handleShareProject = async () => {
+    const username = window.prompt("Projeyi paylaşmak istediğiniz kullanıcının adını girin:");
+    if (username && username.trim()) {
+      try {
+        await api.shareProjectAPI(id, username.trim());
+        alert(`${username} kullanıcısı projeye eklendi!`);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          alert('Kullanıcı bulunamadı.');
+        } else {
+          alert('Proje paylaşılırken bir hata oluştu.');
+        }
+      }
+    }
+  };
+
   const completedCount = project.tasks.filter(t => t.completed).length;
   const totalCount = project.tasks.length;
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
@@ -96,6 +112,13 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
               <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
                 {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
               </span>
+              <button
+                onClick={handleShareProject}
+                style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
+                title="Projeyi Paylaş"
+              >
+                <Share2 size={16} /> Paylaş
+              </button>
               <button
                 onClick={() => archiveProject(project.id)}
                 style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}

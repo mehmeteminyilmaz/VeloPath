@@ -8,7 +8,10 @@ import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
 import Login from './pages/Login';
 import * as api from './api';
+import io from 'socket.io-client';
 import './styles/App.css';
+
+const SOCKET_URL = 'http://localhost:5000';
 
 const defaultProjects = [
   { 
@@ -153,20 +156,40 @@ function App() {
   });
 
   // Backend'den verileri yükle
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (isAuthenticated && userId) {
-      const loadData = async () => {
-        const data = await api.fetchAllData(userId);
-        if (data && data.length > 0) {
-          setProjects(data);
-        } else if (data && data.length === 0) {
-          // Eğer veritabanında hiç proje yoksa ekranı temizle
-          setProjects([]);
-        }
-      };
-      loadData();
+      const data = await api.fetchAllData(userId);
+      if (data && data.length > 0) {
+        setProjects(data);
+      } else if (data && data.length === 0) {
+        setProjects([]);
+      }
     }
   }, [isAuthenticated, userId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Socket.io Gerçek Zamanlı Senkronizasyon
+  useEffect(() => {
+    if (isAuthenticated && userId) {
+      const socket = io(SOCKET_URL);
+      
+      socket.on('connect', () => {
+        socket.emit('join_user_room', userId);
+      });
+
+      socket.on('data_updated', () => {
+        // Arka planda verileri yenile (UI bloklanmaz, sessizce güncellenir)
+        loadData();
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [isAuthenticated, userId, loadData]);
 
   // Verileri fabrika ayarlarına döndür
   const resetData = () => {

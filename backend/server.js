@@ -9,6 +9,34 @@ const taskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
 
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+});
+
+// Middleware to inject io to routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+io.on('connection', (socket) => {
+  console.log('User connected to socket:', socket.id);
+  
+  socket.on('join_user_room', (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`Socket ${socket.id} joined room user_${userId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
 
 app.use(helmet()); // Güvenlik katmanı
 app.use(cors());
@@ -27,7 +55,7 @@ if (MONGODB_URI) {
   mongoose.connect(MONGODB_URI)
     .then(() => {
       console.log('Connected to MongoDB');
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+      server.listen(PORT, () => console.log(`Server running on port ${PORT} with Socket.io`));
     })
     .catch(err => console.error('MongoDB connection error:', err));
 } else {

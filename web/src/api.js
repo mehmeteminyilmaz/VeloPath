@@ -35,6 +35,11 @@ export const deleteProjectAPI = async (projectId) => {
   await axios.delete(`${API_URL}/projects/${projectId}`);
 };
 
+export const shareProjectAPI = async (projectId, username) => {
+  const res = await axios.post(`${API_URL}/projects/${projectId}/share`, { username });
+  return res.data;
+};
+
 // Görev API'leri
 export const createTask = async (taskData) => {
   const res = await axios.post(`${API_URL}/tasks`, taskData);
