@@ -62,7 +62,12 @@ export const deleteTaskAPI = async (taskId) => {
 };
 
 // Kullanıcı API'leri
-export const loginUser = async (username) => {
-  const res = await axios.post(`${API_URL}/users/login`, { username });
+export const loginUser = async (username, password) => {
+  const res = await axios.post(`${API_URL}/users/login`, { username, password });
+  return res.data;
+};
+
+export const registerUser = async (username, password) => {
+  const res = await axios.post(`${API_URL}/users/register`, { username, password });
   return res.data;
 };

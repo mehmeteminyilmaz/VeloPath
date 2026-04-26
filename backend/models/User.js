@@ -1,13 +1,26 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: false },
-  password: { type: String, required: false }, // Placeholder for future auth
+  username: { type: String, required: true, unique: true, trim: true },
+  email:    { type: String, required: false, trim: true, lowercase: true },
+  password: { type: String, required: true },
   preferences: {
-    theme: { type: String, default: 'dark' },
+    theme:            { type: String, default: 'dark' },
     sidebarCollapsed: { type: Boolean, default: false }
   }
 }, { timestamps: true });
+
+// Şifreyi kaydetmeden önce hashle
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+// Şifre doğrulama metodu
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);

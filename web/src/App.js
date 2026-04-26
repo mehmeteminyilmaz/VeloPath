@@ -38,9 +38,9 @@ function App() {
     return localStorage.getItem('velopath_userid') || '';
   });
 
-  const onLogin = async (name) => {
+  const onLogin = async (name, password) => {
     try {
-      const user = await api.loginUser(name);
+      const user = await api.loginUser(name, password);
       setUsername(user.username);
       setUserId(user._id);
       setIsAuthenticated(true);
@@ -48,15 +48,34 @@ function App() {
       localStorage.setItem('velopath_userid', user._id);
       localStorage.setItem('velopath_authenticated', 'true');
     } catch (error) {
-      console.error("Giriş yapılırken hata:", error);
-      alert("Giriş yapılırken bir hata oluştu. Sunucu bağlantısını kontrol edin.");
+      const msg = error.response?.data?.error || 'Kullanıcı adı veya şifre hatalı.';
+      throw new Error(msg);
+    }
+  };
+
+  const onRegister = async (name, password) => {
+    try {
+      const user = await api.registerUser(name, password);
+      setUsername(user.username);
+      setUserId(user._id);
+      setIsAuthenticated(true);
+      localStorage.setItem('velopath_username', user.username);
+      localStorage.setItem('velopath_userid', user._id);
+      localStorage.setItem('velopath_authenticated', 'true');
+    } catch (error) {
+      const msg = error.response?.data?.error || 'Kayıt sırasında bir hata oluştu.';
+      throw new Error(msg);
     }
   };
 
   const onLogout = () => {
     setIsAuthenticated(false);
-    localStorage.setItem('velopath_authenticated', 'false');
+    setUsername('');
+    setUserId('');
+    setProjects([]);
+    localStorage.removeItem('velopath_authenticated');
     localStorage.removeItem('velopath_userid');
+    localStorage.removeItem('velopath_username');
   };
 
   // Sidebar Daraltma Klavye Kısayolları ( [ ve Z )
@@ -577,7 +596,7 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return <Login onLogin={onLogin} />;
+    return <Login onLogin={onLogin} onRegister={onRegister} />;
   }
 
   return (

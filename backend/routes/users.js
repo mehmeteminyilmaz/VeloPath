@@ -2,22 +2,60 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// Basit Login/Register (Sadece isme göre)
+// ── KAYIT OL ──────────────────────────────────────────────
+router.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Kullanıcı adı ve şifre zorunludur.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Şifre en az 6 karakter olmalıdır.' });
+    }
+
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.status(409).json({ error: 'Bu kullanıcı adı zaten alınmış.' });
+    }
+
+    const user = new User({ username, password });
+    await user.save();
+
+    res.status(201).json({
+      _id: user._id,
+      username: user.username,
+      preferences: user.preferences
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ── GİRİŞ YAP ────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
-    const { username } = req.body;
-    if (!username) {
-      return res.status(400).json({ error: 'Kullanıcı adı gerekli' });
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Kullanıcı adı ve şifre zorunludur.' });
     }
 
-    // Kullanıcı var mı kontrol et, yoksa oluştur
-    let user = await User.findOne({ username });
+    const user = await User.findOne({ username });
     if (!user) {
-      user = new User({ username });
-      await user.save();
+      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
     }
 
-    res.status(200).json(user);
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      preferences: user.preferences
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
