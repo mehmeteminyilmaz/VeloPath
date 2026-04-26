@@ -75,7 +75,11 @@ router.delete('/:id', async (req, res) => {
   try {
     const deletedProject = await Project.findByIdAndDelete(req.params.id);
     if (!deletedProject) return res.status(404).json({ message: 'Project not found' });
-    res.json({ message: 'Project deleted successfully' });
+    
+    // CASCADE DELETE: Proje silindiğinde ona ait tüm görevleri de veritabanından sil
+    await Task.deleteMany({ projectId: req.params.id });
+
+    res.json({ message: 'Project and associated tasks deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
@@ -9,6 +10,7 @@ const userRoutes = require('./routes/users');
 
 const app = express();
 
+app.use(helmet()); // Güvenlik katmanı
 app.use(cors());
 app.use(express.json());
 
