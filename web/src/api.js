@@ -2,22 +2,15 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
 
-// Projeleri ve ilgili görevleri getirip frontend'in beklediği formata (projects[].tasks[]) çevirir
-export const fetchAllData = async () => {
+// Kullanıcıya özel projeleri ve görevleri tek seferde (optimize) getir
+export const fetchAllData = async (userId) => {
+  if (!userId) return null;
   try {
-    const projectsRes = await axios.get(`${API_URL}/projects`);
-    const projects = projectsRes.data;
-
-    // Her proje için görevleri getir (Gerçek bir uygulamada backend'de populate/aggregate ile tek seferde yapmak daha verimlidir)
-    const projectsWithTasks = await Promise.all(projects.map(async (project) => {
-      const tasksRes = await axios.get(`${API_URL}/tasks/project/${project._id}`);
-      // Frontend şu an görevlerde `id` (sayı) kullanıyor, MongoDB `_id` kullanıyor.
-      // Uyum için mapping yapabiliriz veya şimdilik doğrudan atayabiliriz.
-      return {
-        ...project,
-        id: project._id, // Frontend uyumluluğu için
-        tasks: tasksRes.data.map(t => ({ ...t, id: t._id }))
-      };
+    const projectsRes = await axios.get(`${API_URL}/projects/user/${userId}`);
+    const projectsWithTasks = projectsRes.data.map(project => ({
+      ...project,
+      id: project._id, // Frontend uyumluluğu için
+      tasks: project.tasks.map(t => ({ ...t, id: t._id }))
     }));
 
     return projectsWithTasks;

@@ -1,8 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
+const Task = require('../models/Task');
 
-// GET all projects
+// GET all projects for a specific user WITH tasks (Optimized)
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const projects = await Project.find({ user: req.params.userId }).lean().sort({ createdAt: -1 });
+    
+    // Fetch all tasks for these projects in one query
+    const projectIds = projects.map(p => p._id);
+    const allTasks = await Task.find({ projectId: { $in: projectIds } }).lean();
+
+    // Map tasks to their respective projects
+    const projectsWithTasks = projects.map(project => {
+      const projectTasks = allTasks.filter(t => t.projectId.toString() === project._id.toString());
+      return {
+        ...project,
+        tasks: projectTasks
+      };
+    });
+
+    res.json(projectsWithTasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET all projects (Legacy)
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });

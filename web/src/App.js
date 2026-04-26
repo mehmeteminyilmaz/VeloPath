@@ -89,12 +89,18 @@ function App() {
     return localStorage.getItem('velopath_username') || '';
   });
 
+  const [userId, setUserId] = useState(() => {
+    return localStorage.getItem('velopath_userid') || '';
+  });
+
   const onLogin = async (name) => {
     try {
       const user = await api.loginUser(name);
       setUsername(user.username);
+      setUserId(user._id);
       setIsAuthenticated(true);
       localStorage.setItem('velopath_username', user.username);
+      localStorage.setItem('velopath_userid', user._id);
       localStorage.setItem('velopath_authenticated', 'true');
     } catch (error) {
       console.error("Giriş yapılırken hata:", error);
@@ -105,6 +111,7 @@ function App() {
   const onLogout = () => {
     setIsAuthenticated(false);
     localStorage.setItem('velopath_authenticated', 'false');
+    localStorage.removeItem('velopath_userid');
   };
 
   // Sidebar Daraltma Klavye Kısayolları ( [ ve Z )
@@ -147,16 +154,19 @@ function App() {
 
   // Backend'den verileri yükle
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userId) {
       const loadData = async () => {
-        const data = await api.fetchAllData();
+        const data = await api.fetchAllData(userId);
         if (data && data.length > 0) {
           setProjects(data);
+        } else if (data && data.length === 0) {
+          // Eğer veritabanında hiç proje yoksa ekranı temizle
+          setProjects([]);
         }
       };
       loadData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, userId]);
 
   // Verileri fabrika ayarlarına döndür
   const resetData = () => {
@@ -250,7 +260,7 @@ function App() {
 
     // Backend'e kaydet
     try {
-      const savedProject = await api.createProject(projectData);
+      const savedProject = await api.createProject({ ...projectData, user: userId });
       
       // Eğer görevler varsa, onları da arka arkaya kaydet (gerçek hayatta Promise.all kullanılır)
       let savedTasks = [];
