@@ -33,8 +33,7 @@ VeloPath, proje yönetimini daha kolay ve görsel hale getirmek için geliştird
 - **📁 Akıllı Proje Şablonları:** Tek tıkla Web, Mobil veya Full-Stack proje taslağınızı oluşturun.
 - **🌓 Kalıcı Tema Sistemi:** MacOS tarzı modern arayüzle Aydınlık ve Karanlık mod arasında geçiş yapın.
 - **⚡ Hızlı Aksiyonlar:** Görevleri hızlıca silebilir, proje durumlarını anlık güncelleyebilirsiniz.
-- **🔄 Gelişmiş Veri Yönetimi:** "Verileri Sıfırla" butonu ile Local Storage senkronizasyonunu tek tıkla onarın.
-- **💾 Kalıcı Veri:** Tüm verileriniz `Local Storage` üzerinde güvenle saklanır.
+- **☁️ Modern Veri Mimarisi:** Tüm projeleriniz, görevleriniz ve notlarınız bulutta (MongoDB) güvenle saklanır ve cihazlar arası senkronize edilir.
 - **⏱️ Pomodoro Sayacı:** Odaklanmanızı artırmak için her yerden erişilebilen yüzen Pomodoro aracı.
 
 ---
