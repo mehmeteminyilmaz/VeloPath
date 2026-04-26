@@ -18,6 +18,9 @@ VeloPath, proje yönetimini daha kolay ve görsel hale getirmek için geliştird
 
 ### ✨ Ana Özellikler
 
+- **⚡ Gerçek Zamanlı Senkronizasyon:** `Socket.io` ile cihazlar arası anlık veri eşitleme (Mobil & Web uyumu).
+- **🤝 Takım Çalışması:** Projelerinizi diğer kullanıcılarla paylaşın ve aynı pano üzerinde eşzamanlı çalışın.
+- **☁️ Bulut Tabanlı Senkronizasyon:** MongoDB altyapısı ve gelişmiş API optimizasyonları (Kullanıcı izolasyonu).
 - **📅 Haftalık Plan:** Projelerinizi haftalara bölün ve dairesel grafiklerle ilerlemeyi takip edin.
 - **🖱️ Sürükle-Bırak (Drag & Drop):** `@dnd-kit` ile görevlerinizi haftalar arası veya içinde pürüzsüzce sıralayın.
 - **⏳ Görev Aktivite Geçmişi:** Her görevin ne zaman oluşturulduğu, tamamlandığı veya taşındığına dair detaylı zaman çizelgesi (Timeline) günlüğü.
@@ -119,6 +122,8 @@ Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomod
 | **Grid / Kanban Toggle** | Tek tıkla görünüm değiştirme |
 | **Proje Renk Kodlama** | Her projeye özel renk ve görsel şerit |
 | **Arşivleme** | Projeleri arşivle, istediğinde geri getir |
+| **Proje Paylaşımı (Collaboration)** | Diğer kullanıcıları projenize davet edin |
+| **Gerçek Zamanlı Senkronizasyon** | Cihazlar arası Socket.io ile anında eşzamanlılık |
 | **Proje Şablonları** | Web, Mobil, Full-Stack hazır görev listeleri |
 | **Proje Notları** | Markdown note defteri (düzenle + önizleme) |
 
@@ -162,7 +167,9 @@ Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomod
 |---|---|
 | **React.js 18** | Frontend framework |
 | **Node.js & Express** | REST API & Backend sunucusu |
-| **MongoDB (Atlas)** | Bulut tabanlı kalıcı veritabanı |
+| **MongoDB (Atlas)** | Bulut tabanlı kalıcı veritabanı (Cascade Delete) |
+| **Socket.io** | WebSockets üzerinden gerçek zamanlı veri akışı |
+| **Helmet & CORS** | Güvenlik başlıkları ve API erişim kontrolleri |
 | **React Router v6** | Sayfa yönlendirme |
 | **@dnd-kit** | Sürükle-bırak sistemi |
 | **React Markdown** | Görev notu + proje notu editörü |
@@ -175,18 +182,23 @@ Odaklanmanızı artırmak için her yerden erişilebilen yüzen (floating) Pomod
 
 ## 🚀 Kurulum
 
+Backend ve Frontend servislerini ayrı ayrı başlatmanız gerekmektedir.
+
 ```bash
 # Repoyu klonlayın
 git clone https://github.com/mehmeteminyilmaz/VeloPath.git
-cd VeloPath/web
 
-# Bağımlılıkları yükleyin
+# 1. Backend'i Başlatın
+cd VeloPath/backend
 npm install
+npm run dev
 
-# Geliştirme sunucusunu başlatın
+# 2. Yeni bir terminal sekmesinde Frontend'i Başlatın
+cd ../web
+npm install
 npm start
 ```
 
-➡️ `http://localhost:3000` adresinde açılır.
+➡️ Web uygulaması `http://localhost:3000` adresinde, API sunucusu `http://localhost:5000` adresinde çalışacaktır.
 
 
