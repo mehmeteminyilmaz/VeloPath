@@ -3,11 +3,14 @@ import { ArrowRight, Lock, User } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (name.trim()) {
-      onLogin(name.trim());
+      setLoading(true);
+      await onLogin(name.trim());
+      setLoading(false);
     }
   };
 
@@ -38,12 +41,13 @@ const Login = ({ onLogin }) => {
                 onChange={(e) => setName(e.target.value)}
                 required
                 autoFocus
+                disabled={loading}
               />
             </div>
           </div>
 
-          <button type="submit" className="button login-button">
-            Hadi Başlayalım <ArrowRight size={18} />
+          <button type="submit" className="button login-button" disabled={loading}>
+            {loading ? 'Giriş Yapılıyor...' : <><>Hadi Başlayalım</> <ArrowRight size={18} /></>}
           </button>
         </form>
 
@@ -52,7 +56,7 @@ const Login = ({ onLogin }) => {
             <Lock size={14} />
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Verileriniz yerel olarak saklanır.
+            Bulut tabanlı senkronizasyon ile güvende.
           </span>
         </div>
       </div>

@@ -56,3 +56,9 @@ export const updateTaskAPI = async (taskId, updateData) => {
 export const deleteTaskAPI = async (taskId) => {
   await axios.delete(`${API_URL}/tasks/${taskId}`);
 };
+
+// Kullanıcı API'leri
+export const loginUser = async (username) => {
+  const res = await axios.post(`${API_URL}/users/login`, { username });
+  return res.data;
+};

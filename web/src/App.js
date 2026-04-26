@@ -89,11 +89,17 @@ function App() {
     return localStorage.getItem('velopath_username') || '';
   });
 
-  const onLogin = (name) => {
-    setUsername(name);
-    setIsAuthenticated(true);
-    localStorage.setItem('velopath_username', name);
-    localStorage.setItem('velopath_authenticated', 'true');
+  const onLogin = async (name) => {
+    try {
+      const user = await api.loginUser(name);
+      setUsername(user.username);
+      setIsAuthenticated(true);
+      localStorage.setItem('velopath_username', user.username);
+      localStorage.setItem('velopath_authenticated', 'true');
+    } catch (error) {
+      console.error("Giriş yapılırken hata:", error);
+      alert("Giriş yapılırken bir hata oluştu. Sunucu bağlantısını kontrol edin.");
+    }
   };
 
   const onLogout = () => {
