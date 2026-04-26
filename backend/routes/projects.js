@@ -12,7 +12,7 @@ router.get('/user/:userId', async (req, res) => {
         { sharedWith: req.params.userId }
       ]
     }).lean().sort({ createdAt: -1 });
-    
+
     // Fetch all tasks for these projects in one query
     const projectIds = projects.map(p => p._id);
     const allTasks = await Task.find({ projectId: { $in: projectIds } }).lean();
@@ -59,7 +59,7 @@ router.post('/:id/share', async (req, res) => {
     const { username } = req.body;
     const User = require('../models/User');
     const userToShareWith = await User.findOne({ username });
-    
+
     if (!userToShareWith) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
 
     const project = await Project.findById(req.params.id);
@@ -68,7 +68,7 @@ router.post('/:id/share', async (req, res) => {
     if (!project.sharedWith.includes(userToShareWith._id)) {
       project.sharedWith.push(userToShareWith._id);
       await project.save();
-      
+
       if (req.io) {
         req.io.to(`user_${project.user.toString()}`).emit('data_updated');
         project.sharedWith.forEach(uId => req.io.to(`user_${uId.toString()}`).emit('data_updated'));
@@ -89,7 +89,7 @@ router.post('/', async (req, res) => {
       sharedWith: [] // Ensure sharedWith is array
     });
     const savedProject = await project.save();
-    
+
     if (req.io) {
       req.io.to(`user_${savedProject.user.toString()}`).emit('data_updated');
     }
@@ -105,7 +105,7 @@ router.put('/:id', async (req, res) => {
   try {
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedProject) return res.status(404).json({ message: 'Project not found' });
-    
+
     if (req.io) {
       req.io.to(`user_${updatedProject.user.toString()}`).emit('data_updated');
       if (updatedProject.sharedWith && updatedProject.sharedWith.length > 0) {
@@ -124,7 +124,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const deletedProject = await Project.findByIdAndDelete(req.params.id);
     if (!deletedProject) return res.status(404).json({ message: 'Project not found' });
-    
+
     // CASCADE DELETE: Proje silindiğinde ona ait tüm görevleri de veritabanından sil
     await Task.deleteMany({ projectId: req.params.id });
 
