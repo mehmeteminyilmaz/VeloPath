@@ -15,7 +15,6 @@ export default function App() {
   const [initialRoute, setInitialRoute] = useState(null);
 
   useEffect(() => {
-    // Kullanıcı daha önce giriş yaptıysa direkt Dashboard'a git
     AsyncStorage.getItem('userId').then(uid => {
       setInitialRoute(uid ? 'Dashboard' : 'Login');
     });

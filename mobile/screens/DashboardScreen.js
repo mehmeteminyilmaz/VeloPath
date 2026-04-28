@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchAllData, createProject, deleteProjectAPI } from '../services/api';
 import { connectSocket, disconnectSocket } from '../services/socket';
 import { COLORS, FONTS, RADIUS, SHADOW } from '../theme/colors';
+import PomodoroScreen from './PomodoroScreen';
+import StatsScreen from './StatsScreen';
 
 const PROJECT_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
@@ -26,6 +28,10 @@ export default function DashboardScreen({ navigation }) {
   const [selectedColor, setSelectedColor] = useState(PROJECT_COLORS[0]);
   const [creating, setCreating] = useState(false);
   const [syncPulse, setSyncPulse] = useState(false);
+  
+  // Yeni eklenenler - En üste taşındı
+  const [showPomodoro, setShowPomodoro] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   const loadData = useCallback(async (uid) => {
     try {
@@ -174,9 +180,12 @@ export default function DashboardScreen({ navigation }) {
           <Text style={styles.headerSub}>Merhaba, {username} 👋</Text>
         </View>
         <View style={styles.headerRight}>
-          <View style={[styles.syncIndicator, syncPulse && styles.syncIndicatorPulse]}>
-            <Text style={styles.syncDot}>●</Text>
-          </View>
+          <TouchableOpacity onPress={() => setShowPomodoro(true)} style={styles.iconBtn}>
+            <Text style={styles.iconText}>⏱️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowStats(true)} style={styles.iconBtn}>
+            <Text style={styles.iconText}>📊</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
             <Text style={styles.logoutText}>Çıkış</Text>
           </TouchableOpacity>
@@ -215,6 +224,26 @@ export default function DashboardScreen({ navigation }) {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
+
+      {/* Pomodoro Modal */}
+      <Modal visible={showPomodoro} animationType="slide" onRequestClose={() => setShowPomodoro(false)}>
+        <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
+           <TouchableOpacity onPress={() => setShowPomodoro(false)} style={styles.closeModalBtn}>
+              <Text style={styles.closeModalText}>✕ Kapat</Text>
+           </TouchableOpacity>
+           <PomodoroScreen />
+        </View>
+      </Modal>
+
+      {/* Stats Modal */}
+      <Modal visible={showStats} animationType="slide" onRequestClose={() => setShowStats(false)}>
+        <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
+           <TouchableOpacity onPress={() => setShowStats(false)} style={styles.closeModalBtn}>
+              <Text style={styles.closeModalText}>✕ Kapat</Text>
+           </TouchableOpacity>
+           <StatsScreen />
+        </View>
+      </Modal>
 
       {/* Proje Oluştur Modal */}
       <Modal
@@ -327,6 +356,25 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
   },
   logoutText: { color: COLORS.textSecondary, fontSize: FONTS.sizes.sm },
+  iconBtn: {
+    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  iconText: { fontSize: 18 },
+  closeModalBtn: {
+    padding: 15,
+    marginTop: 40,
+    marginLeft: 20,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.md,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  closeModalText: { color: '#fff', fontWeight: 'bold' },
 
   listContent: { padding: 16, gap: 12, paddingBottom: 100 },
 

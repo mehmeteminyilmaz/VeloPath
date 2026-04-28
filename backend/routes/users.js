@@ -28,6 +28,7 @@ router.post('/register', async (req, res) => {
       preferences: user.preferences
     });
   } catch (error) {
+    console.error("Kayıt Hatası:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -57,6 +58,7 @@ router.post('/login', async (req, res) => {
       preferences: user.preferences
     });
   } catch (error) {
+    console.error("Giriş Hatası:", error);
     res.status(500).json({ error: error.message });
   }
 });
