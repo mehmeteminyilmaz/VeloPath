@@ -7,6 +7,7 @@ import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
 import Login from './pages/Login';
+import SettingsModal from './components/SettingsModal';
 import * as api from './api';
 import io from 'socket.io-client';
 import './styles/App.css';
@@ -25,6 +26,8 @@ function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     return localStorage.getItem('velopath_sidebar_collapsed') === 'true';
   });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('velopath_theme') || 'dark');
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('velopath_authenticated') === 'true';
@@ -142,10 +145,11 @@ function App() {
   // NOT: Projeler artık backend'den geliyor, localStorage'a yazmaya gerek yok.
 
   // Tema yükleme
-  React.useEffect(() => {
-    const savedTheme = localStorage.getItem('velopath_theme') || 'dark';
-    document.body.setAttribute('data-theme', savedTheme);
-  }, []);
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleSettings = () => setIsSettingsOpen(!isSettingsOpen);
 
   // Bildirim İzni İste
   const requestNotificationPermission = async () => {
@@ -603,12 +607,25 @@ function App() {
     <Router>
       <div className={`App ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
-          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
-          <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />} />
-          <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} />} />
+          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} toggleSettings={toggleSettings} />} />
+          <Route path="/create" element={<CreateProject addProject={addProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />} />
+          <Route path="/stats" element={<Stats projects={projects} resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />} />
+          <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} resetData={resetData} sendTaskNotification={sendTaskNotification} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} username={username} onLogout={onLogout} toggleSettings={toggleSettings} />} />
         </Routes>
+
+        <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+          username={username}
+          theme={theme}
+          setTheme={(newTheme) => {
+            setTheme(newTheme);
+            localStorage.setItem('velopath_theme', newTheme);
+          }}
+          requestNotificationPermission={requestNotificationPermission}
+          resetData={onLogout}
+        />
         
         {/* Global Undo Toast */}
         <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />

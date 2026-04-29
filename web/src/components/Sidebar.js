@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw, BarChart2, Monitor, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed, setIsSidebarCollapsed, onLogout }) => {
+const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed, setIsSidebarCollapsed, onLogout, toggleSettings }) => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
@@ -119,9 +119,9 @@ const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed,
         </div>
 
 
-        <Link to="#" className="nav-item" title="Ayarlar">
+        <div className="nav-item" onClick={toggleSettings} style={{ cursor: 'pointer' }} title="Ayarlar">
           <Settings size={20} /> {!isSidebarCollapsed && <span>Ayarlar</span>}
-        </Link>
+        </div>
 
 
         <div className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }} title="Çıkış Yap" onClick={onLogout}>

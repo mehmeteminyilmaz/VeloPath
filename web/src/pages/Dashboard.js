@@ -93,7 +93,7 @@ function getKanbanCol(project) {
 }
 
 // ── Dashboard ──
-const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, username, onLogout }) => {
+const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTaskNotification, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, username, onLogout, toggleSettings }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode]         = useState('active');   // 'active' | 'archived'
   const [layoutMode, setLayoutMode]     = useState('grid');     // 'grid' | 'kanban'
@@ -141,7 +141,7 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
 
   return (
     <div className="auth-layout">
-      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />
 
       <main className="main-content">
         {/* Header */}

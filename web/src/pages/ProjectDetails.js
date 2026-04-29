@@ -6,7 +6,7 @@ import WeeklyPlan from '../components/WeeklyPlan';
 import ReactMarkdown from 'react-markdown';
 import * as api from '../api';
 
-const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateProjectNotes, reorderTasks, archiveProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout }) => {
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateProjectNotes, reorderTasks, archiveProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = projects.find(p => p.id?.toString() === id?.toString());
@@ -28,7 +28,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   if (!project) {
     return (
       <div className="auth-layout">
-        <Sidebar />
+        <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />
         <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card" style={{ textAlign: 'center' }}>
             <h1 style={{ color: 'var(--text-primary)' }}>Proje Bulunamadı</h1>
@@ -85,7 +85,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
 
   return (
     <div className="auth-layout">
-      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} />
+      <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />
 
       <main className="main-content">
         <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
