@@ -1,268 +1,173 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  StatusBar, ActivityIndicator, Alert, TextInput, Modal,
+  StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllData, createTask, updateTaskAPI, deleteTaskAPI } from '../services/api';
-import { connectSocket, disconnectSocket } from '../services/socket';
-import { COLORS, FONTS, RADIUS, SHADOW } from '../theme/colors';
-
-const PRIORITY_LABELS = { high: '🔴 Yüksek', medium: '🟡 Orta', low: '🟢 Düşük' };
-const STATUS_LABELS = { todo: 'Yapılacak', 'in-progress': 'Devam Ediyor', done: 'Tamamlandı' };
+import { Ionicons } from '@expo/vector-icons';
+import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI } from '../services/api';
+import { COLORS, RADIUS, SHADOW } from '../theme/colors';
 
 export default function ProjectDetailsScreen({ route, navigation }) {
   const { projectId, projectTitle, projectColor } = route.params;
-
-  const [tasks, setTasks] = useState([]);
+  const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
-  const [syncPulse, setSyncPulse] = useState(false);
-
-  // Modal states
-  const [showAddTask, setShowAddTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskPriority, setNewTaskPriority] = useState('medium');
   const [adding, setAdding] = useState(false);
 
-  const loadTasks = useCallback(async (uid) => {
+  const loadProject = useCallback(async () => {
     try {
-      const data = await fetchAllData(uid);
-      const project = data?.find(p => (p._id || p.id) === projectId);
-      if (project) {
-        setTasks(project.tasks || []);
-        setSyncPulse(true);
-        setTimeout(() => setSyncPulse(false), 800);
-      }
+      const data = await fetchProjectDetails(projectId);
+      if (data) setProject(data);
     } catch (err) {
-      console.error('Görevler yüklenemedi:', err);
+      const msg = err.response?.data?.message || err.message || 'Bilinmeyen hata';
+      Alert.alert('Bağlantı Hatası', `Proje detayları çekilemedi: ${msg}`);
+      console.error('API Hatası:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   }, [projectId]);
 
   useEffect(() => {
-    const init = async () => {
-      const uid = await AsyncStorage.getItem('userId');
-      setUserId(uid);
-      if (uid) {
-        await loadTasks(uid);
-        connectSocket(uid, () => loadTasks(uid));
-      }
-      setLoading(false);
-    };
-    init();
+    loadProject();
+  }, [loadProject]);
 
-    return () => disconnectSocket();
-  }, [loadTasks]);
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadProject();
+  };
 
   const handleAddTask = async () => {
-    if (!newTaskTitle.trim()) {
-      Alert.alert('Hata', 'Görev adı boş bırakılamaz');
-      return;
-    }
+    if (!newTaskTitle.trim()) return;
     setAdding(true);
     try {
-      await createTask({
-        projectId,
-        title: newTaskTitle.trim(),
-        priority: newTaskPriority,
-        status: 'todo',
-      });
-      setShowAddTask(false);
+      await createTask(projectId, { title: newTaskTitle.trim() });
       setNewTaskTitle('');
-      setNewTaskPriority('medium');
-      // Socket tetiklenecek → otomatik yenile
+      await loadProject();
     } catch (err) {
-      Alert.alert('Hata', 'Görev eklenemedi');
+      Alert.alert('Hata', 'Görev oluşturulamadı');
     } finally {
       setAdding(false);
     }
   };
 
-  const handleToggleTask = async (task) => {
-    const newStatus = task.completed ? 'todo' : 'done';
+  const handleToggleTask = async (taskId) => {
     try {
-      await updateTaskAPI(task._id || task.id, { status: newStatus });
-      // Socket otomatik tetiklenecek
+      await toggleTaskAPI(taskId);
+      await loadProject();
     } catch (err) {
-      Alert.alert('Hata', 'Görev güncellenemedi');
+      Alert.alert('Hata', 'Durum güncellenemedi');
     }
   };
 
-  const handleDeleteTask = (task) => {
-    Alert.alert(
-      'Görevi Sil',
-      `"${task.text || task.title}" silinsin mi?`,
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Sil',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTaskAPI(task._id || task.id);
-            } catch (err) {
-              Alert.alert('Hata', 'Görev silinemedi');
-            }
-          },
-        },
-      ]
-    );
+  const handleDeleteTask = (taskId) => {
+    Alert.alert('Görevi Sil', 'Bu görevi silmek istediğine emin misin?', [
+      { text: 'İptal', style: 'cancel' },
+      { 
+        text: 'Sil', 
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteTaskAPI(taskId);
+            await loadProject();
+          } catch (err) {
+            Alert.alert('Hata', 'Görev silinemedi');
+          }
+        }
+      }
+    ]);
   };
-
-  const completedCount = tasks.filter(t => t.completed).length;
-  const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
-
-  const renderTask = ({ item }) => (
-    <View style={[styles.taskCard, item.completed && styles.taskCardDone]}>
-      <TouchableOpacity
-        style={[styles.checkbox, item.completed && { backgroundColor: COLORS.success, borderColor: COLORS.success }]}
-        onPress={() => handleToggleTask(item)}
-        activeOpacity={0.8}
-      >
-        {item.completed && <Text style={styles.checkmark}>✓</Text>}
-      </TouchableOpacity>
-
-      <View style={styles.taskContent}>
-        <Text style={[styles.taskTitle, item.completed && styles.taskTitleDone]} numberOfLines={2}>
-          {item.text || item.title}
-        </Text>
-        <View style={styles.taskMeta}>
-          <Text style={styles.priorityText}>{PRIORITY_LABELS[item.priority] || '🟡 Orta'}</Text>
-          <Text style={[styles.statusBadge, { color: item.completed ? COLORS.success : COLORS.accent }]}>
-            {STATUS_LABELS[item.status] || 'Yapılacak'}
-          </Text>
-        </View>
-      </View>
-
-      <TouchableOpacity
-        onPress={() => handleDeleteTask(item)}
-        style={styles.deleteBtn}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Text style={styles.deleteBtnText}>🗑</Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={COLORS.accent} />
+        <ActivityIndicator size="large" color={projectColor || COLORS.accent} />
       </View>
     );
   }
 
+  const tasks = project?.tasks || [];
+  const completedCount = tasks.filter(t => t.completed).length;
+  const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.bg} />
-
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: projectColor }]}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header Area */}
+      <View style={[styles.header, { borderBottomColor: projectColor || COLORS.accent }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle} numberOfLines={1}>{projectTitle}</Text>
-          <Text style={styles.headerProgress}>{completedCount}/{tasks.length} tamamlandı</Text>
-        </View>
-        <View style={[styles.syncIndicator, syncPulse && styles.syncPulseOn]}>
-          <Text style={styles.syncDot}>●</Text>
+        <View style={styles.headerTitleContainer}>
+           <Text style={styles.headerTitle} numberOfLines={1}>{projectTitle}</Text>
+           <Text style={styles.headerSub}>{tasks.length} Görev • %{progress} Tamamlandı</Text>
         </View>
       </View>
 
-      {/* Progress bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%`, backgroundColor: projectColor }]} />
-        </View>
-        <Text style={[styles.progressPct, { color: projectColor }]}>{progress}%</Text>
+      {/* Progress Bar - Web Style */}
+      <View style={styles.progressSection}>
+         <View style={styles.progressBarBg}>
+            <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: projectColor || COLORS.accent }]} />
+         </View>
       </View>
 
-      {/* Görev listesi */}
       <FlatList
         data={tasks}
         keyExtractor={(item) => item._id || item.id}
-        renderItem={renderTask}
         contentContainerStyle={styles.listContent}
+        renderItem={({ item }) => (
+          <View style={[styles.taskCard, item.completed && styles.taskCardCompleted]}>
+            <TouchableOpacity 
+              style={styles.checkArea} 
+              onPress={() => handleToggleTask(item._id || item.id)}
+            >
+              <View style={[
+                styles.checkbox, 
+                item.completed && { backgroundColor: projectColor || COLORS.accent, borderColor: projectColor || COLORS.accent }
+              ]}>
+                {item.completed && <Ionicons name="checkmark" size={16} color="#fff" />}
+              </View>
+              <Text style={[styles.taskTitle, item.completed && styles.taskTitleCompleted]}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => handleDeleteTask(item._id || item.id)}>
+              <Ionicons name="trash-outline" size={20} color="#f87171" />
+            </TouchableOpacity>
+          </View>
+        )}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyEmoji}>✅</Text>
-            <Text style={styles.emptyTitle}>Görev yok</Text>
-            <Text style={styles.emptyDesc}>
-              + butonuna tıklayarak görev ekle
-            </Text>
+          <View style={styles.emptyState}>
+            <Ionicons name="clipboard-outline" size={48} color="rgba(255,255,255,0.1)" />
+            <Text style={styles.emptyText}>Henüz görev eklenmemiş</Text>
           </View>
         }
       />
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: projectColor }]}
-        onPress={() => setShowAddTask(true)}
-        activeOpacity={0.85}
+      {/* Add Task Input - Web Style */}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
-
-      {/* Görev Ekle Modal */}
-      <Modal
-        visible={showAddTask}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowAddTask(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowAddTask(false)}
-        />
-        <View style={styles.modalSheet}>
-          <View style={styles.modalHandle} />
-          <Text style={styles.modalTitle}>Yeni Görev</Text>
-
-          <Text style={styles.label}>Görev Adı</Text>
+        <View style={styles.inputArea}>
           <TextInput
             style={styles.input}
-            placeholder="Görev adını girin..."
-            placeholderTextColor={COLORS.textMuted}
+            placeholder="Yeni görev ekle..."
+            placeholderTextColor="#666"
             value={newTaskTitle}
             onChangeText={setNewTaskTitle}
-            autoFocus
           />
-
-          <Text style={styles.label}>Öncelik</Text>
-          <View style={styles.priorityRow}>
-            {['low', 'medium', 'high'].map(p => (
-              <TouchableOpacity
-                key={p}
-                style={[
-                  styles.priorityBtn,
-                  newTaskPriority === p && styles.priorityBtnActive,
-                  newTaskPriority === p && {
-                    borderColor: p === 'high' ? COLORS.danger : p === 'medium' ? COLORS.warning : COLORS.success,
-                    backgroundColor: p === 'high' ? 'rgba(239,68,68,0.15)' : p === 'medium' ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)',
-                  }
-                ]}
-                onPress={() => setNewTaskPriority(p)}
-              >
-                <Text style={styles.priorityBtnText}>{PRIORITY_LABELS[p]}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            style={[styles.addButton, { backgroundColor: projectColor }, adding && { opacity: 0.6 }]}
+          <TouchableOpacity 
+            style={[styles.addBtn, { backgroundColor: projectColor || COLORS.accent }]}
             onPress={handleAddTask}
             disabled={adding}
           >
-            {adding ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.addButtonText}>Görev Ekle</Text>
-            )}
+            {adding ? <ActivityIndicator color="#fff" size="small" /> : <Ionicons name="add" size={28} color="#fff" />}
           </TouchableOpacity>
         </View>
-      </Modal>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -270,126 +175,82 @@ export default function ProjectDetailsScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
   centerContainer: { flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', alignItems: 'center' },
-
+  
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 52,
-    paddingBottom: 14,
+    paddingHorizontal: 20,
+    paddingTop: 55,
+    paddingBottom: 20,
     borderBottomWidth: 2,
-    gap: 12,
+    backgroundColor: 'rgba(255,255,255,0.02)',
   },
-  backBtn: { padding: 4 },
-  backBtnText: { fontSize: 22, color: COLORS.textPrimary },
-  headerInfo: { flex: 1 },
-  headerTitle: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  headerProgress: { fontSize: FONTS.sizes.xs, color: COLORS.textSecondary, marginTop: 2 },
-  syncIndicator: { opacity: 0.4 },
-  syncPulseOn: { opacity: 1 },
-  syncDot: { color: COLORS.success, fontSize: 14 },
+  backBtn: { padding: 8, marginLeft: -10, marginRight: 10 },
+  headerTitleContainer: { flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: '800', color: '#fff' },
+  headerSub: { fontSize: 12, color: '#666', marginTop: 2 },
 
-  progressContainer: {
+  progressSection: { paddingHorizontal: 20, paddingTop: 15 },
+  progressBarBg: { height: 4, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' },
+  progressBarFill: { height: '100%', borderRadius: 2 },
+
+  listContent: { padding: 20, paddingBottom: 100 },
+  taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  progressBar: { flex: 1, height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: 3 },
-  progressPct: { fontSize: FONTS.sizes.sm, fontWeight: '700', minWidth: 36 },
-
-  listContent: { padding: 16, gap: 10, paddingBottom: 100 },
-
-  taskCard: {
-    backgroundColor: COLORS.bgCard,
-    borderRadius: RADIUS.md,
-    padding: 14,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
-  taskCardDone: { opacity: 0.65 },
+  taskCardCompleted: { opacity: 0.6 },
+  checkArea: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 24, height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.2)',
+    marginRight: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 2,
   },
-  checkmark: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  taskContent: { flex: 1, gap: 6 },
-  taskTitle: { fontSize: FONTS.sizes.md, color: COLORS.textPrimary, lineHeight: 20 },
-  taskTitleDone: { textDecorationLine: 'line-through', color: COLORS.textMuted },
-  taskMeta: { flexDirection: 'row', gap: 10, alignItems: 'center' },
-  priorityText: { fontSize: FONTS.sizes.xs, color: COLORS.textSecondary },
-  statusBadge: { fontSize: FONTS.sizes.xs, fontWeight: '600' },
-  deleteBtn: { padding: 2 },
-  deleteBtnText: { fontSize: 16 },
+  taskTitle: { color: '#fff', fontSize: 16, fontWeight: '500' },
+  taskTitleCompleted: { textDecorationLine: 'line-through', color: '#666' },
 
-  emptyContainer: { alignItems: 'center', paddingTop: 60, gap: 8 },
-  emptyEmoji: { fontSize: 40 },
-  emptyTitle: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  emptyDesc: { fontSize: FONTS.sizes.sm, color: COLORS.textSecondary, textAlign: 'center' },
-
-  fab: {
-    position: 'absolute',
-    bottom: 32,
-    right: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...SHADOW.card,
-  },
-  fabText: { fontSize: 32, color: '#fff', lineHeight: 36 },
-
-  modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalSheet: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    backgroundColor: COLORS.bgCard,
-    borderTopLeftRadius: RADIUS.xl,
-    borderTopRightRadius: RADIUS.xl,
-    padding: 24,
-    paddingBottom: 40,
+  inputArea: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 25, // Alt kısımdaki iç içe girmişliği çözen boşluk
+    backgroundColor: '#111827', // Web Midnight tonu
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+    gap: 12,
   },
-  modalHandle: { width: 40, height: 4, backgroundColor: COLORS.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: FONTS.sizes.xl, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 20 },
-  label: { fontSize: FONTS.sizes.sm, color: COLORS.textSecondary, fontWeight: '600', marginBottom: 6 },
   input: {
-    backgroundColor: COLORS.bg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: FONTS.sizes.md,
-    color: COLORS.textPrimary,
-    marginBottom: 16,
-  },
-  priorityRow: { flexDirection: 'row', gap: 8, marginBottom: 24 },
-  priorityBtn: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: RADIUS.md,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 52,
+    color: '#fff',
+    fontSize: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
+    borderColor: 'rgba(255,255,255,0.05)',
   },
-  priorityBtnActive: {},
-  priorityBtnText: { fontSize: FONTS.sizes.xs, color: COLORS.textSecondary, fontWeight: '600' },
-  addButton: { borderRadius: RADIUS.md, paddingVertical: 14, alignItems: 'center' },
-  addButtonText: { color: '#fff', fontSize: FONTS.sizes.md, fontWeight: '700' },
+  addBtn: {
+    width: 52, height: 52,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  emptyState: { alignItems: 'center', marginTop: 80, gap: 12 },
+  emptyText: { color: '#4b5563', fontSize: 15, fontWeight: '500' },
 });

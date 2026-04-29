@@ -7,6 +7,10 @@ import { View, ActivityIndicator } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ProjectDetailsScreen from './screens/ProjectDetailsScreen';
+import PomodoroScreen from './screens/PomodoroScreen';
+import StatsScreen from './screens/StatsScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import CreateProjectScreen from './screens/CreateProjectScreen';
 import { COLORS } from './theme/colors';
 
 const Stack = createNativeStackNavigator();
@@ -37,6 +41,10 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
+        <Stack.Screen name="Pomodoro" component={PomodoroScreen} />
+        <Stack.Screen name="Stats" component={StatsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="CreateProject" component={CreateProjectScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

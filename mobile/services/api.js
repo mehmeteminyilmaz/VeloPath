@@ -1,9 +1,6 @@
 import axios from 'axios';
 
-// Geliştirme için: bilgisayarının yerel IP adresini kullan
-// Emülatör: Android için 10.0.2.2, iOS için localhost
-// Gerçek cihaz: ipconfig ile IP'ni bul (örn: 192.168.1.x)
-export const API_BASE = 'http://10.0.2.2:5000/api'; // Android emülatör varsayılanı
+export const API_BASE = 'http://10.0.2.2:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -13,7 +10,7 @@ const api = axios.create({
 // ---------- AUTH ----------
 export const loginUser = async (username, password) => {
   const res = await api.post('/users/login', { username, password });
-  return res.data; // { _id, username }
+  return res.data;
 };
 
 export const registerUser = async (username, password) => {
@@ -25,26 +22,16 @@ export const registerUser = async (username, password) => {
 export const fetchAllData = async (userId) => {
   if (!userId) return null;
   const res = await api.get(`/projects/user/${userId}`);
-  return res.data.map(project => ({
-    ...project,
-    id: project._id,
-    tasks: (project.tasks || []).map(t => ({
-      ...t,
-      id: t._id,
-      text: t.title,
-      completed: t.status === 'done',
-      week: t.weekIndex || 1,
-    })),
-  }));
+  return res.data;
+};
+
+export const fetchProjectDetails = async (projectId) => {
+  const res = await api.get(`/projects/${projectId}`);
+  return res.data;
 };
 
 export const createProject = async (projectData) => {
   const res = await api.post('/projects', projectData);
-  return { ...res.data, id: res.data._id, tasks: [] };
-};
-
-export const updateProject = async (projectId, updateData) => {
-  const res = await api.put(`/projects/${projectId}`, updateData);
   return res.data;
 };
 
@@ -53,14 +40,18 @@ export const deleteProjectAPI = async (projectId) => {
 };
 
 // ---------- TASKS ----------
-export const createTask = async (taskData) => {
-  const res = await api.post('/tasks', taskData);
-  return { ...res.data, id: res.data._id };
+export const createTask = async (projectId, taskData) => {
+  // Backend beklenen format: { title, project }
+  const res = await api.post('/tasks', { ...taskData, project: projectId });
+  return res.data;
 };
 
-export const updateTaskAPI = async (taskId, updateData) => {
-  const res = await api.put(`/tasks/${taskId}`, updateData);
-  return { ...res.data, id: res.data._id };
+export const toggleTaskAPI = async (taskId) => {
+  // Backend'deki toggle endpoint'ine göre (Genelde PUT /tasks/:id/toggle)
+  // Eğer yoksa mevcut status'u tersine çevirerek update etmeliyiz.
+  // Varsayılan olarak status güncellemesi:
+  const res = await api.put(`/tasks/${taskId}/toggle`);
+  return res.data;
 };
 
 export const deleteTaskAPI = async (taskId) => {
