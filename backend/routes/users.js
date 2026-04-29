@@ -63,4 +63,35 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ── PROFİL GÜNCELLE ─────────────────────────────────────────
+router.patch('/:id', async (req, res) => {
+  try {
+    const { username } = req.body;
+    const { id } = req.params;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Kullanıcı adı zorunludur.' });
+    }
+
+    const existing = await User.findOne({ username, _id: { $ne: id } });
+    if (existing) {
+      return res.status(409).json({ error: 'Bu kullanıcı adı başka bir kullanıcı tarafından kullanılıyor.' });
+    }
+
+    const user = await User.findByIdAndUpdate(id, { username }, { new: true });
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      preferences: user.preferences
+    });
+  } catch (error) {
+    console.error("Güncelleme Hatası:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
