@@ -6,13 +6,15 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser, registerUser } from '../services/api';
-import { COLORS, FONTS, RADIUS } from '../theme/colors';
+import { FONTS, RADIUS } from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { themeName, colors } = useTheme();
 
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
@@ -38,12 +40,14 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
+  const styles = createStyles(colors);
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.bg} />
+      <StatusBar barStyle={themeName === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
       {/* Logo */}
       <View style={styles.logoContainer}>
@@ -65,7 +69,7 @@ export default function LoginScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="kullanici_adi"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textSecondary}
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
@@ -78,7 +82,7 @@ export default function LoginScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="••••••••"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textSecondary}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -121,10 +125,10 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: colors.bg,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
@@ -136,9 +140,9 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: RADIUS.xl,
-    backgroundColor: COLORS.accentGlow,
+    backgroundColor: `${colors.accent}15`,
     borderWidth: 1,
-    borderColor: COLORS.accent,
+    borderColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -149,25 +153,25 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: FONTS.sizes.xxl,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     letterSpacing: -0.5,
   },
   logoSub: {
     fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   card: {
-    backgroundColor: COLORS.bgCard,
+    backgroundColor: colors.bgCard,
     borderRadius: RADIUS.lg,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   cardTitle: {
     fontSize: FONTS.sizes.xl,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 24,
   },
   inputGroup: {
@@ -175,22 +179,22 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 6,
     fontWeight: '600',
   },
   input: {
-    backgroundColor: COLORS.bg,
+    backgroundColor: colors.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: FONTS.sizes.md,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   button: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: colors.accent,
     borderRadius: RADIUS.md,
     paddingVertical: 14,
     alignItems: 'center',
@@ -210,7 +214,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   switchText: {
-    color: COLORS.accentLight,
+    color: colors.accent,
     fontSize: FONTS.sizes.sm,
   },
   syncBadge: {
@@ -221,11 +225,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   syncDot: {
-    color: COLORS.success,
+    color: colors.success,
     fontSize: 10,
   },
   syncText: {
-    color: COLORS.textMuted,
+    color: colors.textSecondary,
     fontSize: FONTS.sizes.xs,
   },
 });

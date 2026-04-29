@@ -18,6 +18,11 @@ export const registerUser = async (username, password) => {
   return res.data;
 };
 
+export const updateUsername = async (userId, newUsername) => {
+  const res = await api.patch(`/users/${userId}`, { username: newUsername });
+  return res.data;
+};
+
 // ---------- PROJECTS ----------
 export const fetchAllData = async (userId) => {
   if (!userId) return null;

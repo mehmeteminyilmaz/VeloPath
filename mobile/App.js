@@ -11,12 +11,13 @@ import PomodoroScreen from './screens/PomodoroScreen';
 import StatsScreen from './screens/StatsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CreateProjectScreen from './screens/CreateProjectScreen';
-import { COLORS } from './theme/colors';
+import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+function Navigation() {
   const [initialRoute, setInitialRoute] = useState(null);
+  const { colors } = useTheme();
 
   useEffect(() => {
     AsyncStorage.getItem('userId').then(uid => {
@@ -26,8 +27,8 @@ export default function App() {
 
   if (!initialRoute) {
     return (
-      <View style={{ flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={COLORS.accent} />
+      <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -47,5 +48,13 @@ export default function App() {
         <Stack.Screen name="CreateProject" component={CreateProjectScreen} />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <Navigation />
+    </ThemeProvider>
   );
 }

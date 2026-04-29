@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, RADIUS } from '../theme/colors';
+import { RADIUS } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
   const opacityAnim = React.useRef(new Animated.Value(0)).current;
+  const { colors } = useTheme();
 
   React.useEffect(() => {
     Animated.parallel([
@@ -37,6 +39,8 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
     { label: 'Ayarlar', icon: 'settings-outline', route: 'Settings' },
   ];
 
+  const styles = createStyles(colors);
+
   return (
     <Animated.View 
       style={[styles.overlayContainer, { opacity: opacityAnim }]} 
@@ -51,7 +55,7 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
         <View style={styles.header}>
           <Text style={styles.logoText}>VeloPath</Text>
           <TouchableOpacity onPress={onClose}>
-            <Ionicons name="close-outline" size={28} color="#fff" />
+            <Ionicons name="close-outline" size={28} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
@@ -68,7 +72,7 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
               <Ionicons 
                 name={item.icon} 
                 size={22} 
-                color={currentRoute === item.route ? COLORS.accent : '#aaa'} 
+                color={currentRoute === item.route ? colors.accent : colors.textSecondary} 
               />
               <Text style={[styles.menuLabel, currentRoute === item.route && styles.activeLabel]}>
                 {item.label}
@@ -79,7 +83,7 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
 
         <View style={styles.footer}>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={22} color="#f87171" />
+            <Ionicons name="log-out-outline" size={22} color={colors.danger} />
             <Text style={styles.logoutText}>Çıkış Yap</Text>
           </TouchableOpacity>
         </View>
@@ -88,7 +92,7 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   overlayContainer: {
     position: 'absolute',
     top: 0, bottom: 0, left: 0, right: 0,
@@ -102,9 +106,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0, bottom: 0, left: 0,
     width: width * 0.75,
-    backgroundColor: COLORS.bg,
+    backgroundColor: colors.bg,
     borderRightWidth: 1,
-    borderRightColor: 'rgba(255,255,255,0.05)',
+    borderRightColor: colors.border,
     paddingTop: 0,
   },
   header: {
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.accent,
+    color: colors.accent,
   },
   menu: {
     flex: 1,
@@ -133,21 +137,21 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   activeItem: {
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    backgroundColor: `${colors.accent}15`,
   },
   menuLabel: {
-    color: '#aaa',
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
   },
   activeLabel: {
-    color: COLORS.accent,
+    color: colors.accent,
     fontWeight: '700',
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: colors.border,
   },
   logoutBtn: {
     flexDirection: 'row',
@@ -155,7 +159,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   logoutText: {
-    color: '#f87171',
+    color: colors.danger,
     fontSize: 16,
     fontWeight: '600',
   },
