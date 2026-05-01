@@ -76,9 +76,9 @@ export default function DashboardScreen({ navigation }) {
     ];
 
     return (
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
         style={styles.summaryScroll}
         contentContainerStyle={styles.summaryScrollContent}
       >

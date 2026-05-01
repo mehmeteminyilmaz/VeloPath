@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ActivityIndicator } from 'react-native';
@@ -33,21 +33,39 @@ function Navigation() {
     );
   }
 
+  const navTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: colors.bg,
+      card: colors.bg,
+      text: '#fff',
+      border: 'transparent',
+      notification: colors.accent,
+    },
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={initialRoute}
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <NavigationContainer theme={navTheme}>
+        <Stack.Navigator
+          initialRouteName={initialRoute}
+          screenOptions={{ 
+            headerShown: false,
+            animation: 'slide_from_right',
+            contentStyle: { backgroundColor: colors.bg }
+          }}
+        >
+        <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
         <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
-        <Stack.Screen name="Pomodoro" component={PomodoroScreen} />
+        <Stack.Screen name="Pomodoro" component={PomodoroScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="Stats" component={StatsScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="CreateProject" component={CreateProjectScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="CreateProject" component={CreateProjectScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
   );
 }
 
