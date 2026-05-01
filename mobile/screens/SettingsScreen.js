@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, StatusBar, 
   ScrollView, Alert, Switch, Modal, TextInput, ActivityIndicator 
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { RADIUS } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,9 +27,22 @@ export default function SettingsScreen({ navigation }) {
         setUsername(storedUser);
         setNewName(storedUser);
       }
+      const storedNotif = await AsyncStorage.getItem('notificationsEnabled');
+      if (storedNotif !== null) {
+        setNotificationsEnabled(storedNotif === 'true');
+      }
     };
     loadUserData();
   }, []);
+
+  const toggleNotifications = async (value) => {
+    setNotificationsEnabled(value);
+    await AsyncStorage.setItem('notificationsEnabled', value.toString());
+  };
+
+  const handleSendTestNotification = () => {
+    Alert.alert('Bildirim Simülasyonu', 'Gelecekteki uygulama sürümlerinde bu ayar aktif olduğunda size bildirim gönderilecektir.');
+  };
 
   const handleUpdateName = async () => {
     if (!newName.trim()) {
@@ -89,7 +103,8 @@ export default function SettingsScreen({ navigation }) {
     );
   };
 
-  const styles = createStyles(colors);
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors, insets);
 
   return (
     <View style={styles.container}>
@@ -101,12 +116,10 @@ export default function SettingsScreen({ navigation }) {
           <Ionicons name="chevron-back" size={28} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Ayarlar</Text>
-        <View style={{ width: 40 }} /> {/* Balancer */}
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        
-        {/* --- PROFIL BÖLÜMÜ --- */}
         <Text style={styles.sectionTitle}>PROFİL</Text>
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
@@ -121,7 +134,6 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* --- TERCİHLER BÖLÜMÜ --- */}
         <Text style={[styles.sectionTitle, { marginTop: 30 }]}>TERCİHLER</Text>
         <View style={styles.settingsGroup}>
           <View style={styles.settingRow}>
@@ -134,12 +146,19 @@ export default function SettingsScreen({ navigation }) {
                 <Text style={styles.settingSubLabel}>Önemli hatırlatıcılar</Text>
               </View>
             </View>
-            <Switch 
-              value={notificationsEnabled} 
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: '#333', true: colors.accent }}
-              thumbColor="#fff"
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              {notificationsEnabled && (
+                <TouchableOpacity onPress={handleSendTestNotification} style={styles.testBtn}>
+                  <Ionicons name="paper-plane-outline" size={16} color={colors.accent} />
+                </TouchableOpacity>
+              )}
+              <Switch 
+                value={notificationsEnabled} 
+                onValueChange={toggleNotifications}
+                trackColor={{ false: '#333', true: colors.accent }}
+                thumbColor="#fff"
+              />
+            </View>
           </View>
 
           <View style={styles.settingRow}>
@@ -149,11 +168,11 @@ export default function SettingsScreen({ navigation }) {
               </View>
               <View>
                 <Text style={styles.settingLabel}>Görünüm Teması</Text>
-                <Text style={styles.settingSubLabel}>{themeName === 'dark' ? 'Karanlık Mod' : 'Aydınlık Mod'}</Text>
+                <Text style={styles.settingSubLabel}>{themeName === 'dark' ? 'Gece Modu Aktif' : 'Gündüz Modu Aktif'}</Text>
               </View>
             </View>
             <TouchableOpacity onPress={toggleTheme} style={styles.themeToggleBtn}>
-              <Text style={styles.themeValue}>{themeName === 'dark' ? 'Aydınlık Yap' : 'Karanlık Yap'}</Text>
+              <Text style={styles.themeValue}>{themeName === 'dark' ? 'Gündüz Modu' : 'Gece Modu'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -171,16 +190,16 @@ export default function SettingsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* --- TEHLİKELİ BÖLGE --- */}
-        <Text style={[styles.sectionTitle, { marginTop: 30, color: colors.danger }]}>TEHLİKELİ BÖLGE</Text>
-        <View style={[styles.settingsGroup, { borderColor: `${colors.danger}20` }]}>
+        <Text style={[styles.sectionTitle, { marginTop: 30 }]}>TEHLİKELİ BÖLGE</Text>
+        <View style={styles.settingsGroup}>
           <TouchableOpacity style={styles.settingRow} onPress={handleLogout}>
             <View style={styles.settingLeft}>
-              <View style={[styles.iconBox, { backgroundColor: `${colors.danger}15` }]}>
+              <View style={[styles.iconBox, { backgroundColor: `${colors.danger}10` }]}>
                 <Ionicons name="log-out-outline" size={20} color={colors.danger} />
               </View>
-              <Text style={[styles.settingLabel, { color: colors.danger }]}>Oturumu Kapat</Text>
+              <Text style={styles.settingLabel}>Oturumu Kapat</Text>
             </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.settingRow, { borderBottomWidth: 0 }]} onPress={handleResetData}>
@@ -190,10 +209,10 @@ export default function SettingsScreen({ navigation }) {
               </View>
               <Text style={[styles.settingLabel, { color: colors.danger }]}>Tüm Verileri Sıfırla</Text>
             </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
-        {/* Footer Info */}
         <View style={styles.footer}>
           <View style={styles.footerRow}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
@@ -251,7 +270,7 @@ export default function SettingsScreen({ navigation }) {
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const createStyles = (colors, insets) => StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: colors.bg 
@@ -261,7 +280,7 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between',
     paddingHorizontal: 15, 
-    paddingTop: 55, 
+    paddingTop: insets.top + 10, 
     paddingBottom: 20, 
     borderBottomWidth: 1, 
     borderBottomColor: colors.border 
@@ -279,7 +298,7 @@ const createStyles = (colors) => StyleSheet.create({
   },
   content: { 
     padding: 20,
-    paddingBottom: 50
+    paddingBottom: Math.max(insets.bottom, 20) + 30
   },
   sectionTitle: { 
     color: colors.textSecondary, 
@@ -378,6 +397,11 @@ const createStyles = (colors) => StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: `${colors.accent}10`,
     borderRadius: 8
+  },
+  testBtn: {
+    padding: 8,
+    backgroundColor: `${colors.accent}10`,
+    borderRadius: 8,
   },
   footer: {
     marginTop: 40,
