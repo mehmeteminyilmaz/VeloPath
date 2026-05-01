@@ -2,25 +2,39 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
-  ActivityIndicator, Alert, StatusBar,
+  ActivityIndicator, Alert, StatusBar, Dimensions
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { loginUser, registerUser } from '../services/api';
 import { FONTS, RADIUS } from '../theme/colors';
 import { useTheme } from '../theme/ThemeContext';
 
+const { width } = Dimensions.get('window');
+
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { themeName, colors } = useTheme();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
       Alert.alert('Hata', 'Kullanıcı adı ve şifre boş bırakılamaz.');
       return;
     }
+
+    if (isRegister && password !== confirmPassword) {
+      Alert.alert('Hata', 'Şifreler uyuşmuyor.');
+      return;
+    }
+
     setLoading(true);
     try {
       let user;
@@ -33,203 +47,307 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem('username', user.username);
       navigation.replace('Dashboard');
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Bir hata oluştu';
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Bir hata oluştu';
       Alert.alert('Hata', msg);
     } finally {
       setLoading(false);
     }
   };
 
-  const styles = createStyles(colors);
+  const styles = createStyles(colors, insets);
 
   return (
-    <KeyboardAvoidingView
+    <LinearGradient
+      colors={['#0f172a', '#1e1b4b']}
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle={themeName === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
-
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <View style={styles.logoIcon}>
-          <Text style={styles.logoEmoji}>⚡</Text>
+      <StatusBar barStyle="light-content" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.inner}>
+          {/* Logo Section */}
+          <View style={styles.logoContainer}>
+            <Text style={[styles.logoText, { color: '#818cf8' }]}>VeloPath</Text>
+            <Text style={styles.logoSub}>Akıllı Proje Yönetimi ve Verimlilik Asistanı</Text>
+          </View>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity 
+              style={styles.tabBtn} 
+              onPress={() => setIsRegister(false)}
+            >
+              {!isRegister ? (
+                <LinearGradient
+                  colors={['#6366f1', '#8b5cf6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.activeTabGradient}
+                >
+                  <Ionicons name="log-in-outline" size={18} color="#fff" />
+                  <Text style={styles.activeTabText}>Giriş Yap</Text>
+                </LinearGradient>
+              ) : (
+                <View style={styles.inactiveTab}>
+                  <Ionicons name="log-in-outline" size={18} color="#64748b" />
+                  <Text style={styles.inactiveTabText}>Giriş Yap</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.tabBtn} 
+              onPress={() => setIsRegister(true)}
+            >
+              {isRegister ? (
+                <LinearGradient
+                  colors={['#6366f1', '#8b5cf6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.activeTabGradient}
+                >
+                  <Ionicons name="person-add-outline" size={18} color="#fff" />
+                  <Text style={styles.activeTabText}>Kayıt Ol</Text>
+                </LinearGradient>
+              ) : (
+                <View style={styles.inactiveTab}>
+                  <Ionicons name="person-add-outline" size={18} color="#64748b" />
+                  <Text style={styles.inactiveTabText}>Kayıt Ol</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.form}>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>Kullanıcı Adı</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="kullanici_adi"
+                  placeholderTextColor="#475569"
+                  value={username}
+                  onChangeText={setUsername}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              </View>
+            </View>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.label}>Şifre</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="En az 6 karakter"
+                  placeholderTextColor="#475569"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons 
+                    name={showPassword ? "eye-off-outline" : "eye-outline"} 
+                    size={20} 
+                    color="#64748b" 
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            {isRegister && (
+              <View style={styles.inputWrapper}>
+                <Text style={styles.label}>Şifre Tekrar</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Şifreyi tekrar girin"
+                    placeholderTextColor="#475569"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={!showPassword}
+                  />
+                </View>
+              </View>
+            )}
+            <TouchableOpacity
+              style={styles.submitBtnContainer}
+              onPress={handleSubmit}
+              disabled={loading}
+              activeOpacity={0.85}
+            >
+              <LinearGradient
+                colors={['#6366f1', '#8b5cf6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.submitBtn}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons 
+                      name={isRegister ? "person-add" : "log-in"} 
+                      size={22} 
+                      color="#fff" 
+                    />
+                    <Text style={styles.submitBtnText}>
+                      {isRegister ? 'Hesap Oluştur' : 'Giriş Yap'}
+                    </Text>
+                    <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.6)" />
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footer}>
+            <View style={styles.lockBadge}>
+              <Ionicons name="lock-closed" size={14} color="#475569" />
+            </View>
+            <Text style={styles.footerText}>Verileriniz şifreli olarak güvende saklanır.</Text>
+          </View>
         </View>
-        <Text style={styles.logoText}>VeloPath</Text>
-        <Text style={styles.logoSub}>Proje yönetimi, her platformda</Text>
-      </View>
-
-      {/* Kart */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>
-          {isRegister ? 'Hesap Oluştur' : 'Giriş Yap'}
-        </Text>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Kullanıcı Adı</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="kullanici_adi"
-            placeholderTextColor={colors.textSecondary}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Şifre</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={colors.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-          activeOpacity={0.85}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>
-              {isRegister ? 'Kayıt Ol' : 'Giriş Yap'}
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.switchBtn}
-          onPress={() => setIsRegister(!isRegister)}
-        >
-          <Text style={styles.switchText}>
-            {isRegister
-              ? 'Zaten hesabın var mı? Giriş yap'
-              : 'Hesabın yok mu? Kayıt ol'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Sync badge */}
-      <View style={styles.syncBadge}>
-        <Text style={styles.syncDot}>●</Text>
-        <Text style={styles.syncText}>Web ile gerçek zamanlı senkronize</Text>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const createStyles = (colors, insets) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
+  },
+  inner: {
+    flex: 1,
+    paddingHorizontal: 30,
+    paddingTop: insets.top + 60,
+    paddingBottom: insets.bottom + 20,
+    alignItems: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: RADIUS.xl,
-    backgroundColor: `${colors.accent}15`,
-    borderWidth: 1,
-    borderColor: colors.accent,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  logoEmoji: {
-    fontSize: 36,
-  },
-  logoText: {
-    fontSize: FONTS.sizes.xxl,
-    fontWeight: '800',
-    color: colors.textPrimary,
-    letterSpacing: -0.5,
+    marginBottom: 50,
   },
   logoSub: {
-    fontSize: FONTS.sizes.sm,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-  card: {
-    backgroundColor: colors.bgCard,
-    borderRadius: RADIUS.lg,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardTitle: {
-    fontSize: FONTS.sizes.xl,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 24,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: FONTS.sizes.sm,
-    color: colors.textSecondary,
-    marginBottom: 6,
-    fontWeight: '600',
-  },
-  input: {
-    backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: FONTS.sizes.md,
-    color: colors.textPrimary,
-  },
-  button: {
-    backgroundColor: colors.accent,
-    borderRadius: RADIUS.md,
-    paddingVertical: 14,
-    alignItems: 'center',
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
     marginTop: 8,
+    fontWeight: '500',
   },
-  buttonDisabled: {
-    opacity: 0.6,
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 16,
+    padding: 6,
+    width: '100%',
+    marginBottom: 40,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: FONTS.sizes.md,
-    fontWeight: '700',
+  tabBtn: {
+    flex: 1,
+    height: 44,
   },
-  switchBtn: {
-    alignItems: 'center',
-    marginTop: 16,
-    paddingVertical: 4,
-  },
-  switchText: {
-    color: colors.accent,
-    fontSize: FONTS.sizes.sm,
-  },
-  syncBadge: {
+  activeTabGradient: {
+    flex: 1,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 32,
-    gap: 6,
+    gap: 8,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  syncDot: {
-    color: colors.success,
-    fontSize: 10,
+  activeTabText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
-  syncText: {
-    color: colors.textSecondary,
-    fontSize: FONTS.sizes.xs,
+  inactiveTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  inactiveTabText: {
+    color: '#64748b',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  form: {
+    width: '100%',
+    gap: 24,
+  },
+  inputWrapper: {
+    gap: 12,
+  },
+  label: {
+    color: '#94a3b8',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    height: 60,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  submitBtnContainer: {
+    marginTop: 10,
+    borderRadius: 20,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  submitBtn: {
+    height: 64,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  submitBtnText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 'auto',
+    gap: 10,
+  },
+  lockBadge: {
+    width: 28,
+    height: 28,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    color: '#475569',
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
