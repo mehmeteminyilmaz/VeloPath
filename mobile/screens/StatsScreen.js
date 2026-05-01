@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, RADIUS } from '../theme/colors';
 
 const { width } = Dimensions.get('window');
 
 export default function StatsScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const stats = [
     { label: 'Tamamlanan Görev', value: '12', icon: 'checkmark-circle-outline', color: '#6366f1' },
     { label: 'En Uzun Seri', value: '4 Gün', icon: 'flash-outline', color: '#10b981' },
@@ -18,7 +20,7 @@ export default function StatsScreen({ navigation }) {
       <StatusBar barStyle="light-content" />
       
       {/* Header - Web Style */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -36,8 +38,8 @@ export default function StatsScreen({ navigation }) {
               <View style={[styles.iconBox, { backgroundColor: `${item.color}15` }]}>
                 <Ionicons name={item.icon} size={20} color={item.color} />
               </View>
-              <View>
-                <Text style={styles.statLabel}>{item.label}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.statLabel} numberOfLines={2}>{item.label}</Text>
                 <Text style={styles.statValue}>{item.value}</Text>
               </View>
             </View>
@@ -83,12 +85,12 @@ export default function StatsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0b0e14' }, // Web'in derin karanlığı
-  header: { paddingHorizontal: 20, paddingTop: 55, paddingBottom: 25, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  header: { paddingHorizontal: 20, paddingBottom: 25, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   backBtn: { marginBottom: 15, marginLeft: -5 },
   headerTitle: { fontSize: 28, fontWeight: '900', color: '#fff', letterSpacing: -0.5 },
   headerSub: { fontSize: 13, color: '#64748b', marginTop: 4 },
 
-  scrollContent: { padding: 20, gap: 20, paddingBottom: 50 },
+  scrollContent: { padding: 20, gap: 20, paddingBottom: 100 },
   
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   statCard: { 

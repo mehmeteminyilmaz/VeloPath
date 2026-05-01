@@ -3,6 +3,7 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   StatusBar, ActivityIndicator, Alert, RefreshControl, ScrollView, TextInput, Dimensions
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchAllData, deleteProjectAPI } from '../services/api';
@@ -21,9 +22,10 @@ export default function DashboardScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Aktif');
   const [priorityFilter, setPriorityFilter] = useState('Tümü');
-  
+
   const { themeName, colors } = useTheme();
-  const styles = createStyles(colors);
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors, insets);
 
   const loadData = useCallback(async (uid) => {
     try {
@@ -74,7 +76,12 @@ export default function DashboardScreen({ navigation }) {
     ];
 
     return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.summaryScroll}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        style={styles.summaryScroll}
+        contentContainerStyle={styles.summaryScrollContent}
+      >
         {stats.map((s, i) => (
           <View key={i} style={styles.summaryCard}>
             <View style={[styles.summaryIconBox, { backgroundColor: `${s.color}15` }]}>
@@ -210,14 +217,14 @@ export default function DashboardScreen({ navigation }) {
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const createStyles = (colors, insets) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 55,
+    paddingTop: insets.top + 10,
     paddingBottom: 15,
   },
   headerTitle: { fontSize: 20, fontWeight: '900', color: colors.textPrimary },
@@ -228,7 +235,8 @@ const createStyles = (colors) => StyleSheet.create({
   welcomeText: { color: colors.accent, fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
   subText: { color: colors.textSecondary, fontSize: 14, marginTop: 4 },
 
-  summaryScroll: { paddingLeft: 20, marginTop: 25, marginBottom: 10 },
+  summaryScroll: { marginTop: 25, marginBottom: 10 },
+  summaryScrollContent: { paddingLeft: 20, paddingRight: 20 },
   summaryCard: { width: 130, backgroundColor: colors.bgCard, borderRadius: 16, padding: 16, marginRight: 12, borderWidth: 1, borderColor: colors.border },
   summaryIconBox: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   summaryLabel: { color: colors.textSecondary, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
