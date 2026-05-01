@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, StatusBar, 
   TextInput, Alert, ActivityIndicator, ScrollView, Dimensions 
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../theme/colors';
 import { createProject } from '../services/api';
@@ -19,6 +20,7 @@ const TEMPLATES = [
 ];
 
 export default function CreateProjectScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [priority, setPriority] = useState('Orta');
@@ -56,7 +58,7 @@ export default function CreateProjectScreen({ navigation }) {
       <StatusBar barStyle="light-content" />
       
       {/* Header - Web Style */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
           <Ionicons name="close" size={28} color="#fff" />
         </TouchableOpacity>
@@ -147,12 +149,12 @@ export default function CreateProjectScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0b0e14' },
-  header: { paddingHorizontal: 20, paddingTop: 55, paddingBottom: 20 },
+  header: { paddingHorizontal: 20, paddingBottom: 20 },
   closeBtn: { marginBottom: 15, marginLeft: -5 },
   headerTitle: { fontSize: 32, fontWeight: '900', color: '#fff', letterSpacing: -0.5 },
   headerSub: { fontSize: 13, color: '#64748b', marginTop: 4 },
 
-  scrollContent: { paddingBottom: 50 },
+  scrollContent: { paddingBottom: 100 },
   sectionLabel: { color: '#fff', fontSize: 14, fontWeight: '700', marginLeft: 20, marginBottom: 15 },
   templateScroll: { paddingLeft: 20, marginBottom: 30 },
   templateCard: { width: 140, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: 16, marginRight: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', alignItems: 'center' },

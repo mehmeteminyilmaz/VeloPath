@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { RADIUS } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,6 +12,7 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
   const opacityAnim = React.useRef(new Animated.Value(0)).current;
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   React.useEffect(() => {
     Animated.parallel([
@@ -51,7 +53,14 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
         activeOpacity={1} 
         onPress={onClose}
       />
-      <Animated.View style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]}>
+      <Animated.View style={[
+        styles.sidebar, 
+        { 
+          transform: [{ translateX: slideAnim }],
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom || 20 // En az 20px veya safe area
+        }
+      ]}>
         <View style={styles.header}>
           <Text style={styles.logoText}>VeloPath</Text>
           <TouchableOpacity onPress={onClose}>
@@ -116,7 +125,7 @@ const createStyles = (colors) => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 20, // insets.top zaten sidebar'a verildi
     marginBottom: 30,
   },
   logoText: {

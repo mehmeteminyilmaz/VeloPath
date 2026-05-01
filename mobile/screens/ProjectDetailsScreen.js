@@ -3,6 +3,7 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI } from '../services/api';
 import { COLORS, RADIUS, SHADOW } from '../theme/colors';
@@ -13,6 +14,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [adding, setAdding] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const loadProject = useCallback(async () => {
     try {
@@ -95,7 +97,10 @@ export default function ProjectDetailsScreen({ route, navigation }) {
       <StatusBar barStyle="light-content" />
       
       {/* Header Area */}
-      <View style={[styles.header, { borderBottomColor: projectColor || COLORS.accent }]}>
+      <View style={[styles.header, { 
+        borderBottomColor: projectColor || COLORS.accent,
+        paddingTop: insets.top + 10 
+      }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -151,7 +156,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <View style={styles.inputArea}>
+        <View style={[styles.inputArea, { paddingBottom: Math.max(insets.bottom, 20) }]}>
           <TextInput
             style={styles.input}
             placeholder="Yeni görev ekle..."
@@ -180,7 +185,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 55,
     paddingBottom: 20,
     borderBottomWidth: 2,
     backgroundColor: 'rgba(255,255,255,0.02)',
@@ -224,7 +228,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingTop: 15,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 25, // Alt kısımdaki iç içe girmişliği çözen boşluk
     backgroundColor: '#111827', // Web Midnight tonu
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.05)',
