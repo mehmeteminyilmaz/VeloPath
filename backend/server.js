@@ -9,6 +9,10 @@ const taskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
 
 const app = express();
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
