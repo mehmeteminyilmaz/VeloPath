@@ -24,20 +24,42 @@ export const updateUsername = async (userId, newUsername) => {
 };
 
 // ---------- PROJECTS ----------
+// Web ile aynı normalizasyon: backend status/weekIndex → completed/week
 export const fetchAllData = async (userId) => {
   if (!userId) return null;
   const res = await api.get(`/projects/user/${userId}`);
-  return res.data;
+  return res.data.map(project => ({
+    ...project,
+    id: project._id,
+    tasks: (project.tasks || []).map(t => ({
+      ...t,
+      id: t._id,
+      text: t.title,
+      completed: t.status === 'done',
+      week: t.weekIndex || 1,
+    })),
+  }));
 };
 
 export const fetchProjectDetails = async (projectId) => {
   const res = await api.get(`/projects/${projectId}`);
-  return res.data;
+  const project = res.data;
+  return {
+    ...project,
+    id: project._id,
+    tasks: (project.tasks || []).map(t => ({
+      ...t,
+      id: t._id,
+      text: t.title,
+      completed: t.status === 'done',
+      week: t.weekIndex || 1,
+    })),
+  };
 };
 
 export const createProject = async (projectData) => {
   const res = await api.post('/projects', projectData);
-  return res.data;
+  return { ...res.data, id: res.data._id, tasks: [] };
 };
 
 export const deleteProjectAPI = async (projectId) => {
@@ -45,18 +67,23 @@ export const deleteProjectAPI = async (projectId) => {
 };
 
 // ---------- TASKS ----------
+// projectId: string, taskData: { title, ...diğer alanlar }
 export const createTask = async (projectId, taskData) => {
-  // Backend beklenen format: { title, project }
-  const res = await api.post('/tasks', { ...taskData, project: projectId });
-  return res.data;
+  const res = await api.post('/tasks', {
+    ...taskData,
+    projectId,   // Task schema projectId bekliyor
+  });
+  return { ...res.data, id: res.data._id };
 };
 
 export const toggleTaskAPI = async (taskId) => {
-  // Backend'deki toggle endpoint'ine göre (Genelde PUT /tasks/:id/toggle)
-  // Eğer yoksa mevcut status'u tersine çevirerek update etmeliyiz.
-  // Varsayılan olarak status güncellemesi:
   const res = await api.put(`/tasks/${taskId}/toggle`);
   return res.data;
+};
+
+export const updateTaskAPI = async (taskId, updateData) => {
+  const res = await api.put(`/tasks/${taskId}`, updateData);
+  return { ...res.data, id: res.data._id };
 };
 
 export const deleteTaskAPI = async (taskId) => {
