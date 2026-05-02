@@ -6,8 +6,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchAllData, deleteProjectAPI } from '../services/api';
-import { SHADOW } from '../theme/colors';
+import { io } from 'socket.io-client';
+import { fetchAllData, deleteProjectAPI, API_BASE } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -49,6 +49,26 @@ export default function DashboardScreen({ navigation }) {
     init();
   }, [loadData]);
 
+  // Socket.io — Gerçek zamanlı güncelleme
+  useEffect(() => {
+    let socket;
+    AsyncStorage.getItem('userId').then(uid => {
+      if (!uid) return;
+      const SOCKET_URL = API_BASE.replace('/api', '');
+      socket = io(SOCKET_URL, {
+        transports: ['websocket'],
+        reconnectionAttempts: 5,
+      });
+      socket.on('connect', () => {
+        socket.emit('join_user_room', uid);
+      });
+      socket.on('data_updated', () => {
+        loadData(uid);
+      });
+    });
+    return () => { if (socket) socket.disconnect(); };
+  }, [loadData]);
+
   const onRefresh = () => {
     setRefreshing(true);
     AsyncStorage.getItem('userId').then(uid => loadData(uid));
@@ -66,13 +86,40 @@ export default function DashboardScreen({ navigation }) {
     ]);
   };
 
-  // Web Style Summary Cards
+  // Görev tamamlanma kontrolü — backend hem completed hem status döndürebilir
+  const isTaskDone = (t) => t.completed === true || t.status === 'done';
+
+  // Projeleri filtrele
+  const filteredProjects = projects
+    .filter(p => activeFilter === 'Aktif' ? !p.archived : !!p.archived)
+    .filter(p => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        p.title?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+      );
+    })
+    .filter(p => {
+      if (priorityFilter === 'Tümü') return true;
+      return p.priority === priorityFilter;
+    });
+
+  // Summary kartları için gerçek istatistikler
   const renderSummary = () => {
+    const activeProjects = projects.filter(p => !p.archived);
+    const allTasks = projects.flatMap(p => p.tasks || []);
+    const completedTasks = allTasks.filter(isTaskDone);
+    const pendingTasks = allTasks.filter(t => !isTaskDone(t));
+    const productivity = allTasks.length > 0
+      ? Math.round((completedTasks.length / allTasks.length) * 100)
+      : 0;
+
     const stats = [
-      { label: 'Aktif Projeler', value: projects.length, icon: 'briefcase-outline', color: colors.accent },
-      { label: 'Bekleyen Görevler', value: '0', icon: 'pulse-outline', color: colors.success },
-      { label: 'Tamamlananlar', value: '0', icon: 'checkmark-done-outline', color: '#8b5cf6' },
-      { label: 'Verimlilik', value: '%0', icon: 'pie-chart-outline', color: colors.warning },
+      { label: 'Aktif Projeler', value: activeProjects.length.toString(), icon: 'briefcase-outline', color: colors.accent },
+      { label: 'Bekleyen Görevler', value: pendingTasks.length.toString(), icon: 'pulse-outline', color: colors.success },
+      { label: 'Tamamlananlar', value: completedTasks.length.toString(), icon: 'checkmark-done-outline', color: '#8b5cf6' },
+      { label: 'Verimlilik', value: `%${productivity}`, icon: 'pie-chart-outline', color: colors.warning },
     ];
 
     return (
@@ -117,7 +164,7 @@ export default function DashboardScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={projects}
+        data={filteredProjects}
         keyExtractor={(item) => item._id || item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
         ListHeaderComponent={
@@ -135,11 +182,17 @@ export default function DashboardScreen({ navigation }) {
                 <Text style={styles.sectionTitle}>Projelerim</Text>
               </View>
               <View style={styles.filterRow}>
-                <TouchableOpacity style={[styles.filterBtn, activeFilter === 'Aktif' && styles.activeFilterBtn]}>
+                <TouchableOpacity
+                  style={[styles.filterBtn, activeFilter === 'Aktif' && styles.activeFilterBtn]}
+                  onPress={() => setActiveFilter('Aktif')}
+                >
                   <Text style={[styles.filterText, activeFilter === 'Aktif' && styles.activeFilterText]}>Aktif</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.filterBtn}>
-                  <Text style={styles.filterText}>Arşiv</Text>
+                <TouchableOpacity
+                  style={[styles.filterBtn, activeFilter === 'Arşiv' && styles.activeFilterBtn]}
+                  onPress={() => setActiveFilter('Arşiv')}
+                >
+                  <Text style={[styles.filterText, activeFilter === 'Arşiv' && styles.activeFilterText]}>Arşiv</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -172,38 +225,50 @@ export default function DashboardScreen({ navigation }) {
           </>
         }
         contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.projectCard, { borderLeftColor: item.color || colors.accent }]}
-            onPress={() => navigation.navigate('ProjectDetails', {
-              projectId: item._id || item.id,
-              projectTitle: item.title,
-              projectColor: item.color || colors.accent
-            })}
-            activeOpacity={0.8}
-          >
-            <View style={styles.cardHeader}>
-              <View style={styles.cardTitleBox}>
-                <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>DEVAM EDİYOR</Text>
+        renderItem={({ item }) => {
+          const tasks = item.tasks || [];
+          const completedCount = tasks.filter(t => t.completed === true || t.status === 'done').length;
+          const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+          const isArchived = !!item.archived;
+
+          return (
+            <TouchableOpacity
+              style={[styles.projectCard, { borderLeftColor: item.color || colors.accent }]}
+              onPress={() => navigation.navigate('ProjectDetails', {
+                projectId: item._id || item.id,
+                projectTitle: item.title,
+                projectColor: item.color || colors.accent
+              })}
+              activeOpacity={0.8}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.cardTitleBox}>
+                  <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                  <View style={[styles.statusBadge, isArchived && { backgroundColor: `${colors.textSecondary}15` }]}>
+                    <Text style={[styles.statusText, isArchived && { color: colors.textSecondary }]}>
+                      {isArchived ? 'ARŞİVLENDİ' : progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR'}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.cardActions}>
+                  <TouchableOpacity onPress={() => handleDelete(item._id || item.id)}>
+                    <Ionicons name="trash-outline" size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
                 </View>
               </View>
-              <View style={styles.cardActions}>
-                <TouchableOpacity onPress={() => handleDelete(item._id || item.id)}>
-                  <Ionicons name="trash-outline" size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
+
+              <Text style={styles.cardInfo}>{completedCount} / {tasks.length} Görev Tamamlandı</Text>
+
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, {
+                  width: `${Math.max(progress, progress > 0 ? 2 : 0)}%`,
+                  backgroundColor: item.color || colors.accent
+                }]} />
               </View>
-            </View>
-
-            <Text style={styles.cardInfo}>0 / 0 Görev Tamamlandı</Text>
-
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '5%', backgroundColor: item.color || colors.accent }]} />
-            </View>
-            <Text style={styles.progressPercent}>%0</Text>
-          </TouchableOpacity>
-        )}
+              <Text style={[styles.progressPercent, { color: progress === 100 ? colors.success : colors.warning }]}>%{progress}</Text>
+            </TouchableOpacity>
+          );
+        }}
       />
 
       <TouchableOpacity
