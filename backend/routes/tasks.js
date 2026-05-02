@@ -30,7 +30,13 @@ router.get('/project/:projectId', async (req, res) => {
 // CREATE task
 router.post('/', async (req, res) => {
   try {
-    const task = new Task(req.body);
+    // Mobil 'project' gönderiyor, web 'projectId' gönderiyor — ikisini de destekle
+    const body = { ...req.body };
+    if (body.project && !body.projectId) {
+      body.projectId = body.project;
+      delete body.project;
+    }
+    const task = new Task(body);
     const savedTask = await task.save();
     
     await notifyProjectMembers(req.io, savedTask.projectId);
@@ -47,6 +53,23 @@ router.put('/:id', async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedTask) return res.status(404).json({ message: 'Task not found' });
     
+    await notifyProjectMembers(req.io, updatedTask.projectId);
+
+    res.json(updatedTask);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// TOGGLE task status (todo <-> done)
+router.put('/:id/toggle', async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) return res.status(404).json({ message: 'Task not found' });
+
+    task.status = task.status === 'done' ? 'todo' : 'done';
+    const updatedTask = await task.save();
+
     await notifyProjectMembers(req.io, updatedTask.projectId);
 
     res.json(updatedTask);

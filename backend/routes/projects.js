@@ -42,12 +42,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single project
+// GET single project WITH tasks
 router.get('/:id', async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id).lean();
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    res.json(project);
+
+    const tasks = await Task.find({ projectId: req.params.id }).lean().sort({ orderIndex: 1, createdAt: 1 });
+    res.json({ ...project, tasks });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
