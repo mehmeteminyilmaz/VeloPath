@@ -32,6 +32,18 @@ export default function CreateProjectScreen({ navigation }) {
   const [selectedTemplate, setSelectedTemplate] = useState('empty');
   const [loading, setLoading] = useState(false);
 
+  const PRIORITIES = ['Düşük', 'Orta', 'Yüksek'];
+  const cyclePriority = () => {
+    const idx = PRIORITIES.indexOf(priority);
+    setPriority(PRIORITIES[(idx + 1) % PRIORITIES.length]);
+  };
+
+  const getPriorityColor = () => {
+    if (priority === 'Yüksek') return colors.danger;
+    if (priority === 'Düşük') return colors.success;
+    return colors.warning;
+  };
+
   const handleCreate = async () => {
     if (!title.trim()) {
       Alert.alert('Hata', 'Proje başlığı boş bırakılamaz');
@@ -116,17 +128,22 @@ export default function CreateProjectScreen({ navigation }) {
           <View style={styles.row}>
             <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Öncelik Seviyesi</Text>
-              <TouchableOpacity style={styles.selector}>
-                <Text style={styles.selectorText}>{priority}</Text>
-                <Ionicons name="chevron-down" size={16} color={colors.textSecondary} />
+              <TouchableOpacity style={[styles.selector, { borderColor: getPriorityColor() }]} onPress={cyclePriority}>
+                <Text style={[styles.selectorText, { color: getPriorityColor(), fontWeight: '700' }]}>{priority}</Text>
+                <Ionicons name="swap-vertical" size={16} color={getPriorityColor()} />
               </TouchableOpacity>
             </View>
             <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Teslim Tarihi</Text>
-              <TouchableOpacity style={styles.selector}>
-                <Text style={styles.selectorText}>gg.aa.yyyy</Text>
-                <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
-              </TouchableOpacity>
+              <TextInput
+                style={[styles.input, { height: 50 }]}
+                placeholder="gg.aa.yyyy"
+                placeholderTextColor={colors.textSecondary}
+                value={deadline}
+                onChangeText={setDeadline}
+                keyboardType="numeric"
+                maxLength={10}
+              />
             </View>
           </View>
 
