@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform
+  StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform, RefreshControl
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI } from '../services/api';
-import { COLORS, RADIUS, SHADOW } from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function ProjectDetailsScreen({ route, navigation }) {
   const { projectId, projectTitle, projectColor } = route.params;
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [adding, setAdding] = useState(false);
+
   const insets = useSafeAreaInsets();
+  const { colors, themeName } = useTheme();
+  const styles = createStyles(colors, insets);
 
   const loadProject = useCallback(async () => {
     try {
@@ -65,8 +69,8 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const handleDeleteTask = (taskId) => {
     Alert.alert('Görevi Sil', 'Bu görevi silmek istediğine emin misin?', [
       { text: 'İptal', style: 'cancel' },
-      { 
-        text: 'Sil', 
+      {
+        text: 'Sil',
         style: 'destructive',
         onPress: async () => {
           try {
@@ -83,76 +87,87 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={projectColor || COLORS.accent} />
+        <ActivityIndicator size="large" color={projectColor || colors.accent} />
       </View>
     );
   }
 
   const tasks = project?.tasks || [];
-  const completedCount = tasks.filter(t => t.completed).length;
+  // Backend'den hem completed (boolean) hem status ('done') gelebilir
+  const isTaskDone = (t) => t.completed === true || t.status === 'done';
+  const completedCount = tasks.filter(isTaskDone).length;
   const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      
-      {/* Header Area */}
-      <View style={[styles.header, { 
-        borderBottomColor: projectColor || COLORS.accent,
-        paddingTop: insets.top + 10 
+      <StatusBar barStyle={themeName === 'dark' ? 'light-content' : 'dark-content'} />
+
+      {/* Header */}
+      <View style={[styles.header, {
+        borderBottomColor: projectColor || colors.accent,
+        paddingTop: insets.top + 10
       }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-           <Text style={styles.headerTitle} numberOfLines={1}>{projectTitle}</Text>
-           <Text style={styles.headerSub}>{tasks.length} Görev • %{progress} Tamamlandı</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{projectTitle}</Text>
+          <Text style={styles.headerSub}>{tasks.length} Görev • %{progress} Tamamlandı</Text>
         </View>
       </View>
 
-      {/* Progress Bar - Web Style */}
+      {/* Progress Bar */}
       <View style={styles.progressSection}>
-         <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${progress}%`, backgroundColor: projectColor || COLORS.accent }]} />
-         </View>
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, {
+            width: `${Math.max(progress, progress > 0 ? 2 : 0)}%`,
+            backgroundColor: projectColor || colors.accent
+          }]} />
+        </View>
       </View>
 
       <FlatList
         data={tasks}
         keyExtractor={(item) => item._id || item.id}
         contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <View style={[styles.taskCard, item.completed && styles.taskCardCompleted]}>
-            <TouchableOpacity 
-              style={styles.checkArea} 
-              onPress={() => handleToggleTask(item._id || item.id)}
-            >
-              <View style={[
-                styles.checkbox, 
-                item.completed && { backgroundColor: projectColor || COLORS.accent, borderColor: projectColor || COLORS.accent }
-              ]}>
-                {item.completed && <Ionicons name="checkmark" size={16} color="#fff" />}
-              </View>
-              <Text style={[styles.taskTitle, item.completed && styles.taskTitleCompleted]}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => handleDeleteTask(item._id || item.id)}>
-              <Ionicons name="trash-outline" size={20} color="#f87171" />
-            </TouchableOpacity>
-          </View>
-        )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+        }
+        renderItem={({ item }) => {
+          const done = isTaskDone(item);
+          return (
+            <View style={[styles.taskCard, done && styles.taskCardCompleted]}>
+              <TouchableOpacity
+                style={styles.checkArea}
+                onPress={() => handleToggleTask(item._id || item.id)}
+              >
+                <View style={[
+                  styles.checkbox,
+                  done && { backgroundColor: projectColor || colors.accent, borderColor: projectColor || colors.accent }
+                ]}>
+                  {done && <Ionicons name="checkmark" size={16} color="#fff" />}
+                </View>
+                <Text style={[styles.taskTitle, done && styles.taskTitleCompleted]} numberOfLines={2}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => handleDeleteTask(item._id || item.id)}>
+                <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              </TouchableOpacity>
+            </View>
+          );
+        }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="clipboard-outline" size={48} color="rgba(255,255,255,0.1)" />
+            <Ionicons name="clipboard-outline" size={48} color={colors.border} />
             <Text style={styles.emptyText}>Henüz görev eklenmemiş</Text>
           </View>
         }
       />
 
-      {/* Add Task Input - Web Style */}
-      <KeyboardAvoidingView 
+      {/* Add Task Input */}
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
@@ -160,16 +175,21 @@ export default function ProjectDetailsScreen({ route, navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Yeni görev ekle..."
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.textSecondary}
             value={newTaskTitle}
             onChangeText={setNewTaskTitle}
+            onSubmitEditing={handleAddTask}
+            returnKeyType="done"
           />
-          <TouchableOpacity 
-            style={[styles.addBtn, { backgroundColor: projectColor || COLORS.accent }]}
+          <TouchableOpacity
+            style={[styles.addBtn, { backgroundColor: projectColor || colors.accent }]}
             onPress={handleAddTask}
             disabled={adding}
           >
-            {adding ? <ActivityIndicator color="#fff" size="small" /> : <Ionicons name="add" size={28} color="#fff" />}
+            {adding
+              ? <ActivityIndicator color="#fff" size="small" />
+              : <Ionicons name="add" size={28} color="#fff" />
+            }
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -177,38 +197,38 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', alignItems: 'center' },
-  
+const createStyles = (colors, insets) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
+  centerContainer: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomWidth: 2,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: colors.bgCard,
   },
   backBtn: { padding: 8, marginLeft: -10, marginRight: 10 },
   headerTitleContainer: { flex: 1 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#fff' },
-  headerSub: { fontSize: 12, color: '#666', marginTop: 2 },
+  headerTitle: { fontSize: 20, fontWeight: '800', color: colors.textPrimary },
+  headerSub: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
 
   progressSection: { paddingHorizontal: 20, paddingTop: 15 },
-  progressBarBg: { height: 4, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' },
+  progressBarBg: { height: 4, backgroundColor: colors.border, borderRadius: 2, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 2 },
 
-  listContent: { padding: 20, paddingBottom: 100 },
+  listContent: { padding: 20, paddingBottom: 120 },
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: colors.bgCard,
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: colors.border,
   },
   taskCardCompleted: { opacity: 0.6 },
   checkArea: { flex: 1, flexDirection: 'row', alignItems: 'center' },
@@ -216,44 +236,41 @@ const styles = StyleSheet.create({
     width: 24, height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: colors.border,
     marginRight: 15,
     justifyContent: 'center',
     alignItems: 'center',
+    flexShrink: 0,
   },
-  taskTitle: { color: '#fff', fontSize: 16, fontWeight: '500' },
-  taskTitleCompleted: { textDecorationLine: 'line-through', color: '#666' },
+  taskTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '500', flex: 1 },
+  taskTitleCompleted: { textDecorationLine: 'line-through', color: colors.textSecondary },
 
   inputArea: {
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingTop: 15,
-    backgroundColor: '#111827', // Web Midnight tonu
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: colors.border,
     gap: 12,
   },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: colors.bgCard,
     borderRadius: 14,
     paddingHorizontal: 16,
     height: 52,
-    color: '#fff',
+    color: colors.textPrimary,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: colors.border,
   },
   addBtn: {
     width: 52, height: 52,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
   },
   emptyState: { alignItems: 'center', marginTop: 80, gap: 12 },
-  emptyText: { color: '#4b5563', fontSize: 15, fontWeight: '500' },
+  emptyText: { color: colors.textSecondary, fontSize: 15, fontWeight: '500' },
 });
