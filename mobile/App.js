@@ -11,6 +11,7 @@ import PomodoroScreen from './screens/PomodoroScreen';
 import StatsScreen from './screens/StatsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CreateProjectScreen from './screens/CreateProjectScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
 import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
 const Stack = createNativeStackNavigator();
@@ -20,8 +21,15 @@ function Navigation() {
   const { colors } = useTheme();
 
   useEffect(() => {
-    AsyncStorage.getItem('userId').then(uid => {
-      setInitialRoute(uid ? 'Dashboard' : 'Login');
+    Promise.all([
+      AsyncStorage.getItem('userId'),
+      AsyncStorage.getItem('hasSeenOnboarding')
+    ]).then(([uid, seen]) => {
+      if (!seen) {
+        setInitialRoute('Onboarding');
+      } else {
+        setInitialRoute(uid ? 'Dashboard' : 'Login');
+      }
     });
   }, []);
 
@@ -56,6 +64,7 @@ function Navigation() {
             contentStyle: { backgroundColor: colors.bg }
           }}
         >
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ animation: 'fade' }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
         <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />

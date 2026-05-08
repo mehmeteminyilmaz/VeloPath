@@ -170,7 +170,7 @@ export default function DashboardScreen({ navigation }) {
         ListHeaderComponent={
           <>
             <View style={styles.welcomeSection}>
-              <Text style={styles.welcomeText}>Hoş Geldin, {username}!</Text>
+              <Text style={styles.welcomeText}>Hoş Geldin, {username}</Text>
               <Text style={styles.subText}>Bugün neler yapıyoruz?</Text>
             </View>
 
