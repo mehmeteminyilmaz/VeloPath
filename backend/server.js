@@ -1,21 +1,30 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const { Server } = require('socket.io');
 
 const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
 
 const app = express();
+const server = http.createServer(app);
+
+// ── 1. Güvenlik katmanları (en üstte olmalı) ──────────────
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// ── 2. İstek logger ────────────────────────────────────────
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require('socket.io');
+
+// ── 3. Socket.io ────────────────────────────────────────────
 const io = new Server(server, {
   cors: {
     origin: '*',
@@ -23,7 +32,7 @@ const io = new Server(server, {
   }
 });
 
-// Middleware to inject io to routes
+// Socket instance'ını route'lara aktar
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -31,7 +40,7 @@ app.use((req, res, next) => {
 
 io.on('connection', (socket) => {
   console.log('User connected to socket:', socket.id);
-  
+
   socket.on('join_user_room', (userId) => {
     socket.join(`user_${userId}`);
     console.log(`Socket ${socket.id} joined room user_${userId}`);
@@ -42,16 +51,12 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(helmet()); // Güvenlik katmanı
-app.use(cors());
-app.use(express.json());
-
-// Routes
+// ── 4. API Route'ları ───────────────────────────────────────
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
-// MongoDB Connection
+// ── 5. MongoDB Bağlantısı ve Sunucu Başlatma ───────────────
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
