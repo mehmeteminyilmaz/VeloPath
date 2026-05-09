@@ -16,7 +16,7 @@ const PROJECT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '
 const TEMPLATES = [
   { id: 'empty', title: 'Boş Proje', desc: 'Sıfırdan Başla', icon: 'close-circle-outline' },
   { id: 'web', title: 'Modern Web Projesi', desc: '5 Hazır Görev', icon: 'desktop-outline' },
-  { id: 'mobile', title: 'Mobil Uygulama', desc: '5 Hazır Görev', icon: 'smartphone-outline' },
+  { id: 'mobile', title: 'Mobil Uygulama', desc: '5 Hazır Görev', icon: 'phone-portrait-outline' },
   { id: 'saas', title: 'Full-Stack SaaS', desc: '5 Hazır Görev', icon: 'layers-outline' },
 ];
 
