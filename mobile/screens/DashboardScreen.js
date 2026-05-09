@@ -6,8 +6,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { io } from 'socket.io-client';
-import { fetchAllData, deleteProjectAPI, API_BASE } from '../services/api';
+import { fetchAllData, deleteProjectAPI } from '../services/api';
+import { connectSocket, disconnectSocket } from '../services/socket';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -21,7 +21,6 @@ export default function DashboardScreen({ navigation }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Aktif');
-  const [priorityFilter, setPriorityFilter] = useState('Tümü');
 
   const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -49,24 +48,13 @@ export default function DashboardScreen({ navigation }) {
     init();
   }, [loadData]);
 
-  // Socket.io — Gerçek zamanlı güncelleme
+  // Socket.io — Merkezi socket servisi üzerinden gerçek zamanlı güncelleme
   useEffect(() => {
-    let socket;
     AsyncStorage.getItem('userId').then(uid => {
       if (!uid) return;
-      const SOCKET_URL = API_BASE.replace('/api', '');
-      socket = io(SOCKET_URL, {
-        transports: ['websocket'],
-        reconnectionAttempts: 5,
-      });
-      socket.on('connect', () => {
-        socket.emit('join_user_room', uid);
-      });
-      socket.on('data_updated', () => {
-        loadData(uid);
-      });
+      connectSocket(uid, () => loadData(uid));
     });
-    return () => { if (socket) socket.disconnect(); };
+    return () => disconnectSocket();
   }, [loadData]);
 
   const onRefresh = () => {
@@ -99,10 +87,6 @@ export default function DashboardScreen({ navigation }) {
         p.title?.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q)
       );
-    })
-    .filter(p => {
-      if (priorityFilter === 'Tümü') return true;
-      return p.priority === priorityFilter;
     });
 
   // Summary kartları için gerçek istatistikler
@@ -209,19 +193,6 @@ export default function DashboardScreen({ navigation }) {
                 />
               </View>
             </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.priorityScroll}>
-              <Text style={styles.priorityLabel}>Öncelik :</Text>
-              {['Tümü', 'Yüksek', 'Orta', 'Düşük'].map(p => (
-                <TouchableOpacity
-                  key={p}
-                  style={[styles.priorityBtn, priorityFilter === p && styles.activePriorityBtn]}
-                  onPress={() => setPriorityFilter(p)}
-                >
-                  <Text style={[styles.priorityBtnText, priorityFilter === p && styles.activePriorityText]}>{p}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
           </>
         }
         contentContainerStyle={styles.listContent}
@@ -319,13 +290,6 @@ const createStyles = (colors, insets) => StyleSheet.create({
   searchSection: { paddingHorizontal: 20, marginTop: 20 },
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.bgCard, borderRadius: 12, paddingHorizontal: 15, height: 50, borderWidth: 1, borderColor: colors.border },
   searchInput: { flex: 1, marginLeft: 10, color: colors.textPrimary, fontSize: 14 },
-
-  priorityScroll: { paddingLeft: 20, marginTop: 20, marginBottom: 10 },
-  priorityLabel: { color: colors.textSecondary, fontSize: 13, marginRight: 15, alignSelf: 'center' },
-  priorityBtn: { paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, marginRight: 8 },
-  activePriorityBtn: { backgroundColor: colors.accent },
-  priorityBtnText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
-  activePriorityText: { color: '#fff' },
 
   listContent: { paddingBottom: 100 },
   projectCard: {

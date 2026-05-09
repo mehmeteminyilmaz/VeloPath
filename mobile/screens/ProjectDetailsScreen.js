@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform, RefreshControl
+  StatusBar, ActivityIndicator, Alert, TextInput, KeyboardAvoidingView, Platform, RefreshControl, Modal
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,11 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const [notesOpen, setNotesOpen] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
 
+  // Paylaşım modal state'i (Alert.prompt yerine — Android uyumlu)
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [shareUsername, setShareUsername] = useState('');
+  const [sharing, setSharing] = useState(false);
+
   const [selectedTask, setSelectedTask] = useState(null);
 
   const insets = useSafeAreaInsets();
@@ -36,7 +41,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
       const data = await fetchProjectDetails(projectId);
       if (data) {
         setProject(data);
-        setNotesDraft(data.projectNotes || '');
+        setNotesDraft(data.notes || '');  // ✅ Backend alanı 'notes'
       }
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Bilinmeyen hata';
@@ -81,7 +86,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const handleSaveNotes = async () => {
     setSavingNotes(true);
     try {
-      await updateProjectAPI(projectId, { projectNotes: notesDraft });
+      await updateProjectAPI(projectId, { notes: notesDraft });  // ✅ Backend alanı 'notes'
       await loadProject();
       Alert.alert('Başarılı', 'Notlar kaydedildi.');
     } catch (err) {
@@ -119,24 +124,22 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   };
 
   const handleShare = () => {
-    Alert.prompt(
-      'Projeyi Paylaş',
-      'Kullanıcı adını girin:',
-      [
-        { text: 'İptal', style: 'cancel' },
-        { text: 'Paylaş', onPress: async (username) => {
-            if (!username.trim()) return;
-            try {
-              await shareProjectAPI(projectId, username.trim());
-              Alert.alert('Başarılı', `${username} projeye eklendi!`);
-            } catch (err) {
-              Alert.alert('Hata', 'Paylaşılamadı.');
-            }
-          } 
-        }
-      ],
-      'plain-text'
-    );
+    setShareUsername('');
+    setShareModalVisible(true);
+  };
+
+  const handleShareConfirm = async () => {
+    if (!shareUsername.trim()) return;
+    setSharing(true);
+    try {
+      await shareProjectAPI(projectId, shareUsername.trim());
+      setShareModalVisible(false);
+      Alert.alert('Başarılı', `${shareUsername.trim()} projeye eklendi!`);
+    } catch (err) {
+      Alert.alert('Hata', 'Paylaşılamadı. Kullanıcı adını kontrol edin.');
+    } finally {
+      setSharing(false);
+    }
   };
 
   const handleArchive = () => {
@@ -395,6 +398,50 @@ export default function ProjectDetailsScreen({ route, navigation }) {
         onClose={() => setSelectedTask(null)}
         onSave={handleSaveTaskDetails}
       />
+
+      {/* Paylaşım Modal — iOS + Android uyumlu */}
+      <Modal
+        visible={shareModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.shareOverlay}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={styles.shareModal}>
+              <Text style={styles.shareTitle}>Projeyi Paylaş</Text>
+              <Text style={styles.shareSubtitle}>Paylaşmak istediğin kullanıcının adını girin</Text>
+              <TextInput
+                style={styles.shareInput}
+                placeholder="Kullanıcı adı..."
+                placeholderTextColor={colors.textSecondary}
+                value={shareUsername}
+                onChangeText={setShareUsername}
+                autoFocus
+                autoCapitalize="none"
+              />
+              <View style={styles.shareButtons}>
+                <TouchableOpacity
+                  style={styles.shareCancelBtn}
+                  onPress={() => setShareModalVisible(false)}
+                >
+                  <Text style={styles.shareCancelText}>İptal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.shareConfirmBtn, { backgroundColor: projectColor || colors.accent }]}
+                  onPress={handleShareConfirm}
+                  disabled={sharing || !shareUsername.trim()}
+                >
+                  {sharing
+                    ? <ActivityIndicator color="#fff" size="small" />
+                    : <Text style={styles.shareConfirmText}>Paylaş</Text>
+                  }
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -579,5 +626,72 @@ const createStyles = (colors, insets) => StyleSheet.create({
     borderColor: colors.border,
     minHeight: 120,
     padding: 12,
+  },
+
+  // Paylaşım Modal Stilleri
+  shareOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  shareModal: {
+    backgroundColor: colors.bgCard,
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  shareTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.textPrimary,
+    marginBottom: 6,
+  },
+  shareSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 20,
+  },
+  shareInput: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 52,
+    color: colors.textPrimary,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  shareButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  shareCancelBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  shareCancelText: {
+    color: colors.textSecondary,
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  shareConfirmBtn: {
+    flex: 2,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shareConfirmText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 15,
   },
 });

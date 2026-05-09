@@ -1,10 +1,31 @@
 import axios from 'axios';
 
-export const API_BASE = 'http://192.168.1.159:5000/api';
+import Constants from 'expo-constants';
 
+const getBackendIP = () => {
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:5000/api`;
+  }
+  return 'http://10.197.185.133:5000/api';
+};
+
+export const API_BASE = getBackendIP();
 const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
+});
+
+// Her istekte AsyncStorage'dan token al ve Authorization header'ına ekle
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (_) {}
+  return config;
 });
 
 // ---------- AUTH ----------
