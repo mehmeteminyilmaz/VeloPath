@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const auth = require('../middleware/auth');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'velopath_super_secret_key_2026';
+const signToken = (user) => jwt.sign(
+  { userId: user._id, username: user.username },
+  JWT_SECRET,
+  { expiresIn: '30d' }
+);
 
 // ── KAYIT OL ──────────────────────────────────────────────
 router.post('/register', async (req, res) => {
@@ -22,10 +31,13 @@ router.post('/register', async (req, res) => {
     const user = new User({ username, password });
     await user.save();
 
+    const token = signToken(user);
+
     res.status(201).json({
       _id: user._id,
       username: user.username,
-      preferences: user.preferences
+      preferences: user.preferences,
+      token,
     });
   } catch (error) {
     console.error("Kayıt Hatası:", error);
@@ -52,10 +64,13 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Kullanıcı adı veya şifre hatalı.' });
     }
 
+    const token = signToken(user);
+
     res.status(200).json({
       _id: user._id,
       username: user.username,
-      preferences: user.preferences
+      preferences: user.preferences,
+      token,
     });
   } catch (error) {
     console.error("Giriş Hatası:", error);
@@ -63,8 +78,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ── PROFİL GÜNCELLE ─────────────────────────────────────────
-router.patch('/:id', async (req, res) => {
+// ── PRofİL GÜNCELLE (ŞİFRE KORUMAL I) ───────────────────────
+router.patch('/:id', auth, async (req, res) => {
   try {
     const { username } = req.body;
     const { id } = req.params;

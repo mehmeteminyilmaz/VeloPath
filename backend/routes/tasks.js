@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const Project = require('../models/Project');
+const auth = require('../middleware/auth');
+
+// Tüm görev route'ları JWT ile korumalı
+router.use(auth);
 
 // Helper to notify project members
 const notifyProjectMembers = async (io, projectId) => {

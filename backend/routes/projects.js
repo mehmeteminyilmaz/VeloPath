@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const Task = require('../models/Task');
+const auth = require('../middleware/auth');
+
+// Tüm proje route'ları JWT ile korumalı
+router.use(auth);
 
 // GET all projects for a specific user WITH tasks (Optimized & Collaboration Ready)
 router.get('/user/:userId', async (req, res) => {
