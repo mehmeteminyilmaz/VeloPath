@@ -1,8 +1,36 @@
-import React from 'react';
-import { X, User, Bell, Trash2, Info, Moon, Sun, CheckCircle, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, User, Bell, Trash2, Info, Moon, Sun, CheckCircle, Settings, Edit2, Check } from 'lucide-react';
+import * as api from '../api';
 
-const SettingsModal = ({ isOpen, onClose, username, theme, setTheme, requestNotificationPermission, resetData }) => {
+const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, setTheme, requestNotificationPermission, resetData }) => {
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleEditName = () => {
+    setNewName(username);
+    setNameError('');
+    setEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    if (!newName.trim()) { setNameError('Ad boş olamaz.'); return; }
+    setNameSaving(true);
+    setNameError('');
+    try {
+      const updated = await api.updateUsername(userId, newName.trim());
+      setUsername(updated.username);
+      localStorage.setItem('velopath_username', updated.username);
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err.response?.data?.error || 'Güncelleme başarısız.');
+    } finally {
+      setNameSaving(false);
+    }
+  };
 
   const handleReset = () => {
     if (window.confirm('Tüm verileriniz silinecek ve oturumunuz kapatılacak. Emin misiniz?')) {
@@ -46,8 +74,48 @@ const SettingsModal = ({ isOpen, onClose, username, theme, setTheme, requestNoti
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>
                 {username ? username[0].toUpperCase() : 'U'}
               </div>
-              <div>
-                <p style={{ margin: 0, fontWeight: 600 }}>{username}</p>
+              <div style={{ flex: 1 }}>
+                {editingName ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        value={newName}
+                        onChange={e => setNewName(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+                        style={{
+                          flex: 1, padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--primary)',
+                          background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', fontSize: '0.95rem'
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleSaveName}
+                        disabled={nameSaving}
+                        style={{ background: 'var(--primary)', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', color: '#fff' }}
+                      >
+                        {nameSaving ? '...' : <Check size={16} />}
+                      </button>
+                      <button
+                        onClick={() => setEditingName(false)}
+                        style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    {nameError && <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--danger)' }}>{nameError}</p>}
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <p style={{ margin: 0, fontWeight: 600 }}>{username}</p>
+                    <button
+                      onClick={handleEditName}
+                      title="Kullanıcı adını düzenle"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px', display: 'flex' }}
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                  </div>
+                )}
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Standart Üye</p>
               </div>
             </div>

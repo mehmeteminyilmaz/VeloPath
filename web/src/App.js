@@ -50,6 +50,7 @@ function App() {
       localStorage.setItem('velopath_username', user.username);
       localStorage.setItem('velopath_userid', user._id);
       localStorage.setItem('velopath_authenticated', 'true');
+      if (user.token) localStorage.setItem('velopath_token', user.token);
     } catch (error) {
       const msg = error.response?.data?.error || 'Kullanıcı adı veya şifre hatalı.';
       throw new Error(msg);
@@ -65,6 +66,7 @@ function App() {
       localStorage.setItem('velopath_username', user.username);
       localStorage.setItem('velopath_userid', user._id);
       localStorage.setItem('velopath_authenticated', 'true');
+      if (user.token) localStorage.setItem('velopath_token', user.token);
     } catch (error) {
       const msg = error.response?.data?.error || 'Kayıt sırasında bir hata oluştu.';
       throw new Error(msg);
@@ -79,6 +81,7 @@ function App() {
     localStorage.removeItem('velopath_authenticated');
     localStorage.removeItem('velopath_userid');
     localStorage.removeItem('velopath_username');
+    localStorage.removeItem('velopath_token');
   };
 
   // Sidebar Daraltma Klavye Kısayolları ( [ ve Z )
@@ -532,12 +535,23 @@ function App() {
       },
       cancel: () => {
         if (!committed) {
-          // Görevi geri yükle
+          // Görevi orijinal index'ine geri yükle
           setProjects(prev => prev.map(p => {
             if (p.id.toString() !== pid) return p;
             const exists = p.tasks.find(t => t.id.toString() === tid);
             if (exists) return p;
-            return { ...p, tasks: [...p.tasks, task] };
+            // Orijinal sırayı koru: project.tasks içindeki eski index'e göre ekle
+            const originalProject = projects.find(pr => pr.id.toString() === pid);
+            const originalIndex = originalProject
+              ? originalProject.tasks.findIndex(t => t.id.toString() === tid)
+              : -1;
+            const newTasks = [...p.tasks];
+            if (originalIndex >= 0 && originalIndex <= newTasks.length) {
+              newTasks.splice(originalIndex, 0, task);
+            } else {
+              newTasks.push(task);
+            }
+            return { ...p, tasks: newTasks };
           }));
         }
       }
@@ -618,6 +632,8 @@ function App() {
           isOpen={isSettingsOpen} 
           onClose={() => setIsSettingsOpen(false)} 
           username={username}
+          userId={userId}
+          setUsername={setUsername}
           theme={theme}
           setTheme={(newTheme) => {
             setTheme(newTheme);
