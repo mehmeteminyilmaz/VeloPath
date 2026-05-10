@@ -153,14 +153,6 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
               <Activity size={20} color="var(--primary)" />
               <h2 style={{ color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 700 }}>Görev Dağılımı</h2>
             </div>
-            <button
-              onClick={() => alert('Yapay Zeka (AI) entegrasyonu Backend aşamasında (Hafta 5 ve Sonrası) aktif edilecektir! 🚀')}
-              style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)', border: 'none', padding: '8px 16px', borderRadius: '20px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)', transition: 'transform 0.2s' }}
-              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <Sparkles size={16} /> AI ile Planı Optimize Et
-            </button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>

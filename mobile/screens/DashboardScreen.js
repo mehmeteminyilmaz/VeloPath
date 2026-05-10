@@ -228,6 +228,24 @@ export default function DashboardScreen({ navigation }) {
                 </View>
               </View>
 
+              {/* Priority & Deadline Tags (Web ile eşdeğer) */}
+              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                {item.priority && (
+                  <View style={[styles.tagPill, { 
+                    borderColor: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success 
+                  }]}>
+                    <Text style={[styles.tagPillText, { 
+                      color: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success 
+                    }]}>{item.priority} Öncelik</Text>
+                  </View>
+                )}
+                {item.deadline && (
+                  <View style={[styles.tagPill, { borderColor: colors.border }]}>
+                    <Text style={[styles.tagPillText, { color: colors.textSecondary }]}>Son: {item.deadline}</Text>
+                  </View>
+                )}
+              </View>
+
               <Text style={styles.cardInfo}>{completedCount} / {tasks.length} Görev Tamamlandı</Text>
 
               <View style={styles.progressBarBg}>
@@ -308,6 +326,15 @@ const createStyles = (colors, insets) => StyleSheet.create({
   statusBadge: { backgroundColor: `${colors.warning}15`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
   statusText: { color: colors.warning, fontSize: 9, fontWeight: '900' },
   cardActions: { flexDirection: 'row', gap: 15 },
+  
+  tagPill: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    backgroundColor: `${colors.bg}50`,
+  },
+  tagPillText: { fontSize: 10, fontWeight: '600' },
 
   cardInfo: { color: colors.textSecondary, fontSize: 12, marginBottom: 12 },
   progressBarBg: { height: 4, backgroundColor: `${colors.textSecondary}15`, borderRadius: 2, overflow: 'hidden' },
