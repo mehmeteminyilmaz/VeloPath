@@ -1,6 +1,6 @@
 import axios from 'axios';
-
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getBackendIP = () => {
   const debuggerHost = Constants.expoConfig?.hostUri;
