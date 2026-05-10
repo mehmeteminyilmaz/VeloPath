@@ -53,20 +53,10 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       }
     });
 
-    // 4. En Verimli Hafta (Mantıksal Hafta)
-    const completionsByWeek = {};
-    completedTasks.forEach(t => {
-      completionsByWeek[t.week] = (completionsByWeek[t.week] || 0) + 1;
-    });
-
-    let bestWeekNum = 0;
-    let maxWeekCompletions = 0;
-    Object.keys(completionsByWeek).forEach(week => {
-      if (completionsByWeek[week] > maxWeekCompletions) {
-        maxWeekCompletions = completionsByWeek[week];
-        bestWeekNum = week;
-      }
-    });
+    // 4. Verimlilik (%)
+    const productivity = allTasks.length > 0
+      ? Math.round((totalCompleted / allTasks.length) * 100)
+      : 0;
 
     // 5. Son 7 Günlük Aktivite (Grafik İçin)
     const last7Days = [];
@@ -86,7 +76,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       totalCompleted,
       streak: longestStreak,
       bestDay: totalCompleted > 0 ? dayNames[bestDayIndex] : '-',
-      bestWeek: totalCompleted > 0 ? `Hafta ${bestWeekNum}` : '-',
+      productivity: `%${productivity}`,
       last7Days
     };
   }, [projects]);
@@ -138,8 +128,8 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
               <TrendingUp size={24} />
             </div>
             <div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>En Verimli Hafta</p>
-              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{statsData.bestWeek}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Verimlilik</p>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{statsData.productivity}</h3>
             </div>
           </div>
         </section>

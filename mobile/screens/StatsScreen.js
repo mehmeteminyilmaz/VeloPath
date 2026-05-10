@@ -38,28 +38,72 @@ export default function StatsScreen({ navigation }) {
 
   const onRefresh = () => { setRefreshing(true); loadData(); };
 
-  // --- Gerçek istatistikleri hesapla ---
+  // --- Gerçek istatistikleri hesapla (Web ile %100 aynı) ---
   const isTaskDone = (t) => t.completed === true || t.status === 'done';
   const allTasks = projects.flatMap(p => p.tasks || []);
   const completedTasks = allTasks.filter(isTaskDone);
   const pendingTasks = allTasks.filter(t => !isTaskDone(t));
-  const activeProjects = projects.filter(p => !p.archived);
+  
+  // 1. Verimlilik (%)
   const productivity = allTasks.length > 0
     ? Math.round((completedTasks.length / allTasks.length) * 100)
     : 0;
 
-  // Haftalık görev dağılımı (weekIndex 1–7)
-  const weekCounts = Array.from({ length: 7 }, (_, i) =>
-    allTasks.filter(t => t.week === i + 1).length
-  );
-  const maxWeekCount = Math.max(...weekCounts, 1);
-  const maxWeekIdx = weekCounts.indexOf(Math.max(...weekCounts));
+  // 2. En Uzun Seri (Streak)
+  const completionDates = Array.from(new Set(
+    completedTasks.filter(t => t.completedAt).map(t => t.completedAt.split('T')[0])
+  )).sort();
+
+  let longestStreak = 0;
+  let currentStreak = 0;
+  let prevDate = null;
+  completionDates.forEach(dateStr => {
+    const currentDate = new Date(dateStr);
+    if (prevDate) {
+      const diffInDays = (currentDate - prevDate) / (1000 * 60 * 60 * 24);
+      if (diffInDays === 1) currentStreak++;
+      else currentStreak = 1;
+    } else {
+      currentStreak = 1;
+    }
+    longestStreak = Math.max(longestStreak, currentStreak);
+    prevDate = currentDate;
+  });
+
+  // 3. En Verimli Gün
+  const dayNames = ['Pazar', 'Pzt', 'Salı', 'Çarş', 'Perş', 'Cuma', 'Cmt'];
+  const completionsByDay = {};
+  completedTasks.filter(t => t.completedAt).forEach(t => {
+    const day = new Date(t.completedAt).getDay();
+    completionsByDay[day] = (completionsByDay[day] || 0) + 1;
+  });
+  let bestDayIndex = 0;
+  let maxDayCompletions = 0;
+  Object.keys(completionsByDay).forEach(day => {
+    if (completionsByDay[day] > maxDayCompletions) {
+      maxDayCompletions = completionsByDay[day];
+      bestDayIndex = day;
+    }
+  });
+  const bestDay = completedTasks.length > 0 ? dayNames[bestDayIndex] : '-';
+
+  // 4. Son 7 Gün (Grafik)
+  const last7Days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const count = completedTasks.filter(t => t.completedAt && t.completedAt.startsWith(dateStr)).length;
+    last7Days.push({ label: dayNames[d.getDay()], count });
+  }
+
+  const maxChartCount = Math.max(...last7Days.map(d => d.count), 5);
 
   const stats = [
-    { label: 'Tamamlanan Görev', value: completedTasks.length.toString(), icon: 'checkmark-circle-outline', color: colors.accent },
-    { label: 'Bekleyen Görev', value: pendingTasks.length.toString(), icon: 'time-outline', color: colors.warning },
-    { label: 'Aktif Projeler', value: activeProjects.length.toString(), icon: 'briefcase-outline', color: colors.success },
+    { label: 'Tamamlanan', value: completedTasks.length.toString(), icon: 'checkmark-circle-outline', color: colors.success },
     { label: 'Verimlilik', value: `%${productivity}`, icon: 'trending-up-outline', color: '#8b5cf6' },
+    { label: 'Seri (Gün)', value: longestStreak.toString(), icon: 'flame-outline', color: colors.warning },
+    { label: 'En Verimli', value: bestDay, icon: 'star-outline', color: colors.accent },
   ];
 
   if (loading) {
@@ -112,12 +156,12 @@ export default function StatsScreen({ navigation }) {
           <View style={styles.chartHeader}>
             <View style={styles.chartTitleRow}>
               <Ionicons name="stats-chart" size={18} color={colors.accent} />
-              <Text style={styles.chartTitle}>Haftalık Görev Dağılımı</Text>
+              <Text style={styles.chartTitle}>Son 7 Günlük Aktivite</Text>
             </View>
-            <Text style={styles.chartSub}>Hafta bazında toplam görev sayısı</Text>
+            <Text style={styles.chartSub}>Gün bazında tamamlanan görev sayısı</Text>
           </View>
 
-          {allTasks.length === 0 ? (
+          {completedTasks.length === 0 ? (
             <View style={styles.emptyChart}>
               <Ionicons name="bar-chart-outline" size={40} color={colors.border} />
               <Text style={styles.emptyChartText}>Henüz veri yok</Text>
@@ -125,23 +169,23 @@ export default function StatsScreen({ navigation }) {
           ) : (
             <>
               <View style={styles.chartPlaceholder}>
-                {weekCounts.map((count, i) => {
-                  const barH = maxWeekCount > 0 ? Math.max((count / maxWeekCount) * 100, count > 0 ? 6 : 0) : 0;
-                  const isMax = i === maxWeekIdx && count > 0;
+                {last7Days.map((day, i) => {
+                  const barH = Math.max((day.count / maxChartCount) * 100, day.count > 0 ? 6 : 0);
+                  const isMax = day.count > 0 && day.count === Math.max(...last7Days.map(d=>d.count));
                   return (
                     <View key={i} style={styles.barWrapper}>
-                      {count > 0 && <Text style={[styles.barCount, isMax && { color: colors.accent }]}>{count}</Text>}
+                      {day.count > 0 && <Text style={[styles.barCount, isMax && { color: colors.accent }]}>{day.count}</Text>}
                       <View style={[styles.bar, {
-                        height: barH,
-                        backgroundColor: isMax ? colors.accent : colors.border,
+                        height: `${barH}%`,
+                        backgroundColor: day.count > 0 ? colors.accent : colors.border,
                       }]} />
                     </View>
                   );
                 })}
               </View>
               <View style={styles.chartLabels}>
-                {['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7'].map(d => (
-                  <Text key={d} style={styles.dayText}>{d}</Text>
+                {last7Days.map((d, i) => (
+                  <Text key={i} style={styles.dayText}>{d.label}</Text>
                 ))}
               </View>
             </>
@@ -156,14 +200,14 @@ export default function StatsScreen({ navigation }) {
           <Text style={styles.summaryTitle}>
             {allTasks.length === 0
               ? 'Veri bekleniyor'
-              : maxWeekIdx >= 0 && weekCounts[maxWeekIdx] > 0
-                ? `En Yoğun Hafta: ${maxWeekIdx + 1}. Hafta`
+              : longestStreak >= 3
+                ? `${longestStreak} Günlük Seri!`
                 : 'İyi gidiyorsunuz!'}
           </Text>
           <Text style={styles.summaryDesc}>
             {allTasks.length === 0
               ? 'Projelerinize görev ekleyerek istatistiklerinizi burada takip edebilirsiniz.'
-              : `Toplam ${allTasks.length} görevin ${completedTasks.length} tanesi tamamlandı. ${productivity > 0 ? `Verimlilik oranınız %${productivity}.` : ''}`}
+              : `Toplam ${allTasks.length} görevin ${completedTasks.length} tanesi tamamlandı. Görevlerini küçük parçalara bölmek hızını artırır!`}
           </Text>
         </View>
       </ScrollView>

@@ -12,33 +12,36 @@
 - [x] Kullanıcı deneyimi (UX) hedefleri belirlendi ve tasarlandı.
 
 ## 3. Hafta – Backend Altyapısının Oluşturulması
-- [/] Sunucu tarafı altyapı hazırlıkları (Mock veri modelleri ile frontend hazırlığı yapıldı).
-- [ ] Node.js ve MongoDB veritabanı bağlantısı (Gelecek planında).
+- [x] Sunucu tarafı altyapı hazırlıkları (Express + Node.js) tamamlandı.
+- [x] Node.js ve MongoDB veritabanı bağlantısı yapıldı.
 
 ## 4. Hafta – API Geliştirme ve Veritabanı İşlemleri
-- [/] Temel API mantığı (LocalStorage üzerinden veri yönetimi) kuruldu.
-- [ ] Kullanıcı API ve Proje API full-stack entegrasyonu (Planlandı).
+- [x] Tam teşekküllü REST API (Projeler, Görevler, Kullanıcılar) oluşturuldu.
+- [x] JWT ile şifreli token tabanlı Kimlik Doğrulama (Auth) eklendi.
 
 ## 5. Hafta – Web Arayüzünün Geliştirilmesi
 - [x] React kullanılarak Web Arayüzü geliştirildi (Dashboard, Proje Ekrani).
 - [x] Modern tasarım (Dark Mode + Glassmorphism) ve animasyonlar eklendi.
-- [x] Dinamik proje CRUD (Ekleme/Silme/Görüntüleme) işlemleri arayüzde aktif edildi.
+- [x] Dinamik proje CRUD ve Drag-Drop (Sürükle-Bırak) işlemleri aktif edildi.
 
 ## 6. Hafta – Mobil Uygulama Arayüzünün Geliştirilmesi
-- [ ] React Native kurulumu ve mobil uyarlama (Planlandı).
+- [x] React Native & Expo ile mobil uygulama geliştirildi.
+- [x] Web'deki "Midnight Glow" tasarımı mobil ortama %100 uyarlandı (Dark/Light mode).
 
 ## 7. Hafta – Proje İlerleme Takip Özelliği
 - [x] Proje ilerleme durumunu gösteren % göstergeleri ve grafikler eklendi.
-- [x] **YENİ:** Her proje için özel renk etiketi ve bu renkle uyumlu ilerleme çubuğu/yüzde desteği eklendi.
-- [x] Görev tamamlandığında ilerlemenin otomatik dashboard'a yansıması sağlandı.
+- [x] **YENİ:** Her proje için özel renk etiketi ve bu renkle uyumlu ilerleme çubuğu desteği eklendi.
+- [x] Gelişmiş "İstatistikler" ekranları (Web ve Mobil) birbiriyle uyumlu hale getirildi.
 
-## 8. Hafta – AI Destekli Öneri Sistemi
-- [ ] AI tabanlı görev önerici yapısı (Planlandı).
+## 8. Hafta – Socket.io ve Gerçek Zamanlı Veri (Eski: AI Özelliği)
+- [x] *Not: AI Öneri Sistemi kapsamdan çıkarıldı, yerine gerçek zamanlı senkronizasyon eklendi.*
+- [x] Socket.io kurularak Web ve Mobil arasındaki verilerin anlık senkronizasyonu sağlandı.
 
 ## 9. Hafta – Test Süreci ve Hata Düzeltmeleri
-- [/] Web versiyonu üzerinde kapsamlı UI testleri yapıldı.
-- [x] Pano (Dashboard) navigasyon ve buton çakışma hataları giderildi.
+- [x] Web ve Mobil versiyonlar üzerinde kapsamlı UI testleri yapıldı.
+- [x] Pano (Dashboard) çakışmaları, Pomodoro ekranı farklılıkları ve sürükle-bırak backend kayıt hataları giderildi.
 
 ## 10. Hafta – Son Düzenlemeler ve Proje Teslimi
-- [ ] Dokümantasyonun (README, Roadmap) son haline getirilmesi.
-- [x] Proje dosyalarının GitHub üzerinde en güncel haliyle senkronize edilmesi.
+- [x] Dokümantasyon ve README en güncel haline getirildi.
+- [x] Proje dosyaları GitHub üzerinde sorunsuz bir şekilde senkronize edildi.
+- [x] **PROJE BAŞARIYLA TAMAMLANDI!** 🚀

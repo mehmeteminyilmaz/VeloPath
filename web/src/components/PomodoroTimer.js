@@ -1,19 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Play, Pause, Square, Timer, Settings as SettingsIcon, ChevronDown, Check } from 'lucide-react';
+import { Play, Pause, Square, Timer, Settings as SettingsIcon, ChevronDown, Check, Flame } from 'lucide-react';
 import '../styles/PomodoroTimer.css';
 
 const PomodoroTimer = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [mode, setMode] = useState('work'); // 'work' or 'break'
+  const [mode, setMode] = useState('work'); // 'work', 'shortBreak', 'longBreak'
+  const [sessions, setSessions] = useState(0);
   
   // Custom durations in minutes
   const [workMinutes, setWorkMinutes] = useState(25);
-  const [breakMinutes, setBreakMinutes] = useState(5);
+  const [shortBreakMinutes, setShortBreakMinutes] = useState(5);
+  const [longBreakMinutes, setLongBreakMinutes] = useState(15);
 
   // Active settings in seconds
   const workDuration = workMinutes * 60;
-  const breakDuration = breakMinutes * 60;
+  const shortBreakDuration = shortBreakMinutes * 60;
+  const longBreakDuration = longBreakMinutes * 60;
+
+  const getDuration = useCallback((m) => {
+    if (m === 'work') return workDuration;
+    if (m === 'shortBreak') return shortBreakDuration;
+    return longBreakDuration;
+  }, [workDuration, shortBreakDuration, longBreakDuration]);
 
   const [timeLeft, setTimeLeft] = useState(workDuration);
   const [isActive, setIsActive] = useState(false);
@@ -25,9 +34,9 @@ const PomodoroTimer = () => {
 
   const switchMode = useCallback((newMode) => {
     setMode(newMode);
-    setTimeLeft(newMode === 'work' ? workDuration : breakDuration);
+    setTimeLeft(getDuration(newMode));
     setIsActive(false);
-  }, [workDuration, breakDuration]);
+  }, [getDuration]);
 
   const toggleTimer = () => {
     setIsActive(!isActive);
@@ -35,7 +44,7 @@ const PomodoroTimer = () => {
 
   const resetTimer = () => {
     setIsActive(false);
-    setTimeLeft(mode === 'work' ? workDuration : breakDuration);
+    setTimeLeft(getDuration(mode));
   };
 
   useEffect(() => {
@@ -51,13 +60,24 @@ const PomodoroTimer = () => {
       // Notify user
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification("VeloPath Pomodoro", {
-          body: mode === 'work' ? "Çalışma süresi bitti! Mola zamanı." : "Mola bitti! Çalışmaya geri dönelim.",
+          body: mode === 'work' ? "Odaklanma bitti! Mola zamanı." : "Mola bitti! Çalışmaya geri dönelim.",
           icon: "/favicon.ico"
         });
       }
       
-      // Switch mode automatically
-      switchMode(mode === 'work' ? 'break' : 'work');
+      // Auto-switch logic
+      if (mode === 'work') {
+        const newSessions = sessions + 1;
+        setSessions(newSessions);
+        // Her 4 seansta bir uzun mola
+        if (newSessions > 0 && newSessions % 4 === 0) {
+          switchMode('longBreak');
+        } else {
+          switchMode('shortBreak');
+        }
+      } else {
+        switchMode('work');
+      }
     }
 
     return () => clearInterval(interval);
@@ -69,9 +89,7 @@ const PomodoroTimer = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = mode === 'work' 
-    ? ((workDuration - timeLeft) / workDuration) * 100
-    : ((breakDuration - timeLeft) / breakDuration) * 100;
+  const progress = ((getDuration(mode) - timeLeft) / getDuration(mode)) * 100;
 
   if (!isOpen) {
     return (
@@ -92,6 +110,10 @@ const PomodoroTimer = () => {
         <div className="pomodoro-title">
           <Timer size={18} />
           <span>Odak Zamanı</span>
+          <div className="pomodoro-session-badge">
+            <Flame size={14} color="var(--primary)" />
+            <span style={{ color: 'var(--primary)', fontWeight: 800 }}>{sessions}</span>
+          </div>
         </div>
         <div className="pomodoro-header-actions">
           <button 
@@ -121,13 +143,24 @@ const PomodoroTimer = () => {
             />
           </div>
           <div className="pomodoro-settings-group">
-            <label>Mola Süresi (dk)</label>
+            <label>Kısa Mola (dk)</label>
             <input 
               type="number" 
               min="1" 
               max="60" 
-              value={breakMinutes} 
-              onChange={(e) => setBreakMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+              value={shortBreakMinutes} 
+              onChange={(e) => setShortBreakMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+              className="pomodoro-input"
+            />
+          </div>
+          <div className="pomodoro-settings-group">
+            <label>Uzun Mola (dk)</label>
+            <input 
+              type="number" 
+              min="1" 
+              max="60" 
+              value={longBreakMinutes} 
+              onChange={(e) => setLongBreakMinutes(Math.max(1, parseInt(e.target.value) || 1))}
               className="pomodoro-input"
             />
           </div>
@@ -150,13 +183,19 @@ const PomodoroTimer = () => {
             className={`pomodoro-mode-btn ${mode === 'work' ? 'active' : ''}`}
             onClick={() => switchMode('work')}
           >
-            Çalışma ({workMinutes}d)
+            Odaklanma ({workMinutes}d)
           </button>
           <button 
-            className={`pomodoro-mode-btn break ${mode === 'break' ? 'active' : ''}`}
-            onClick={() => switchMode('break')}
+            className={`pomodoro-mode-btn break-short ${mode === 'shortBreak' ? 'active' : ''}`}
+            onClick={() => switchMode('shortBreak')}
           >
-            Mola ({breakMinutes}d)
+            Kısa ({shortBreakMinutes}d)
+          </button>
+          <button 
+            className={`pomodoro-mode-btn break-long ${mode === 'longBreak' ? 'active' : ''}`}
+            onClick={() => switchMode('longBreak')}
+          >
+            Uzun ({longBreakMinutes}d)
           </button>
         </div>
 

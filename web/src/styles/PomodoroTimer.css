@@ -77,6 +77,16 @@
   color: var(--text-primary);
 }
 
+.pomodoro-session-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.1rem 0.5rem;
+  border-radius: 12px;
+  margin-left: 0.5rem;
+}
+
 .pomodoro-close {
   background: none;
   border: none;
@@ -123,12 +133,16 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.pomodoro-mode-btn.active:not(.break) {
+.pomodoro-mode-btn.active:not(.break-short):not(.break-long) {
   color: var(--primary);
 }
 
-.pomodoro-mode-btn.break.active {
-  color: #10b981; /* Emerald for break */
+.pomodoro-mode-btn.break-short.active {
+  color: #10b981; /* Emerald for short break */
+}
+
+.pomodoro-mode-btn.break-long.active {
+  color: #f59e0b; /* Amber for long break */
 }
 
 .pomodoro-display {
@@ -166,8 +180,12 @@
   background: var(--primary);
 }
 
-.pomodoro-progress-fill.break {
+.pomodoro-progress-fill.shortBreak {
   background: #10b981;
+}
+
+.pomodoro-progress-fill.longBreak {
+  background: #f59e0b;
 }
 
 .pomodoro-controls {
