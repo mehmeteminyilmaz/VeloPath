@@ -8,7 +8,7 @@ const getBackendIP = () => {
     const ip = debuggerHost.split(':')[0];
     return `http://${ip}:5000/api`;
   }
-  return 'http://10.197.185.133:5000/api';
+  return 'http://192.168.1.180:5000/api';
 };
 
 export const API_BASE = getBackendIP();
