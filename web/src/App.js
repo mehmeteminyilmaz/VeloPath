@@ -589,28 +589,46 @@ function App() {
   // Görevleri yeniden sıralama (Drag & Drop)
   const reorderTasks = async (projectId, newTasksArray) => {
     const now = new Date().toISOString();
+
+    // Önce UI'ı güncelle (optimistic)
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
-        // Hafta değişikliklerini kontrol et
-        const updatedTasks = newTasksArray.map(newTask => {
+        const updatedTasks = newTasksArray.map((newTask, index) => {
           const oldTask = p.tasks.find(ot => ot.id.toString() === newTask.id.toString());
-          if (oldTask && oldTask.week !== newTask.week) {
-            api.updateTaskAPI(newTask.id, { weekIndex: newTask.week }).catch(console.error);
-            const historyEntry = {
-              timestamp: now,
-              action: `Görevi Hafta ${oldTask.week}'den Hafta ${newTask.week}'e taşıdı.`
-            };
-            return { 
-              ...newTask, 
-              history: [...(newTask.history || []), historyEntry]
+          const weekChanged = oldTask && oldTask.week !== newTask.week;
+          if (weekChanged) {
+            return {
+              ...newTask,
+              orderIndex: index,
+              history: [...(newTask.history || []), {
+                timestamp: now,
+                action: `Görevi Hafta ${oldTask.week}'den Hafta ${newTask.week}'e taşıdı.`
+              }]
             };
           }
-          return newTask;
+          return { ...newTask, orderIndex: index };
         });
         return { ...p, tasks: updatedTasks };
       }
       return p;
     }));
+
+    // Backend'e paralel yaz: hem orderIndex hem hafta değişikliklerini kaydet
+    try {
+      const project = projects.find(p => p.id.toString() === projectId.toString());
+      await Promise.all(
+        newTasksArray.map((newTask, index) => {
+          const oldTask = project?.tasks.find(ot => ot.id.toString() === newTask.id.toString());
+          const updates = { orderIndex: index };
+          if (oldTask && oldTask.week !== newTask.week) {
+            updates.weekIndex = newTask.week;
+          }
+          return api.updateTaskAPI(newTask.id, updates).catch(console.error);
+        })
+      );
+    } catch (err) {
+      console.error('Sıralama kaydedilemedi:', err);
+    }
   };
 
   if (!isAuthenticated) {
