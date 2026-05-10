@@ -32,11 +32,22 @@ export default function DashboardScreen({ navigation }) {
       if (data) setProjects(data);
     } catch (err) {
       console.error('Veri yükleme hatası:', err);
+      // Eger token gecersiz veya suresi dolmussa (401), kullaniciyi Login ekranina atalim
+      if (err.response && err.response.status === 401) {
+        Alert.alert('Oturum Kapandı', 'Lütfen güvenliğiniz için tekrar giriş yapın.', [
+          {
+            text: 'Tamam', onPress: async () => {
+              await AsyncStorage.multiRemove(['userId', 'username', 'token']);
+              navigation.replace('Login');
+            }
+          }
+        ]);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [navigation]);
 
   useEffect(() => {
     const init = async () => {
@@ -231,11 +242,11 @@ export default function DashboardScreen({ navigation }) {
               {/* Priority & Deadline Tags (Web ile eşdeğer) */}
               <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
                 {item.priority && (
-                  <View style={[styles.tagPill, { 
-                    borderColor: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success 
+                  <View style={[styles.tagPill, {
+                    borderColor: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success
                   }]}>
-                    <Text style={[styles.tagPillText, { 
-                      color: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success 
+                    <Text style={[styles.tagPillText, {
+                      color: item.priority === 'Yüksek' ? colors.danger : item.priority === 'Orta' ? colors.warning : colors.success
                     }]}>{item.priority} Öncelik</Text>
                   </View>
                 )}
@@ -326,7 +337,7 @@ const createStyles = (colors, insets) => StyleSheet.create({
   statusBadge: { backgroundColor: `${colors.warning}15`, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
   statusText: { color: colors.warning, fontSize: 9, fontWeight: '900' },
   cardActions: { flexDirection: 'row', gap: 15 },
-  
+
   tagPill: {
     paddingHorizontal: 6,
     paddingVertical: 2,

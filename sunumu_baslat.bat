@@ -14,7 +14,7 @@ echo [2/3] Web Uygulamasi Baslatiliyor...
 start cmd /k "cd web && title VeloPath Web && npm start"
 
 echo [3/3] Mobil Uygulama (Expo) Baslatiliyor...
-start cmd /k "cd mobile && title VeloPath Mobile && npm start"
+start cmd /k "cd mobile && title VeloPath Mobile && npm start -- -c"
 
 echo.
 echo =======================================================
