@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Play, Pause, Square, Timer, Settings as SettingsIcon, ChevronDown, Check, Flame } from 'lucide-react';
+import { Play, Pause, Square, Timer, Settings as SettingsIcon, ChevronDown, Check, Flame, SkipForward } from 'lucide-react';
 import '../styles/PomodoroTimer.css';
 
 const PomodoroTimer = () => {
@@ -200,12 +200,18 @@ const PomodoroTimer = () => {
         </div>
 
       <div className="pomodoro-display">
-        <div className="pomodoro-time">{formatTime(timeLeft)}</div>
-        <div className="pomodoro-progress-bg">
-          <div 
-            className={`pomodoro-progress-fill ${mode}`} 
-            style={{ width: `${progress}%` }}
-          />
+        <div className="pomodoro-circle-container">
+          <svg className="pomodoro-svg" viewBox="0 0 120 120">
+            <circle className="pomodoro-circle-bg" cx="60" cy="60" r="54" />
+            <circle 
+              className={`pomodoro-circle-progress ${mode}`} 
+              cx="60" cy="60" r="54" 
+              style={{ strokeDasharray: 339.29, strokeDashoffset: 339.29 - (339.29 * progress) / 100 }}
+            />
+          </svg>
+          <div className="pomodoro-time-inner">
+            <div className="pomodoro-time">{formatTime(timeLeft)}</div>
+          </div>
         </div>
       </div>
 
@@ -222,6 +228,17 @@ const PomodoroTimer = () => {
           onClick={toggleTimer}
         >
           {isActive ? <Pause size={28} /> : <Play size={28} />}
+        </button>
+        <button 
+          className="pomodoro-control-btn reset" 
+          onClick={() => {
+             if (mode === 'work') switchMode('shortBreak');
+             else if (mode === 'shortBreak') switchMode('longBreak');
+             else switchMode('work');
+          }}
+          title="Sonraki Mod"
+        >
+          <SkipForward size={20} />
         </button>
       </div>
       

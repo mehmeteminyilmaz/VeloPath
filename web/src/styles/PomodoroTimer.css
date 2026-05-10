@@ -154,38 +154,55 @@
 
 .pomodoro-time {
   font-family: 'Inter', monospace;
-  font-size: 4.5rem;
+  font-size: 3.5rem;
   font-weight: 700;
   letter-spacing: -2px;
   color: var(--text-primary);
   line-height: 1;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
-.pomodoro-progress-bg {
+.pomodoro-circle-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pomodoro-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 6px;
-  background: var(--pom-bg-sec);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.pomodoro-progress-fill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 1s linear;
+  transform: rotate(-90deg);
 }
 
-.pomodoro-progress-fill.work {
-  background: var(--primary);
+.pomodoro-circle-bg {
+  fill: none;
+  stroke: var(--pom-bg-sec);
+  stroke-width: 6;
 }
 
-.pomodoro-progress-fill.shortBreak {
-  background: #10b981;
+.pomodoro-circle-progress {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
 }
 
-.pomodoro-progress-fill.longBreak {
-  background: #f59e0b;
+.pomodoro-circle-progress.work { stroke: var(--primary); }
+.pomodoro-circle-progress.shortBreak { stroke: #10b981; }
+.pomodoro-circle-progress.longBreak { stroke: #f59e0b; }
+
+.pomodoro-time-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }
 
 .pomodoro-controls {
