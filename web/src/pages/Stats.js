@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Sidebar from '../components/Sidebar';
-import { BarChart, Clock, Award, CheckCircle, TrendingUp, Calendar, Zap } from 'lucide-react';
+import { BarChart, Award, CheckCircle, TrendingUp, Calendar, Zap } from 'lucide-react';
 
 const Stats = ({ projects, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings }) => {
   // Veriyi İşle

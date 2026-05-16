@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2, Download, Wand2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2, Download, Wand2 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
@@ -19,6 +19,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   const [notesDraft, setNotesDraft] = useState('');
   const [notesView, setNotesView] = useState('edit'); // 'edit' | 'preview'
   const [notesOpen, setNotesOpen] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
 
   // Projeyi bulduktan sonra notesDraft'ı ayarla
   React.useEffect(() => {
@@ -48,8 +49,6 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
       setNewTaskPriority('Orta');
     }
   };
-
-  const [isAILoading, setIsAILoading] = useState(false);
 
   const handleGetAISuggestions = async () => {
     setIsAILoading(true);

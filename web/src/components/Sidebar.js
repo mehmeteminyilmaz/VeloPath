@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, Bell, RotateCcw, BarChart2, Monitor, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, BarChart2, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed, setIsSidebarCollapsed, onLogout, toggleSettings }) => {
@@ -8,10 +8,6 @@ const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed,
 
   const [theme, setTheme] = useState(localStorage.getItem('velopath_theme') || 'dark');
 
-  const [permissionStatus, setPermissionStatus] = useState(
-    typeof Notification !== 'undefined' ? Notification.permission : 'default'
-  );
-
   useEffect(() => {
     const handleStorageSync = () => {
       setTheme(localStorage.getItem('velopath_theme') || 'dark');
@@ -19,13 +15,6 @@ const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed,
     window.addEventListener('storage', handleStorageSync);
     return () => window.removeEventListener('storage', handleStorageSync);
   }, []);
-
-  const handleNotificationClick = async () => {
-    await requestNotificationPermission();
-    if (typeof Notification !== 'undefined') {
-      setPermissionStatus(Notification.permission);
-    }
-  };
 
   return (
     <div className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }}>
