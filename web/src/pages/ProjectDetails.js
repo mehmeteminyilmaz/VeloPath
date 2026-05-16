@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Sparkles, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2, Download, Wand2 } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
@@ -49,6 +49,28 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
     }
   };
 
+  const [isAILoading, setIsAILoading] = useState(false);
+
+  const handleGetAISuggestions = async () => {
+    setIsAILoading(true);
+    try {
+      const res = await api.getAISuggestions(id);
+      if (res.suggestions && res.suggestions.length > 0) {
+        for (const sugg of res.suggestions) {
+          // Basitçe yeni görevleri projeye ekle
+          addTask(id, sugg, 1, null, 'Orta');
+        }
+        alert('Yapay Zeka (AI) önerileri projeye başarıyla eklendi!');
+      } else {
+        alert('Yeni öneri bulunamadı.');
+      }
+    } catch (err) {
+      alert('AI önerileri alınamadı. Sunucu bağlantısını kontrol edin.');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
   const handleSaveNotes = () => {
     if (updateProjectNotes) updateProjectNotes(id, notesDraft);
   };
@@ -67,6 +89,28 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         }
       }
     }
+  };
+
+  const handleExportCSV = () => {
+    if (!project || project.tasks.length === 0) {
+      alert("Dışa aktarılacak görev bulunamadı.");
+      return;
+    }
+    const headers = ["Görev Adı", "Hafta", "Öncelik", "Durum"];
+    const rows = project.tasks.map(t => [
+      `"${t.text.replace(/"/g, '""')}"`,
+      t.week,
+      t.priority || "Orta",
+      t.completed ? "Tamamlandı" : "Bekliyor"
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers, ...rows].map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${project.title.replace(/\s+/g, '_')}_Gorevler.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const completedCount = project.tasks.filter(t => t.completed).length;
@@ -113,6 +157,21 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
               <span className="status-badge" style={{ color: statusColor, padding: '8px 16px', fontSize: '0.8rem', marginTop: '8px' }}>
                 {project.status ? project.status.toUpperCase() : (progress === 100 ? 'TAMAMLANDI' : 'DEVAM EDİYOR')}
               </span>
+              <button
+                onClick={handleGetAISuggestions}
+                disabled={isAILoading}
+                style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', padding: '6px 12px', borderRadius: '8px', color: '#a855f7', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
+                title="AI Görev Önerisi Al"
+              >
+                {isAILoading ? '...' : <><Wand2 size={16} /> AI Önerileri</>}
+              </button>
+              <button
+                onClick={handleExportCSV}
+                style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.2)', padding: '6px 12px', borderRadius: '8px', color: '#eab308', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
+                title="CSV Olarak İndir"
+              >
+                <Download size={16} /> CSV İndir
+              </button>
               <button
                 onClick={handleShareProject}
                 style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}

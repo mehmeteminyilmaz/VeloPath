@@ -8,6 +8,12 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
   const [nameError, setNameError] = useState('');
   const [nameSaving, setNameSaving] = useState(false);
 
+  const [editingPassword, setEditingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+
   if (!isOpen) return null;
 
   const handleEditName = () => {
@@ -29,6 +35,31 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
       setNameError(err.response?.data?.error || 'Güncelleme başarısız.');
     } finally {
       setNameSaving(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (!currentPassword.trim() || !newPassword.trim()) {
+      setPasswordError('Lütfen tüm alanları doldurun.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Yeni şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    setPasswordError('');
+    try {
+      await api.updatePassword(userId, currentPassword.trim(), newPassword.trim());
+      setEditingPassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      alert('Şifreniz başarıyla güncellendi.');
+    } catch (err) {
+      setPasswordError(err.response?.data?.error || 'Şifre güncellenemedi.');
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
@@ -117,6 +148,68 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
                   </div>
                 )}
                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Standart Üye</p>
+              </div>
+            </div>
+
+            {/* Password Section */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', marginTop: '1rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#eab308' }}>
+                <Settings size={20} />
+              </div>
+              <div style={{ flex: 1 }}>
+                {editingPassword ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <input
+                      type="password"
+                      placeholder="Mevcut Şifre"
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      style={{
+                        padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--primary)',
+                        background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', fontSize: '0.95rem'
+                      }}
+                    />
+                    <input
+                      type="password"
+                      placeholder="Yeni Şifre"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      style={{
+                        padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--primary)',
+                        background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', fontSize: '0.95rem'
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <button
+                        onClick={handleSavePassword}
+                        disabled={passwordSaving}
+                        style={{ flex: 1, background: 'var(--primary)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: '#fff' }}
+                      >
+                        {passwordSaving ? '...' : 'Güncelle'}
+                      </button>
+                      <button
+                        onClick={() => { setEditingPassword(false); setPasswordError(''); setCurrentPassword(''); setNewPassword(''); }}
+                        style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', color: 'var(--text-secondary)' }}
+                      >
+                        Vazgeç
+                      </button>
+                    </div>
+                    {passwordError && <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--danger)' }}>{passwordError}</p>}
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 600 }}>Şifreyi Değiştir</p>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Hesap güvenliği</p>
+                    </div>
+                    <button
+                      onClick={() => setEditingPassword(true)}
+                      style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                    >
+                      Değiştir
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </section>
