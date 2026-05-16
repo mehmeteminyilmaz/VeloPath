@@ -297,6 +297,7 @@ const createStyles = (colors, insets) => StyleSheet.create({
   },
   headerTitle: { fontSize: 20, fontWeight: '900', color: colors.textPrimary },
   headerRight: { flexDirection: 'row', alignItems: 'center' },
+
   onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
 
   welcomeSection: { paddingHorizontal: 20, marginTop: 10 },
