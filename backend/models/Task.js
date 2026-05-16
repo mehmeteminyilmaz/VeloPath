@@ -11,6 +11,8 @@ const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   status: { type: String, default: 'todo', enum: ['todo', 'in-progress', 'done'] },
   priority: { type: String, default: 'medium', enum: ['low', 'medium', 'high'] },
+  // BUG FIX: completedAt alanı streak ve istatistik hesaplamaları için eklendi
+  completedAt: { type: Date },
   tags: [{ type: String }],
   notes: { type: String, default: '' },
   subtasks: [subtaskSchema],

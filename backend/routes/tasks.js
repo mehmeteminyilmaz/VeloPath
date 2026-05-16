@@ -72,6 +72,14 @@ router.put('/:id/toggle', async (req, res) => {
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
     task.status = task.status === 'done' ? 'todo' : 'done';
+    
+    // BUG FIX: Görev tamamlandığında completedAt alanını güncelle, geri alındığında temizle
+    if (task.status === 'done') {
+      task.completedAt = new Date();
+    } else {
+      task.completedAt = null;
+    }
+
     const updatedTask = await task.save();
 
     await notifyProjectMembers(req.io, updatedTask.projectId);
