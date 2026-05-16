@@ -4,19 +4,34 @@ const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { Server } = require('socket.io');
 
 const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
 const userRoutes = require('./routes/users');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 const server = http.createServer(app);
 
 // ── 1. Güvenlik katmanları (en üstte olmalı) ──────────────
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*', // Production'da gerçek URL'nizi verin (örn. https://velopath.com)
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
+
+// ── Rate Limiting ─────────────────────────────────────────
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: 100, // IP başına 15 dakikada 100 istek sınırı
+  message: { error: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' }
+});
+// API route'larına limiti uygula
+app.use('/api', limiter);
 
 // ── 2. İstek logger ────────────────────────────────────────
 app.use((req, res, next) => {
@@ -55,6 +70,7 @@ io.on('connection', (socket) => {
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/ai', aiRoutes);
 
 // ── 5. MongoDB Bağlantısı ve Sunucu Başlatma ───────────────
 const PORT = process.env.PORT || 5000;
