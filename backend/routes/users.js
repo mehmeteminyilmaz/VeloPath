@@ -78,11 +78,13 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ── PRofİL GÜNCELLE (ŞİFRE KORUMAL I) ───────────────────────
+// ── PRofİL GÜNCELLE (ŞİFRE KORUMALI) ───────────────────────
 router.patch('/:id', auth, async (req, res) => {
   try {
     const { username } = req.body;
     const { id } = req.params;
+
+    if (req.user.userId !== id) return res.status(403).json({ error: 'Yetkiniz yok.' });
 
     if (!username) {
       return res.status(400).json({ error: 'Kullanıcı adı zorunludur.' });
@@ -105,6 +107,40 @@ router.patch('/:id', auth, async (req, res) => {
     });
   } catch (error) {
     console.error("Güncelleme Hatası:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ── ŞİFRE DEĞİŞTİR ─────────────────────────────────────────
+router.patch('/password/:id', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { id } = req.params;
+
+    if (req.user.userId !== id) return res.status(403).json({ error: 'Yetkiniz yok.' });
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Mevcut şifre ve yeni şifre zorunludur.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Yeni şifre en az 6 karakter olmalıdır.' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Mevcut şifreniz hatalı.' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Şifreniz başarıyla güncellendi.' });
+  } catch (error) {
+    console.error("Şifre Güncelleme Hatası:", error);
     res.status(500).json({ error: error.message });
   }
 });
