@@ -2,53 +2,68 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Project = require('../models/Project');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Yapay zeka ile görev önerileri alma (Mock)
+// Eğer GEMINI_API_KEY env dosyasında tanımlıysa AI motorunu başlatıyoruz
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+
+// 1. Proje Görev Önerileri (Sihirli Öneriler)
 router.post('/suggest/:projectId', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.projectId);
     if (!project) return res.status(404).json({ error: 'Proje bulunamadı.' });
 
-    // AI simülasyonu için 1.5 saniye bekleme süresi
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const title = project.title.toLowerCase();
-    const desc = project.description.toLowerCase();
-    const combined = title + " " + desc;
-    let suggestions = [];
-
-    // Basit bir kelime analizi ile akıllı öneriler
-    if (combined.includes('web') || combined.includes('uygulama') || combined.includes('yazılım') || combined.includes('app')) {
-      suggestions = [
-        'Veritabanı şemasını oluştur ve yapılandır',
-        'Figma üzerinden kullanıcı arayüzü (UI) tasarımlarını tamamla',
-        'RESTful API endpointlerini tasarla',
-        'Birim (Unit) testlerini yaz ve projeyi test et'
-      ];
-    } else if (combined.includes('pazarlama') || combined.includes('seo') || combined.includes('sosyal medya')) {
-      suggestions = [
-        'Rakip analizi ve pazar araştırması yap',
-        'Haftalık sosyal medya içerik planını oluştur',
-        'Hedef kitle persona analizini tamamla',
-        'Reklam bütçesi ve kampanyaları planla'
-      ];
-    } else if (combined.includes('okul') || combined.includes('ödev') || combined.includes('tez') || combined.includes('ders')) {
-      suggestions = [
-        'Literatür taraması yap ve kaynakları topla',
-        'İlk taslak metnini oluştur',
-        'Giriş ve sonuç bölümlerini yaz',
-        'Referansları ve kaynakçayı düzenle'
-      ];
-    } else {
-      suggestions = [
-        'Projenin temel gereksinimlerini listele',
-        'Gerekli materyalleri/araçları araştır',
-        'İlk aşama için bir zaman çizelgesi belirle',
-        'Proje ilerlemesini değerlendirmek için toplantı yap'
-      ];
+    if (!genAI) {
+      return res.status(500).json({ error: 'Sistemde geçerli bir GEMINI_API_KEY bulunamadı. Lütfen .env dosyanızı kontrol edin.' });
     }
 
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Benim projemin adı "${project.title}" ve açıklaması "${project.description || 'Belirtilmemiş'}". 
+Lütfen bu proje için bana başlangıç seviyesinde, eyleme geçirilebilir, mantıklı 4 adet görev (task) önerisi yap. Sadece görev isimlerini virgülle ayrılmış (virgül ile) düz bir metin olarak ver. Başka hiçbir açıklama, madde işareti veya numara kullanma. Yanıt örneği: Tasarımı yap, Veritabanını kur, Testleri yaz, Canlıya al`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    
+    // AI cevabını virgüllere göre parçalayıp liste haline getir
+    const suggestions = responseText.split(',').map(s => s.trim().replace(/^[\-\d\.\*]+\s*/, '')).filter(s => s.length > 0);
+
     res.json({ suggestions });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Alt Görev (Subtask) Parçalayıcı
+router.post('/subtasks', auth, async (req, res) => {
+  try {
+    if (!genAI) return res.status(500).json({ error: 'Sistemde geçerli bir GEMINI_API_KEY bulunamadı.' });
+    const { taskTitle } = req.body;
+    if (!taskTitle) return res.status(400).json({ error: 'Görev adı gerekli.' });
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Şu görevi adım adım 3 veya 4 küçük eyleme geçirilebilir alt göreve (subtask) böl: "${taskTitle}". Sadece alt görevleri virgülle ayrılmış şekilde düz metin olarak ver. Sayı veya madde imi kullanma. Yanıt örneği: AWS hesabı aç, Veritabanı cluster'ı oluştur, İlk testleri yap`;
+    
+    const result = await model.generateContent(prompt);
+    const subtasks = result.response.text().split(',').map(s => s.trim().replace(/^[\-\d\.\*]+\s*/, '')).filter(s => s.length > 0);
+    
+    res.json({ subtasks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Proje Notları Özetleyici
+router.post('/summarize', auth, async (req, res) => {
+  try {
+    if (!genAI) return res.status(500).json({ error: 'Sistemde geçerli bir GEMINI_API_KEY bulunamadı.' });
+    const { text } = req.body;
+    if (!text || text.trim().length === 0) return res.status(400).json({ error: 'Özetlenecek metin bulunamadı.' });
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Aşağıdaki proje notlarını veya toplantı kararlarını profesyonelce Türkçe olarak kısa, öz ve yapılandırılmış (markdown) bir formatta özetle. Önemli kararları vurgula:\n\n"${text}"`;
+    
+    const result = await model.generateContent(prompt);
+    res.json({ summary: result.response.text().trim() });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
