@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Check, Clock, Calendar, History, Edit3, CheckCircle2, RotateCcw, ArrowRight, PlusCircle, ListChecks, Trash2, Plus, Tag } from 'lucide-react';
+import { X, Check, Clock, Calendar, History, Edit3, CheckCircle2, RotateCcw, ArrowRight, PlusCircle, ListChecks, Trash2, Plus, Tag, Wand2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import * as api from '../api';
 
 const PRIORITY_OPTIONS = [
   { value: 'Yüksek', label: '🔴 Yüksek', color: 'var(--danger)' },
@@ -30,6 +31,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
   const [tags, setTags] = useState(task.tags || []);
   const [newSubtaskText, setNewSubtaskText] = useState('');
   const [newTagText, setNewTagText] = useState('');
+  const [isAILoading, setIsAILoading] = useState(false);
 
   const handleSave = () => {
     onSave(task.id, noteContent);
@@ -47,6 +49,25 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
   };
   const toggleSubtask = (id) => setSubtasks(prev => prev.map(s => s.id === id ? { ...s, completed: !s.completed } : s));
   const deleteSubtask = (id) => setSubtasks(prev => prev.filter(s => s.id !== id));
+
+  const handleAIBreakdown = async () => {
+    setIsAILoading(true);
+    try {
+      const res = await api.breakTaskByAI(task.text);
+      if (res.subtasks && res.subtasks.length > 0) {
+        setSubtasks(prev => [
+          ...prev, 
+          ...res.subtasks.map((text, i) => ({ id: Date.now() + i, text, completed: false }))
+        ]);
+      } else {
+        alert("Alt görev oluşturulamadı.");
+      }
+    } catch (err) {
+      alert('Alt görevler oluşturulurken bir hata meydana geldi (AI limitleri).');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
 
   /* ---------- Tag helpers ---------- */
   const addTag = (text) => {
@@ -178,7 +199,16 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                   onChange={e => setNewSubtaskText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSubtask(); } }}
                 />
-                <button className="subtask-add-btn" onClick={addSubtask}><Plus size={18} /></button>
+                <button className="subtask-add-btn" onClick={addSubtask} title="Ekle"><Plus size={18} /></button>
+                <button 
+                  className="subtask-add-btn" 
+                  style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7' }} 
+                  onClick={handleAIBreakdown} 
+                  disabled={isAILoading}
+                  title="Yapay Zeka ile Alt Görevlere Böl"
+                >
+                  {isAILoading ? '...' : <Wand2 size={18} />}
+                </button>
               </div>
             </div>
           )}

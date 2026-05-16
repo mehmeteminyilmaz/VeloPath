@@ -313,13 +313,29 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                   </div>
                 )}
 
-                <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px' }}>
                   <button
                     className="button"
                     style={{ padding: '10px 24px' }}
                     onClick={handleSaveNotes}
                   >
                     <FileText size={16} /> Notları Kaydet
+                  </button>
+                  <button
+                    className="button button-secondary"
+                    style={{ padding: '10px 24px', background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.2)' }}
+                    onClick={async () => {
+                      if (!notesDraft.trim()) return;
+                      try {
+                        const res = await api.summarizeNotesByAI(notesDraft);
+                        if (res.summary) setNotesDraft(res.summary);
+                      } catch(err) {
+                        alert('Özetleme başarısız. AI limitlerine takılmış olabilirsiniz.');
+                      }
+                    }}
+                    title="Notları AI ile Özetle"
+                  >
+                    <Wand2 size={16} /> AI ile Özetle
                   </button>
                 </div>
               </div>
