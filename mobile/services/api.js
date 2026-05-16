@@ -150,3 +150,13 @@ export const getAISuggestions = async (projectId) => {
   const res = await api.post(`/ai/suggest/${projectId}`);
   return res.data;
 };
+
+export const breakTaskByAI = async (taskTitle) => {
+  const res = await api.post(`/ai/subtasks`, { taskTitle });
+  return res.data;
+};
+
+export const summarizeNotesByAI = async (text) => {
+  const res = await api.post(`/ai/summarize`, { text });
+  return res.data;
+};

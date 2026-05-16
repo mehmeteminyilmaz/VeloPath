@@ -81,6 +81,16 @@ export const getAISuggestions = async (projectId) => {
   return res.data;
 };
 
+export const breakTaskByAI = async (taskTitle) => {
+  const res = await axios.post(`${API_URL}/ai/subtasks`, { taskTitle }, getAuthHeader());
+  return res.data;
+};
+
+export const summarizeNotesByAI = async (text) => {
+  const res = await axios.post(`${API_URL}/ai/summarize`, { text }, getAuthHeader());
+  return res.data;
+};
+
 // Kullanıcı API'leri
 export const loginUser = async (username, password) => {
   const res = await axios.post(`${API_URL}/users/login`, { username, password });
