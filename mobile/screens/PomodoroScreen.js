@@ -4,6 +4,7 @@ import {
   StatusBar, Animated, Easing, Vibration, Platform
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -23,6 +24,17 @@ export default function PomodoroScreen({ navigation }) {
   const [isActive, setIsActive]   = useState(false);
   const [sessions, setSessions]   = useState(0);
   const [finished, setFinished]   = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem('pomodoroSessions').then(val => {
+      if (val) setSessions(parseInt(val, 10));
+    });
+  }, []);
+
+  const updateSessions = async (newVal) => {
+    setSessions(newVal);
+    await AsyncStorage.setItem('pomodoroSessions', newVal.toString());
+  };
 
   // Döngüsel animasyon için
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -78,7 +90,13 @@ export default function PomodoroScreen({ navigation }) {
           clearInterval(interval);
           setIsActive(false);
           setFinished(true);
-          if (modeIdx === 0) setSessions(s => s + 1);
+          if (modeIdx === 0) {
+            setSessions(s => {
+              const newS = s + 1;
+              AsyncStorage.setItem('pomodoroSessions', newS.toString());
+              return newS;
+            });
+          }
           if (Platform.OS !== 'web') Vibration.vibrate([0, 400, 200, 400]);
           return 0;
         });

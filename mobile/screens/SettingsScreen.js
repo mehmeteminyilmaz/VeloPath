@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RADIUS } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
-import { updateUsername } from '../services/api';
+import { updateUsername, updatePassword } from '../services/api';
 
 export default function SettingsScreen({ navigation }) {
   const [username, setUsername] = useState('Misafir');
@@ -19,6 +19,11 @@ export default function SettingsScreen({ navigation }) {
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -64,6 +69,33 @@ export default function SettingsScreen({ navigation }) {
       Alert.alert('Hata', msg);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!currentPassword.trim() || !newPassword.trim()) {
+      Alert.alert('Hata', 'Lütfen tüm alanları doldurun.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      Alert.alert('Hata', 'Yeni şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      await updatePassword(userId, currentPassword.trim(), newPassword.trim());
+      
+      Alert.alert('Başarılı', 'Şifreniz başarıyla güncellendi.');
+      setIsPasswordModalOpen(false);
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Şifre güncellenemedi.';
+      Alert.alert('Hata', msg);
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -131,6 +163,35 @@ export default function SettingsScreen({ navigation }) {
           </View>
           <TouchableOpacity style={styles.editBtn} onPress={() => setIsNameModalOpen(true)}>
             <Ionicons name="pencil-outline" size={18} color={colors.accent} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.sectionTitle, { marginTop: 30 }]}>HESAP VE GÜVENLİK</Text>
+        <View style={styles.settingsGroup}>
+          <TouchableOpacity style={styles.settingRow} onPress={() => setIsNameModalOpen(true)}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: `${colors.accent}15` }]}>
+                <Ionicons name="person-outline" size={20} color={colors.accent} />
+              </View>
+              <View>
+                <Text style={styles.settingLabel}>İsmi Güncelle</Text>
+                <Text style={styles.settingSubLabel}>{username}</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.settingRow, { borderBottomWidth: 0 }]} onPress={() => setIsPasswordModalOpen(true)}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: 'rgba(234, 179, 8, 0.15)' }]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#eab308" />
+              </View>
+              <View>
+                <Text style={styles.settingLabel}>Şifreyi Değiştir</Text>
+                <Text style={styles.settingSubLabel}>Hesap güvenliği</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -260,6 +321,60 @@ export default function SettingsScreen({ navigation }) {
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
                   <Text style={styles.modalSaveText}>Kaydet</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* --- PASSWORD UPDATE MODAL --- */}
+      <Modal
+        visible={isPasswordModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsPasswordModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Şifreyi Değiştir</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder="Mevcut Şifre"
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry
+              autoFocus
+            />
+            <TextInput
+              style={styles.modalInput}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Yeni Şifre (En az 6 karakter)"
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelBtn} 
+                onPress={() => {
+                  setIsPasswordModalOpen(false);
+                  setCurrentPassword('');
+                  setNewPassword('');
+                }}
+              >
+                <Text style={styles.modalCancelText}>Vazgeç</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalSaveBtn} 
+                onPress={handleUpdatePassword}
+                disabled={isUpdatingPassword}
+              >
+                {isUpdatingPassword ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.modalSaveText}>Güncelle</Text>
                 )}
               </TouchableOpacity>
             </View>

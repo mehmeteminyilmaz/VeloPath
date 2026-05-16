@@ -154,6 +154,9 @@ export default function DashboardScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Kontrol Paneli</Text>
         <View style={styles.headerRight}>
+          <TouchableOpacity onPress={() => navigation.navigate('CreateProject')} style={{ marginRight: 15 }}>
+            <Ionicons name="add-circle-outline" size={26} color={colors.accent} />
+          </TouchableOpacity>
           <View style={styles.onlineDot} />
         </View>
       </View>
@@ -293,7 +296,7 @@ const createStyles = (colors, insets) => StyleSheet.create({
     paddingBottom: 15,
   },
   headerTitle: { fontSize: 20, fontWeight: '900', color: colors.textPrimary },
-  headerRight: { width: 30, alignItems: 'flex-end' },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
   onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
 
   welcomeSection: { paddingHorizontal: 20, marginTop: 10 },

@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI, updateProjectAPI, shareProjectAPI, updateTaskAPI } from '../services/api';
+import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI, updateProjectAPI, shareProjectAPI, updateTaskAPI, getAISuggestions } from '../services/api';
 import { useTheme } from '../theme/ThemeContext';
 import TaskNoteModal from '../components/TaskNoteModal';
 
@@ -19,6 +19,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const [newTaskDependsOn, setNewTaskDependsOn] = useState(null);
   const [newTaskPriority, setNewTaskPriority] = useState('Orta');
   const [adding, setAdding] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
 
   const [notesDraft, setNotesDraft] = useState('');
   const [notesView, setNotesView] = useState('edit');
@@ -70,7 +71,8 @@ export default function ProjectDetailsScreen({ route, navigation }) {
         title: newTaskTitle.trim(),
         weekIndex: parseInt(newTaskWeek) || 1,
         dependsOn: newTaskDependsOn,
-        priority: newTaskPriority
+        // BUG FIX: Türkçe öncelikleri backend'in beklediği enum değerlerine çeviriyoruz
+        priority: newTaskPriority === 'Yüksek' ? 'high' : newTaskPriority === 'Düşük' ? 'low' : 'medium'
       });
       setNewTaskTitle('');
       setNewTaskDependsOn(null);
@@ -80,6 +82,32 @@ export default function ProjectDetailsScreen({ route, navigation }) {
       Alert.alert('Hata', 'Görev oluşturulamadı');
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleGetAISuggestions = async () => {
+    setIsAILoading(true);
+    try {
+      const res = await getAISuggestions(projectId);
+      if (res.suggestions && res.suggestions.length > 0) {
+        // AI'dan gelen önerileri ardışık olarak ekle
+        for (const sugg of res.suggestions) {
+          await createTask(projectId, { 
+            title: sugg,
+            weekIndex: 1,
+            dependsOn: null,
+            priority: 'medium'
+          });
+        }
+        await loadProject();
+        Alert.alert('Başarılı', 'Yapay Zeka (AI) önerileri projeye başarıyla eklendi!');
+      } else {
+        Alert.alert('Bilgi', 'Yeni öneri bulunamadı.');
+      }
+    } catch (err) {
+      Alert.alert('Hata', 'AI önerileri alınamadı.');
+    } finally {
+      setIsAILoading(false);
     }
   };
 
@@ -223,6 +251,13 @@ export default function ProjectDetailsScreen({ route, navigation }) {
           <Text style={styles.headerSub}>{tasks.length} Görev • %{progress} Tamamlandı</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 12 }}>
+          <TouchableOpacity onPress={handleGetAISuggestions} disabled={isAILoading}>
+            {isAILoading ? (
+              <ActivityIndicator size="small" color="#eab308" />
+            ) : (
+              <Ionicons name="sparkles" size={24} color="#eab308" />
+            )}
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleShare}>
             <Ionicons name="share-social-outline" size={24} color={projectColor || colors.accent} />
           </TouchableOpacity>
