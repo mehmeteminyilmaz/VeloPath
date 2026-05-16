@@ -7,10 +7,11 @@ const projectSchema = new mongoose.Schema({
   status:      { type: String, default: 'Devam Ediyor', enum: ['Başlangıç', 'Devam Ediyor', 'Beklemede', 'Tamamlandı', 'active', 'archived'] },
   // BUG FIX: priority ve deadline alanları Dashboard kartlarında gösteriliyordu ama modelde yoktu
   priority:    { type: String, default: 'Orta', enum: ['Düşük', 'Orta', 'Yüksek'] },
-  deadline:    { type: String, default: '' },   // ISO date string veya 'YYYY-MM-DD'
+  deadline:    { type: String, default: '' },
   archived:    { type: Boolean, default: false },
   notes:       { type: String, default: '' },
   progress:    { type: Number, default: 0 },
+  category:    { type: String, default: 'diger' }, // Şablon kategorisi (yazilim, egitim, kariyer, saglik, vb.)
   user:        { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   sharedWith:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
