@@ -81,6 +81,7 @@ const PomodoroTimer = () => {
     }
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, timeLeft, mode, switchMode]);
 
   const formatTime = (seconds) => {
