@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { breakTaskByAI, summarizeNotesByAI } from '../services/api';
 
 const { height } = Dimensions.get('window');
 
@@ -34,6 +35,8 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   const [tags, setTags] = useState([]);
   const [newSubtaskText, setNewSubtaskText] = useState('');
   const [newTagText, setNewTagText] = useState('');
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
 
   useEffect(() => {
     if (task && visible) {
@@ -65,6 +68,36 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
 
   const toggleSubtask = (id) => setSubtasks(prev => prev.map(s => s.id === id ? { ...s, completed: !s.completed } : s));
   const deleteSubtask = (id) => setSubtasks(prev => prev.filter(s => s.id !== id));
+
+  const handleAIBreakdown = async () => {
+    setIsAILoading(true);
+    try {
+      const res = await breakTaskByAI(task.title || task.text);
+      if (res.subtasks && res.subtasks.length > 0) {
+        setSubtasks(prev => [
+          ...prev, 
+          ...res.subtasks.map((text, i) => ({ id: Date.now().toString() + i, text, completed: false }))
+        ]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const handleSummarize = async () => {
+    if (!noteContent.trim()) return;
+    setIsSummarizing(true);
+    try {
+      const res = await summarizeNotesByAI(noteContent);
+      if (res.summary) setNoteContent(res.summary);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   const addTag = (text) => {
     const t = text.trim();
@@ -141,15 +174,27 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
             <ScrollView style={styles.body} contentContainerStyle={{ paddingBottom: 20 }}>
               
               {viewMode === 'edit' && (
-                <TextInput
-                  style={styles.textArea}
-                  multiline
-                  placeholder="Markdown formatında notlarınızı yazın..."
-                  placeholderTextColor={colors.textSecondary}
-                  value={noteContent}
-                  onChangeText={setNoteContent}
-                  textAlignVertical="top"
-                />
+                <View>
+                  <TextInput
+                    style={styles.textArea}
+                    multiline
+                    placeholder="Markdown formatında notlarınızı yazın..."
+                    placeholderTextColor={colors.textSecondary}
+                    value={noteContent}
+                    onChangeText={setNoteContent}
+                    textAlignVertical="top"
+                  />
+                  <TouchableOpacity 
+                    style={[styles.saveBtn, { backgroundColor: 'rgba(168, 85, 247, 0.1)', borderWidth: 1, borderColor: 'rgba(168, 85, 247, 0.3)', marginTop: 10 }]} 
+                    onPress={handleSummarize}
+                    disabled={isSummarizing}
+                  >
+                    <Ionicons name="sparkles" size={18} color="#a855f7" style={{ marginRight: 6 }} />
+                    <Text style={[styles.saveBtnText, { color: '#a855f7' }]}>
+                      {isSummarizing ? 'Özetleniyor...' : 'AI ile Özetle'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               )}
 
               {viewMode === 'subtasks' && (
@@ -185,6 +230,9 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
                       onChangeText={setNewSubtaskText}
                       onSubmitEditing={addSubtask}
                     />
+                    <TouchableOpacity onPress={handleAIBreakdown} style={[styles.addBtn, { backgroundColor: 'rgba(168, 85, 247, 0.1)', marginRight: 10 }]} disabled={isAILoading}>
+                      <Ionicons name="color-wand" size={24} color="#a855f7" />
+                    </TouchableOpacity>
                     <TouchableOpacity onPress={addSubtask} style={styles.addBtn}>
                       <Ionicons name="add" size={24} color="#fff" />
                     </TouchableOpacity>
