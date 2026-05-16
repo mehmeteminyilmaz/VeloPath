@@ -44,22 +44,46 @@ export const updateUsername = async (userId, newUsername) => {
   return res.data;
 };
 
+export const updatePassword = async (userId, currentPassword, newPassword) => {
+  const res = await api.patch(`/users/password/${userId}`, { currentPassword, newPassword });
+  return res.data;
+};
+
 // ---------- PROJECTS ----------
 // Web ile aynı normalizasyon: backend status/weekIndex → completed/week
 export const fetchAllData = async (userId) => {
   if (!userId) return null;
-  const res = await api.get(`/projects/user/${userId}`);
-  return res.data.map(project => ({
-    ...project,
-    id: project._id,
-    tasks: (project.tasks || []).map(t => ({
-      ...t,
-      id: t._id,
-      text: t.title,
-      completed: t.status === 'done',
-      week: t.weekIndex || 1,
-    })),
-  }));
+  try {
+    const res = await api.get(`/projects/user/${userId}`);
+    const normalizedData = res.data.map(project => ({
+      ...project,
+      id: project._id,
+      tasks: (project.tasks || []).map(t => ({
+        ...t,
+        id: t._id,
+        text: t.title,
+        completed: t.status === 'done',
+        week: t.weekIndex || 1,
+      })),
+    }));
+    
+    // Verileri başarıyla çektik, yerel belleğe yedekle (Offline destek)
+    await AsyncStorage.setItem(`offline_projects_${userId}`, JSON.stringify(normalizedData));
+    return normalizedData;
+  } catch (error) {
+    console.error("Veri çekme hatası (API):", error);
+    // Backend'e ulaşılamazsa çevrimdışı veriyi getir
+    try {
+      const cached = await AsyncStorage.getItem(`offline_projects_${userId}`);
+      if (cached) {
+        console.log("Çevrimdışı veriler kullanılıyor.");
+        return JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error("Çevrimdışı veri okuma hatası:", e);
+    }
+    throw error; // Eğer offline veri de yoksa hatayı fırlat (ör: oturum kapatmak için)
+  }
 };
 
 export const fetchProjectDetails = async (projectId) => {
@@ -119,4 +143,10 @@ export const updateTaskAPI = async (taskId, updateData) => {
 
 export const deleteTaskAPI = async (taskId) => {
   await api.delete(`/tasks/${taskId}`);
+};
+
+// ---------- AI ----------
+export const getAISuggestions = async (projectId) => {
+  const res = await api.post(`/ai/suggest/${projectId}`);
+  return res.data;
 };

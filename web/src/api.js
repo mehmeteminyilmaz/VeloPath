@@ -24,9 +24,18 @@ export const fetchAllData = async (userId) => {
         week: t.weekIndex || 1,
       }))
     }));
+    
+    // Çevrimdışı kullanım için yerel belleğe yedekle
+    localStorage.setItem(`velopath_offline_data_${userId}`, JSON.stringify(projectsWithTasks));
     return projectsWithTasks;
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching data, trying offline cache:", error);
+    // İnternet veya sunucu yoksa çevrimdışı veriyi döndür
+    const cached = localStorage.getItem(`velopath_offline_data_${userId}`);
+    if (cached) {
+      console.log("Çevrimdışı veri kullanılıyor.");
+      return JSON.parse(cached);
+    }
     return null;
   }
 };
@@ -66,6 +75,12 @@ export const deleteTaskAPI = async (taskId) => {
   await axios.delete(`${API_URL}/tasks/${taskId}`, getAuthHeader());
 };
 
+// Yapay Zeka Önerileri
+export const getAISuggestions = async (projectId) => {
+  const res = await axios.post(`${API_URL}/ai/suggest/${projectId}`, {}, getAuthHeader());
+  return res.data;
+};
+
 // Kullanıcı API'leri
 export const loginUser = async (username, password) => {
   const res = await axios.post(`${API_URL}/users/login`, { username, password });
@@ -80,5 +95,11 @@ export const registerUser = async (username, password) => {
 // Kullanıcı adı güncelleme (web'de eksikti)
 export const updateUsername = async (userId, newUsername) => {
   const res = await axios.patch(`${API_URL}/users/${userId}`, { username: newUsername }, getAuthHeader());
+  return res.data;
+};
+
+// Şifre güncelleme
+export const updatePassword = async (userId, currentPassword, newPassword) => {
+  const res = await axios.patch(`${API_URL}/users/password/${userId}`, { currentPassword, newPassword }, getAuthHeader());
   return res.data;
 };
