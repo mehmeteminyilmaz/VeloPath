@@ -71,6 +71,12 @@ export const updateTaskAPI = async (taskId, updateData) => {
   return { ...res.data, id: res.data._id };
 };
 
+// Backend'deki özel toggle endpoint'i (completedAt'ı otomatik yönetir)
+export const toggleTaskAPI = async (taskId) => {
+  const res = await axios.put(`${API_URL}/tasks/${taskId}/toggle`, {}, getAuthHeader());
+  return { ...res.data, id: res.data._id };
+};
+
 export const deleteTaskAPI = async (taskId) => {
   await axios.delete(`${API_URL}/tasks/${taskId}`, getAuthHeader());
 };
