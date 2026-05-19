@@ -400,9 +400,12 @@ function App() {
   const toggleTask = async (projectId, taskId) => {
     const now = new Date().toISOString();
     let isNowCompleted = false;
+    // Undo için önceki hali sakla
+    let previousTasks = null;
 
     setProjects(projects.map(p => {
       if (p.id.toString() === projectId.toString()) {
+        previousTasks = p.tasks;
         return {
           ...p,
           tasks: p.tasks.map(t => {
@@ -426,7 +429,30 @@ function App() {
       return p;
     }));
 
-    try { await api.updateTaskAPI(taskId, { status: isNowCompleted ? 'done' : 'todo' }); } catch(err) { console.error(err); }
+    try {
+      // Backend'in özel toggle endpoint'ini kullan (completedAt otomatik yönetilir)
+      const updatedTask = await api.toggleTaskAPI(taskId);
+      // Backend'den dönen gerçek completedAt değerini UI'ya yansıt
+      setProjects(prev => prev.map(p => {
+        if (p.id.toString() !== projectId.toString()) return p;
+        return {
+          ...p,
+          tasks: p.tasks.map(t =>
+            t.id.toString() === taskId.toString()
+              ? { ...t, completedAt: updatedTask.completedAt ?? null }
+              : t
+          )
+        };
+      }));
+    } catch(err) {
+      console.error('Toggle görev hatası:', err);
+      // Hata durumunda optimistic güncellemeyi geri al
+      if (previousTasks !== null) {
+        setProjects(prev => prev.map(p =>
+          p.id.toString() === projectId.toString() ? { ...p, tasks: previousTasks } : p
+        ));
+      }
+    }
   };
 
   // --- Undo helpers ---
