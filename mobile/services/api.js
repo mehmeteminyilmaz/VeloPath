@@ -2,16 +2,37 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const getBackendIP = () => {
+/**
+ * Backend URL'sini dinamik olarak belirler.
+ *
+ * Öncelik sırası:
+ *  1. Expo Metro debugger host'u (geliştirme: fiziksel cihaz + Expo Go)
+ *  2. __DEV__ ortamında localhost (Android emülatör için)
+ *  3. Production fallback: localhost
+ *
+ * ÖNEMLİ: Farklı bir ağa geçerseniz Expo'yu yeniden başlatmanız yeterlidir,
+ * fallback IP artık hardcode değildir.
+ */
+const getBackendURL = () => {
+  // 1. Expo Go / Expo Dev Client: Gerçek cihaz veya emülatörde Metro host'u kullan
   const debuggerHost = Constants.expoConfig?.hostUri;
   if (debuggerHost) {
     const ip = debuggerHost.split(':')[0];
     return `http://${ip}:5000/api`;
   }
-  return 'http://192.168.1.180:5000/api';
+
+  // 2. Development ortamı fakat hostUri yoksa (örn. bare workflow)
+  if (__DEV__) {
+    // Android emülatörü için 10.0.2.2, diğerleri için localhost
+    return 'http://localhost:5000/api';
+  }
+
+  // 3. Production build — gerçek sunucu URL'sini buraya yazın
+  // Örnek: return 'https://api.velopath.com/api';
+  return 'http://localhost:5000/api';
 };
 
-export const API_BASE = getBackendIP();
+export const API_BASE = getBackendURL();
 const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
