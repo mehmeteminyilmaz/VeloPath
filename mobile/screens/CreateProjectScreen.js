@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { createProject } from '../services/api';
+import { createProject, createTask } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -113,7 +113,7 @@ export default function CreateProjectScreen({ navigation }) {
     setLoading(true);
     try {
       const userId = await AsyncStorage.getItem('userId');
-      await createProject({
+      const savedProject = await createProject({
         title: title.trim(),
         description: desc.trim(),
         color: selectedColor,
@@ -121,6 +121,19 @@ export default function CreateProjectScreen({ navigation }) {
         deadline,
         user: userId,
       });
+
+      // Şablon seçildiyse şablon görevlerini ekle
+      if (selectedTemplateData && selectedTemplateData.tasks) {
+        await Promise.all(selectedTemplateData.tasks.map(taskTitle => 
+          createTask(savedProject.id, {
+            title: taskTitle,
+            weekIndex: 1,
+            priority: 'medium',
+            dependsOn: null
+          })
+        ));
+      }
+
       navigation.goBack();
     } catch (err) {
       Alert.alert('Hata', 'Proje oluşturulamadı');

@@ -320,7 +320,7 @@ const createStyles = (colors, insets) => StyleSheet.create({
   filterText: { color: colors.textSecondary, fontSize: 12, fontWeight: '600' },
   activeFilterText: { color: colors.accent },
 
-  searchSection: { paddingHorizontal: 20, marginTop: 20 },
+  searchSection: { paddingHorizontal: 20, marginTop: 20, marginBottom: 16 },
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.bgCard, borderRadius: 12, paddingHorizontal: 15, height: 50, borderWidth: 1, borderColor: colors.border },
   searchInput: { flex: 1, marginLeft: 10, color: colors.textPrimary, fontSize: 14 },
 

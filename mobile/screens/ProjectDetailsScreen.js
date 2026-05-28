@@ -203,14 +203,6 @@ export default function ProjectDetailsScreen({ route, navigation }) {
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={projectColor || colors.accent} />
-      </View>
-    );
-  }
-
   const tasks = project?.tasks || [];
   const isTaskDone = (t) => t.completed === true || t.status === 'done';
   const completedCount = tasks.filter(isTaskDone).length;
@@ -233,6 +225,14 @@ export default function ProjectDetailsScreen({ route, navigation }) {
     });
     return result;
   }, [tasks]);
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={projectColor || colors.accent} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator, Platform, LogBox } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+
+LogBox.ignoreLogs(['expo-notifications: Android Push notifications']);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -95,20 +97,20 @@ function Navigation() {
       <NavigationContainer theme={navTheme}>
         <Stack.Navigator
           initialRouteName={initialRoute}
-          screenOptions={{ 
+          screenOptions={{
             headerShown: false,
             animation: 'slide_from_right',
             contentStyle: { backgroundColor: colors.bg }
           }}
         >
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ animation: 'fade' }} />
-        <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
-        <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
-        <Stack.Screen name="Pomodoro" component={PomodoroScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="Stats" component={StatsScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="CreateProject" component={CreateProjectScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ animation: 'fade' }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
+          <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
+          <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
+          <Stack.Screen name="Pomodoro" component={PomodoroScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="Stats" component={StatsScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="CreateProject" component={CreateProjectScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>

@@ -82,7 +82,7 @@ export default function StatsScreen({ navigation }) {
   Object.keys(completionsByDay).forEach(day => {
     if (completionsByDay[day] > maxDayCompletions) {
       maxDayCompletions = completionsByDay[day];
-      bestDayIndex = day;
+      bestDayIndex = parseInt(day, 10);
     }
   });
   const bestDay = completedTasks.length > 0 ? dayNames[bestDayIndex] : '-';
