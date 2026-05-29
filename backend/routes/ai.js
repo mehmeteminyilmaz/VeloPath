@@ -69,4 +69,30 @@ router.post('/summarize', auth, async (req, res) => {
   }
 });
 
+// 4. Haftalık Performans ve İstatistik Analizi (AI Coach)
+router.post('/analyze-stats', auth, async (req, res) => {
+  try {
+    if (!genAI) return res.status(500).json({ error: 'Sistemde geçerli bir GEMINI_API_KEY bulunamadı.' });
+    
+    const { totalCompleted, totalPending, productivity, streak, bestDay } = req.body;
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const prompt = `Lütfen aşağıdaki kullanıcı verimlilik istatistiklerini profesyonel bir verimlilik koçu (productivity coach) gibi analiz et. Kullanıcıya motivasyon verici, yapıcı, samimi ve Türkçe dilinde kısa (en fazla 4-5 cümle) bir haftalık performans özeti ve tavsiye yazısı hazırla. Önemli kelimeleri kalın (bold) yapabilirsin. 
+    
+    Kullanıcı Verileri:
+    - Tamamlanan Görev: ${totalCompleted} adet
+    - Bekleyen Görev: ${totalPending} adet
+    - Verimlilik Oranı: %${productivity}
+    - En Uzun Çalışma Serisi: ${streak} gün üst üste görev tamamlama
+    - En Verimli Gün: ${bestDay}
+    
+    Lütfen doğrudan analiz yazısını ver. Başlık veya giriş/çıkış ifadeleri (örn: "İşte analiziniz:") kullanma.`;
+    
+    const result = await model.generateContent(prompt);
+    res.json({ analysis: result.response.text().trim() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

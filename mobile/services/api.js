@@ -181,3 +181,8 @@ export const summarizeNotesByAI = async (text) => {
   const res = await api.post(`/ai/summarize`, { text });
   return res.data;
 };
+
+export const getAIStatsAnalysis = async (statsData) => {
+  const res = await api.post(`/ai/analyze-stats`, statsData);
+  return res.data;
+};

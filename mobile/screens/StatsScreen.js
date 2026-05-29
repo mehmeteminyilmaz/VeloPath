@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllData } from '../services/api';
+import { fetchAllData, getAIStatsAnalysis } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -19,13 +19,18 @@ export default function StatsScreen({ navigation }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
       const uid = await AsyncStorage.getItem('userId');
       if (!uid) return;
       const data = await fetchAllData(uid);
-      if (data) setProjects(data);
+      if (data) {
+        setProjects(data);
+        setAiAnalysis('');
+      }
     } catch (err) {
       console.error('Stats veri yükleme hatası:', err);
     } finally {
@@ -37,6 +42,26 @@ export default function StatsScreen({ navigation }) {
   useEffect(() => { loadData(); }, [loadData]);
 
   const onRefresh = () => { setRefreshing(true); loadData(); };
+
+  const handleGetAIAnalysis = async () => {
+    setAiLoading(true);
+    try {
+      const res = await getAIStatsAnalysis({
+        totalCompleted: completedTasks.length,
+        totalPending: pendingTasks.length,
+        productivity: productivity,
+        streak: longestStreak,
+        bestDay: bestDay
+      });
+      if (res.analysis) {
+        setAiAnalysis(res.analysis);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // --- Gerçek istatistikleri hesapla (Web ile %100 aynı) ---
   const isTaskDone = (t) => t.completed === true || t.status === 'done';
@@ -209,6 +234,48 @@ export default function StatsScreen({ navigation }) {
               ? 'Projelerinize görev ekleyerek istatistiklerinizi burada takip edebilirsiniz.'
               : `Toplam ${allTasks.length} görevin ${completedTasks.length} tanesi tamamlandı. Görevlerini küçük parçalara bölmek hızını artırır!`}
           </Text>
+        </View>
+
+        {/* Yapay Zeka Koç Analizi */}
+        <View style={[styles.summaryCard, { marginTop: 10, borderColor: '#a855f7', borderWidth: 1.5 }]}>
+          <View style={[styles.summaryIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.1)' }]}>
+            <Ionicons name="sparkles" size={26} color="#a855f7" />
+          </View>
+          <Text style={styles.summaryTitle}>Yapay Zeka Performans Analizi</Text>
+          
+          {aiLoading ? (
+            <View style={{ marginVertical: 20, alignItems: 'center', gap: 10 }}>
+              <ActivityIndicator size="small" color="#a855f7" />
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Yapay Zeka istatistiklerinizi analiz ediyor...</Text>
+            </View>
+          ) : aiAnalysis ? (
+            <View style={{ width: '100%', marginTop: 10 }}>
+              <Text style={[styles.summaryDesc, { textAlign: 'left', color: colors.textPrimary, lineHeight: 22 }]}>
+                {aiAnalysis}
+              </Text>
+              <TouchableOpacity 
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 15, paddingVertical: 8, alignSelf: 'center' }}
+                onPress={handleGetAIAnalysis}
+              >
+                <Ionicons name="refresh" size={14} color="#a855f7" style={{ marginRight: 6 }} />
+                <Text style={{ color: '#a855f7', fontSize: 13, fontWeight: '700' }}>Analizi Yeniden Yap</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={{ width: '100%', alignItems: 'center' }}>
+              <Text style={[styles.summaryDesc, { marginBottom: 15 }]}>
+                Çalışma istatistiklerinizi analiz ettirerek verimlilik koçunuzdan kişiselleştirilmiş performans değerlendirmesi ve tavsiyeler alın.
+              </Text>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#a855f7', width: '100%', borderRadius: 12, height: 48, marginTop: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} 
+                onPress={handleGetAIAnalysis}
+                disabled={allTasks.length === 0}
+              >
+                <Ionicons name="sparkles" size={20} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>Yapay Zeka Analizi Al 🧠</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
