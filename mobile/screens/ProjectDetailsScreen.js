@@ -342,27 +342,29 @@ export default function ProjectDetailsScreen({ route, navigation }) {
                 onChangeText={setNewTaskTitle}
               />
 
-              <View style={styles.row}>
-                <View style={styles.inputHalf}>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+                <View style={{ width: 80 }}>
                   <Text style={styles.label}>Hafta</Text>
                   <TextInput
-                    style={[styles.input, { height: 44, marginTop: 4 }]}
+                    style={[styles.input, { height: 44, marginTop: 4, textAlign: 'center' }]}
                     keyboardType="number-pad"
                     value={newTaskWeek}
                     onChangeText={setNewTaskWeek}
                   />
                 </View>
 
-                <View style={styles.inputHalf}>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.label}>Öncelik</Text>
-                  <View style={{flexDirection: 'row', gap: 5, marginTop: 4}}>
+                  <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                     {['Düşük', 'Orta', 'Yüksek'].map(p => (
                       <TouchableOpacity 
                         key={p} 
-                        style={[styles.pill, newTaskPriority === p && { backgroundColor: projectColor || colors.accent }]}
+                        style={[styles.pill, { flex: 1, paddingHorizontal: 4 }, newTaskPriority === p && { backgroundColor: projectColor || colors.accent, borderColor: projectColor || colors.accent }]}
                         onPress={() => setNewTaskPriority(p)}
                       >
-                        <Text style={[styles.pillText, newTaskPriority === p && { color: '#fff' }]}>{p}</Text>
+                        <Text style={[styles.pillText, newTaskPriority === p && { color: '#fff', fontWeight: 'bold' }]} numberOfLines={1} adjustsFontSizeToFit>
+                          {p}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
