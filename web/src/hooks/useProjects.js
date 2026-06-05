@@ -134,12 +134,30 @@ export function useProjects(userId, isAuthenticated) {
 
     try {
       const updatedTask = await api.toggleTaskAPI(tid);
-      setProjects(prev => prev.map(p => {
-        if (p.id.toString() !== pid) return p;
-        return { ...p, tasks: p.tasks.map(t => t.id.toString() === tid ? { ...t, completedAt: updatedTask.completedAt ?? null } : t) };
-      }));
+
+      // Tekrarlayan gorev: 2 sn sonra sifirla ve yeni dueDate'i goster
+      if (updatedTask.recurred) {
+        setProjects(prev => prev.map(p => {
+          if (p.id.toString() !== pid) return p;
+          return { ...p, tasks: p.tasks.map(t => t.id.toString() === tid ? { ...t, completed: true, completedAt: updatedTask.completedAt, dueDate: updatedTask.dueDate } : t) };
+        }));
+        setTimeout(async () => {
+          try {
+            const reset = await api.resetRecurringTaskAPI(tid);
+            setProjects(prev => prev.map(p => {
+              if (p.id.toString() !== pid) return p;
+              return { ...p, tasks: p.tasks.map(t => t.id.toString() === tid ? { ...t, completed: false, completedAt: null, dueDate: reset.dueDate } : t) };
+            }));
+          } catch (e) { console.error('Recurring reset error:', e); }
+        }, 1500);
+      } else {
+        setProjects(prev => prev.map(p => {
+          if (p.id.toString() !== pid) return p;
+          return { ...p, tasks: p.tasks.map(t => t.id.toString() === tid ? { ...t, completedAt: updatedTask.completedAt ?? null } : t) };
+        }));
+      }
     } catch (err) {
-      console.error('Toggle görev hatası:', err);
+      console.error('Toggle error:', err);
       if (previousTasks !== null) {
         setProjects(prev => prev.map(p => p.id.toString() === pid ? { ...p, tasks: previousTasks } : p));
       }
@@ -188,6 +206,25 @@ export function useProjects(userId, isAuthenticated) {
       tasks: p.tasks.map(t => t.id.toString() !== tid ? t : { ...t, notes: newNote, history: [...(t.history || []), { timestamp: now, action: 'Görev notunu güncelledi.' }] })
     }));
     try { await api.updateTaskAPI(tid, { notes: newNote }); } catch (err) { console.error(err); }
+  };
+
+  const updateTaskRecurrence = async (projectId, taskId, recurrence) => {
+    const pid = projectId.toString();
+    const tid = taskId.toString();
+    setProjects(prev => prev.map(p => p.id.toString() !== pid ? p : {
+      ...p, tasks: p.tasks.map(t => t.id.toString() !== tid ? t : { ...t, recurrence: recurrence || null })
+    }));
+    try { await api.updateTaskAPI(tid, { recurrence: recurrence || null }); } catch (err) { console.error(err); }
+  };
+
+  const updateTaskDueDate = async (projectId, taskId, dueDate) => {
+    const pid = projectId.toString();
+    const tid = taskId.toString();
+    setProjects(prev => prev.map(p => p.id.toString() !== pid ? p : {
+      ...p,
+      tasks: p.tasks.map(t => t.id.toString() !== tid ? t : { ...t, dueDate: dueDate || null })
+    }));
+    try { await api.updateTaskAPI(tid, { dueDate: dueDate || null }); } catch (err) { console.error(err); }
   };
 
   const deleteTask = useCallback((projectId, taskId, addUndoToast) => {
@@ -263,6 +300,6 @@ export function useProjects(userId, isAuthenticated) {
   return {
     projects, setProjects, loadData, undoTimers,
     addProject, archiveProject, updateProjectNotes, deleteProject,
-    addTask, toggleTask, deleteTask, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskNote, reorderTasks,
+    addTask, toggleTask, deleteTask, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskNote, updateTaskDueDate, updateTaskRecurrence, reorderTasks,
   };
 }

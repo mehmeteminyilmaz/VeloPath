@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Check, Clock, Calendar, History, Edit3, CheckCircle2, RotateCcw, ArrowRight, PlusCircle, ListChecks, Trash2, Plus, Tag, Wand2, FileText } from 'lucide-react';
+import { X, Check, Clock, Calendar, History, Edit3, CheckCircle2, RotateCcw, ArrowRight, PlusCircle, ListChecks, Trash2, Plus, Tag, Wand2, FileText, MessageSquare, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import * as api from '../api';
 
@@ -19,17 +19,30 @@ function getTagColor(tag) {
   return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
 }
 
-const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onSubtasksChange, onTagsChange }) => {
+const RECURRENCE_OPTIONS = [
+  { value: 'none',    label: 'Tekrar Yok' },
+  { value: 'daily',   label: 'Her Gun' },
+  { value: 'weekly',  label: 'Her Hafta' },
+  { value: 'monthly', label: 'Her Ay' },
+];
+
+const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onSubtasksChange, onTagsChange, onDueDateChange, onRecurrenceChange, currentUsername, currentUserId }) => {
   const [noteContent, setNoteContent] = useState(task.notes || '');
   const [viewMode, setViewMode] = useState('edit');
   const [priority, setPriority] = useState(task.priority || 'Orta');
   const [subtasks, setSubtasks] = useState(task.subtasks || []);
   const [tags, setTags] = useState(task.tags || []);
+  const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
+  const [recurrenceType, setRecurrenceType] = useState(task.recurrence?.type || 'none');
+  const [recurrenceInterval, setRecurrenceInterval] = useState(task.recurrence?.interval || 1);
   const [newSubtaskText, setNewSubtaskText] = useState('');
   const [newTagText, setNewTagText] = useState('');
   const [isAILoading, setIsAILoading] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
-  const [aiMessage, setAiMessage] = useState(null); // { type: 'success'|'error', text }
+  const [aiMessage, setAiMessage] = useState(null);
+  const [comments, setComments] = useState(task.comments || []);
+  const [newComment, setNewComment] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
 
   const showMsg = (type, text) => {
     setAiMessage({ type, text });
@@ -41,7 +54,35 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
     if (onPriorityChange && priority !== task.priority) onPriorityChange(task.id, priority);
     if (onSubtasksChange) onSubtasksChange(task.id, subtasks);
     if (onTagsChange) onTagsChange(task.id, tags);
+    if (onDueDateChange) onDueDateChange(task.id, dueDate || null);
+    if (onRecurrenceChange) {
+      const rec = recurrenceType !== 'none' ? { type: recurrenceType, interval: Number(recurrenceInterval) || 1 } : null;
+      onRecurrenceChange(task.id, rec);
+    }
     onClose();
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    setCommentLoading(true);
+    try {
+      const comment = await api.addCommentAPI(task.id || task._id, newComment.trim());
+      setComments(prev => [...prev, comment]);
+      setNewComment('');
+    } catch (err) {
+      showMsg('error', 'Yorum eklenemedi.');
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await api.deleteCommentAPI(task.id || task._id, commentId);
+      setComments(prev => prev.filter(c => c._id !== commentId));
+    } catch (err) {
+      showMsg('error', 'Yorum silinemedi.');
+    }
   };
 
   const addSubtask = () => {
@@ -136,6 +177,48 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                 ))}
               </div>
             </div>
+            {/* Due Date */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
+              <Calendar size={13} style={{ color: 'var(--text-secondary)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Bitis Tarihi:</span>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+                style={{ background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'var(--text-primary)', padding: '3px 8px', fontSize: '0.8rem', cursor: 'pointer' }}
+              />
+              {dueDate && (
+                <button onClick={() => setDueDate('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                  <X size={12} /> Kaldir
+                </button>
+              )}
+            </div>
+            {/* Tekrarlama */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+              <Clock size={13} style={{ color: 'var(--text-secondary)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Tekrar:</span>
+              <select
+                value={recurrenceType}
+                onChange={e => setRecurrenceType(e.target.value)}
+                style={{ background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'var(--text-primary)', padding: '3px 8px', fontSize: '0.8rem', cursor: 'pointer' }}
+              >
+                {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              {recurrenceType !== 'none' && (
+                <>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>her</span>
+                  <input
+                    type="number" min="1" max="30"
+                    value={recurrenceInterval}
+                    onChange={e => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                    style={{ width: '52px', background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'var(--text-primary)', padding: '3px 8px', fontSize: '0.8rem', textAlign: 'center' }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    {recurrenceType === 'daily' ? 'gunde' : recurrenceType === 'weekly' ? 'haftada' : 'ayda'}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
           <button className="modal-close-btn" onClick={onClose}><X size={20} /></button>
         </div>
@@ -161,6 +244,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
             { key: 'edit',     icon: <Edit3 size={15} />,      label: 'Not' },
             { key: 'subtasks', icon: <ListChecks size={15} />,  label: 'Alt Gorevler', badge: subtasks.length > 0 ? completedSubs + '/' + subtasks.length : null },
             { key: 'tags',     icon: <Tag size={15} />,         label: 'Etiketler',    badge: tags.length > 0 ? tags.length : null },
+            { key: 'comments', icon: <MessageSquare size={15} />, label: 'Yorumlar', badge: comments.length > 0 ? comments.length : null },
             { key: 'preview',  icon: <Check size={15} />,       label: 'Onizleme' },
             { key: 'history',  icon: <History size={15} />,     label: 'Aktivite' },
           ].map(tab => (
@@ -276,6 +360,57 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                     <button key={t} className="tag-suggest-btn" onClick={() => addTag(t)} style={{ '--tag-color': getTagColor(t) }}>+ {t}</button>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Yorumlar */}
+          {viewMode === 'comments' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {comments.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+                  <MessageSquare size={32} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
+                  <p style={{ margin: 0, fontSize: '0.88rem' }}>Henuz yorum yok.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {comments.map(c => (
+                    <div key={c._id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '10px 12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--primary)' }}>{c.username}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                            {c.createdAt ? new Date(c.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                          {(c.username === currentUsername) && (
+                            <button onClick={() => handleDeleteComment(c._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', padding: 0 }} title="Sil">
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{c.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Yeni yorum */}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <input
+                  type="text"
+                  placeholder="Yorum yaz... (Enter)"
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }}
+                  style={{ flex: 1, background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: 'var(--text-primary)', padding: '10px 14px', fontSize: '0.88rem', outline: 'none' }}
+                />
+                <button
+                  onClick={handleAddComment}
+                  disabled={commentLoading || !newComment.trim()}
+                  style={{ background: 'rgba(99,102,241,0.15)', border: 'none', borderRadius: '10px', color: 'var(--primary)', cursor: 'pointer', padding: '0 14px', display: 'flex', alignItems: 'center', opacity: (!newComment.trim() || commentLoading) ? 0.5 : 1 }}
+                >
+                  <Send size={16} />
+                </button>
               </div>
             </div>
           )}

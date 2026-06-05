@@ -110,6 +110,33 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
           )}
         </div>
 
+        {/* Recurrence Badge */}
+        {task.recurrence?.type && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', color: '#a855f7', fontWeight: 500 }}>
+            <Clock size={10} />
+            {task.recurrence.interval > 1 ? `Her ${task.recurrence.interval} ` : 'Her '}
+            {task.recurrence.type === 'daily' ? 'gun' : task.recurrence.type === 'weekly' ? 'hafta' : 'ay'}
+          </span>
+        )}
+
+        {/* Due Date Badge */}
+        {task.dueDate && !task.completed && (() => {
+          const due = new Date(task.dueDate);
+          const today = new Date(); today.setHours(0,0,0,0);
+          const dueDay = new Date(due); dueDay.setHours(0,0,0,0);
+          const diff = Math.round((dueDay - today) / 86400000);
+          const isOverdue = diff < 0;
+          const isToday = diff === 0;
+          const isTomorrow = diff === 1;
+          const color = isOverdue ? 'var(--danger)' : isToday ? 'var(--status-low)' : 'var(--text-secondary)';
+          const label = isOverdue ? `${Math.abs(diff)} gun gecti` : isToday ? 'Bugun' : isTomorrow ? 'Yarin' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+          return (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.72rem', color, fontWeight: isOverdue || isToday ? 700 : 400 }}>
+              <Calendar size={11} /> {label}
+            </span>
+          );
+        })()}
+
         {/* Etiket chip'leri */}
         {tags.length > 0 && (
           <div className="task-tags-row">
@@ -175,7 +202,7 @@ const DroppableWeekContent = ({ weekId, children, isExpanded }) => {
 };
 
 
-const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, reorderTasks }) => {
+const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskDueDate, updateTaskRecurrence, reorderTasks, currentUsername, currentUserId }) => {
   const [activeTaskNote, setActiveTaskNote] = useState(null);
   const [activeDragId, setActiveDragId] = useState(null);
   
@@ -322,6 +349,10 @@ const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, updateTas
           onPriorityChange={updateTaskPriority ? (taskId, p) => updateTaskPriority(project.id, taskId, p) : null}
           onSubtasksChange={updateTaskSubtasks ? (taskId, subs) => updateTaskSubtasks(project.id, taskId, subs) : null}
           onTagsChange={updateTaskTags ? (taskId, tags) => updateTaskTags(project.id, taskId, tags) : null}
+          onDueDateChange={updateTaskDueDate ? (taskId, date) => updateTaskDueDate(project.id, taskId, date) : null}
+          onRecurrenceChange={updateTaskRecurrence ? (taskId, rec) => updateTaskRecurrence(project.id, taskId, rec) : null}
+          currentUsername={currentUsername}
+          currentUserId={currentUserId}
         />
       )}
 

@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import { X, User, Bell, Trash2, Info, Moon, Sun, CheckCircle, Settings, Edit2, Check } from 'lucide-react';
+import { X, User, Bell, Trash2, Info, Moon, Sun, CheckCircle, Settings, Edit2, Check, Palette } from 'lucide-react';
 import * as api from '../api';
 
-const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, setTheme, requestNotificationPermission, resetData }) => {
+const ACCENT_COLORS = [
+  { name: 'Indigo',   value: '#6366f1' },
+  { name: 'Violet',   value: '#8b5cf6' },
+  { name: 'Pink',     value: '#ec4899' },
+  { name: 'Rose',     value: '#f43f5e' },
+  { name: 'Orange',   value: '#f97316' },
+  { name: 'Amber',    value: '#f59e0b' },
+  { name: 'Emerald',  value: '#10b981' },
+  { name: 'Cyan',     value: '#06b6d4' },
+  { name: 'Sky',      value: '#0ea5e9' },
+];
+
+const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, setTheme, accentColor, setAccentColor, requestNotificationPermission, resetData }) => {
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
   const [nameError, setNameError] = useState('');
@@ -252,6 +264,30 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
                   >
                     <Moon size={16} />
                   </button>
+                </div>
+              </div>
+
+              {/* Accent Renk Secici */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}><Palette size={15} /> Vurgu Rengi</p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Butonlar ve istatistikler icin</p>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: '200px' }}>
+                  {ACCENT_COLORS.map(c => (
+                    <button
+                      key={c.value}
+                      onClick={() => setAccentColor(c.value)}
+                      title={c.name}
+                      style={{
+                        width: '22px', height: '22px', borderRadius: '50%',
+                        background: c.value, border: 'none', cursor: 'pointer',
+                        outline: accentColor === c.value ? '2px solid white' : '2px solid transparent',
+                        outlineOffset: '2px',
+                        transition: 'outline 0.15s',
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

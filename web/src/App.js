@@ -21,7 +21,7 @@ function App() {
     projects, setProjects, loadData, undoTimers,
     addProject, archiveProject, updateProjectNotes, deleteProject: deleteProjectBase,
     addTask, toggleTask, deleteTask: deleteTaskBase,
-    updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskNote, reorderTasks,
+    updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskNote, updateTaskDueDate, updateTaskRecurrence, reorderTasks,
   } = useProjects(userId, isAuthenticated);
 
   const [undoToasts, setUndoToasts] = useState([]);
@@ -30,6 +30,7 @@ function App() {
   );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('velopath_theme') || 'dark');
+  const [accentColor, setAccentColor] = useState(localStorage.getItem('velopath_accent') || '#6366f1');
 
   // Sidebar klavye kısayolu
   useEffect(() => {
@@ -58,6 +59,45 @@ function App() {
 
   // Tema
   useEffect(() => { document.body.setAttribute('data-theme', theme); }, [theme]);
+
+  // Accent rengi
+  useEffect(() => {
+    document.documentElement.style.setProperty('--primary', accentColor);
+    // Transparan versiyonu da hesapla (hover, badge arka plani icin)
+    document.documentElement.style.setProperty('--primary-rgb', accentColor);
+  }, [accentColor]);
+
+  // Due date hatirlatici — veriler yüklendikten sonra bir kez calistir
+  useEffect(() => {
+    if (!isAuthenticated || projects.length === 0) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+
+    const urgentTasks = [];
+    projects.filter(p => !p.archived).forEach(p => {
+      p.tasks.filter(t => !t.completed && t.dueDate).forEach(t => {
+        const due = new Date(t.dueDate); due.setHours(0, 0, 0, 0);
+        const diff = Math.round((due - today) / 86400000);
+        if (diff <= 1) urgentTasks.push({ text: t.text, diff, project: p.title });
+      });
+    });
+
+    if (urgentTasks.length > 0) {
+      const overdue = urgentTasks.filter(t => t.diff < 0).length;
+      const todayCount = urgentTasks.filter(t => t.diff === 0).length;
+      const tomorrowCount = urgentTasks.filter(t => t.diff === 1).length;
+
+      let body = '';
+      if (overdue > 0) body += overdue + ' gorev gecikti! ';
+      if (todayCount > 0) body += todayCount + ' gorev bugun bitiyor. ';
+      if (tomorrowCount > 0) body += tomorrowCount + ' gorev yarin bitiyor.';
+
+      new Notification('VeloPath - Hatirlatici', { body: body.trim(), icon: '/favicon.ico' });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projects.length, isAuthenticated]);
 
   // --- Undo sistemi ---
   const addUndoToast = useCallback((toastData) => {
@@ -122,10 +162,10 @@ function App() {
     }
   };
 
-  const resetData = () => {
-    if (window.confirm('Oturumu kapatmak istediğinizden emin misiniz?')) {
+  const resetData = async () => {
+    if (window.confirm('Oturumu kapatmak istediginizden emin misiniz?')) {
       setProjects([]);
-      onLogout();
+      await onLogout();
     }
   };
 
@@ -146,7 +186,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
           <Route path="/create" element={<CreateProject addProject={addProject} {...sharedProps} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} {...sharedProps} />} />
+          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateTaskDueDate={updateTaskDueDate} updateTaskRecurrence={updateTaskRecurrence} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} username={username} userId={userId} {...sharedProps} />} />
           <Route path="/stats" element={<Stats projects={projects} {...sharedProps} />} />
           <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
         </Routes>
@@ -159,6 +199,8 @@ function App() {
           setUsername={setUsername}
           theme={theme}
           setTheme={(newTheme) => { setTheme(newTheme); localStorage.setItem('velopath_theme', newTheme); }}
+          accentColor={accentColor}
+          setAccentColor={(c) => { setAccentColor(c); localStorage.setItem('velopath_accent', c); }}
           requestNotificationPermission={requestNotificationPermission}
           resetData={onLogout}
         />
