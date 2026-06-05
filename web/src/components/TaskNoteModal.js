@@ -50,6 +50,14 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
   };
 
   const handleSave = () => {
+    if (dueDate) {
+      const year = new Date(dueDate).getFullYear();
+      if (year < 2020 || year > 2100 || isNaN(year)) {
+        alert('Lütfen geçerli bir bitiş tarihi seçin (Yıl 2020 ile 2100 arasında olmalıdır).');
+        return;
+      }
+    }
+
     onSave(task.id, noteContent);
     if (onPriorityChange && priority !== task.priority) onPriorityChange(task.id, priority);
     if (onSubtasksChange) onSubtasksChange(task.id, subtasks);

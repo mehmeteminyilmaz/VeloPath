@@ -46,6 +46,14 @@ const CreateProject = ({ addProject, resetData, requestNotificationPermission, s
     e.preventDefault();
     if (!title.trim()) return;
 
+    if (deadline) {
+      const year = new Date(deadline).getFullYear();
+      if (year < 2020 || year > 2100 || isNaN(year)) {
+        alert('Lütfen geçerli bir teslim tarihi seçin (Yıl 2020 ile 2100 arasında olmalıdır).');
+        return;
+      }
+    }
+
     const template = PROJECT_TEMPLATES.find(t => t.id === selectedTemplate);
     let initialTasks = [];
     if (template) {
