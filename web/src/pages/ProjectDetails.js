@@ -20,6 +20,12 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   const [notesView, setNotesView] = useState('edit'); // 'edit' | 'preview'
   const [notesOpen, setNotesOpen] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [aiMessage, setAiMessage] = useState(null); // { type: 'success'|'error', text }
+
+  const showMsg = (type, text) => {
+    setAiMessage({ type, text });
+    setTimeout(() => setAiMessage(null), 4000);
+  };
 
   // Projeyi bulduktan sonra notesDraft'ı ayarla
   React.useEffect(() => {
@@ -56,15 +62,16 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
       const res = await api.getAISuggestions(id);
       if (res.suggestions && res.suggestions.length > 0) {
         for (const sugg of res.suggestions) {
-          // Basitçe yeni görevleri projeye ekle
           addTask(id, sugg, 1, null, 'Orta');
         }
-        alert('Yapay Zeka (AI) önerileri projeye başarıyla eklendi!');
+        showMsg('success', res.suggestions.length + ' AI gorevi projeye eklendi!');
       } else {
-        alert('Yeni öneri bulunamadı.');
+        showMsg('error', 'Yeni oneri bulunamadi.');
       }
     } catch (err) {
-      alert('AI önerileri alınamadı. Sunucu bağlantısını kontrol edin.');
+      const status = err.response?.status;
+      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
+      else showMsg('error', 'AI onerileri alinamadi. Sunucu baglantisinizi kontrol edin.');
     } finally {
       setIsAILoading(false);
     }
@@ -75,16 +82,16 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   };
 
   const handleShareProject = async () => {
-    const username = window.prompt("Projeyi paylaşmak istediğiniz kullanıcının adını girin:");
+    const username = window.prompt("Projeyi paylasmak istediginiz kullanicinin adini girin:");
     if (username && username.trim()) {
       try {
         await api.shareProjectAPI(id, username.trim());
-        alert(`${username} kullanıcısı projeye eklendi!`);
+        showMsg('success', username + ' kullanicisi projeye eklendi!');
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          alert('Kullanıcı bulunamadı.');
+          showMsg('error', 'Kullanici bulunamadi.');
         } else {
-          alert('Proje paylaşılırken bir hata oluştu.');
+          showMsg('error', 'Proje paylasilirken bir hata olustu.');
         }
       }
     }
@@ -131,9 +138,24 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
       <Sidebar resetData={resetData} requestNotificationPermission={requestNotificationPermission} setIsSidebarCollapsed={setIsSidebarCollapsed} isSidebarCollapsed={isSidebarCollapsed} onLogout={onLogout} toggleSettings={toggleSettings} />
 
       <main className="main-content">
+        {/* AI Mesaj Bandi */}
+        {aiMessage && (
+          <div style={{
+            marginBottom: '1rem',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 500,
+            background: aiMessage.type === 'success' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+            color: aiMessage.type === 'success' ? 'var(--accent)' : 'var(--danger)',
+            border: `1px solid ${aiMessage.type === 'success' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          }}>
+            {aiMessage.text}
+          </div>
+        )}
         <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
-            <ArrowLeft size={16} /> Dashboard'a Dön
+            <ArrowLeft size={16} /> Dashboard'a Don
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
