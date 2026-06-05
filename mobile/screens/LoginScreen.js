@@ -88,8 +88,6 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
-  const styles = createStyles(colors, insets);
-
   const handleForgotPassword = () => {
     Alert.alert(
       'Şifremi Unuttum',
