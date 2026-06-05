@@ -305,16 +305,34 @@ const createStyles = (colors, insets, themeName) => {
     container: {
       flex: 1,
     },
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: 'center',
+    },
     inner: {
-      flex: 1,
-      paddingHorizontal: 30,
-      paddingTop: insets.top + 60,
-      paddingBottom: insets.bottom + 20,
-      alignItems: 'center',
+      width: '100%',
+      paddingHorizontal: 24,
+      paddingTop: insets.top + 40,
+      paddingBottom: Math.max(insets.bottom, 20) + 10,
+      alignItems: 'stretch',
+    },
+    loginCard: {
+      width: '100%',
+      backgroundColor: colors.bgCard,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 28,
+      padding: 24,
+      marginBottom: 20,
+      shadowColor: isLight ? 'rgba(79,70,229,0.08)' : '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: isLight ? 0.08 : 0.4,
+      shadowRadius: 15,
+      elevation: 6,
     },
     logoContainer: {
       alignItems: 'center',
-      marginBottom: 50,
+      marginBottom: 30,
     },
     logoText: {
       fontSize: 44,
@@ -427,7 +445,8 @@ const createStyles = (colors, insets, themeName) => {
     footer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginTop: 'auto',
+      justifyContent: 'center',
+      marginTop: 20,
       gap: 10,
     },
     lockBadge: {
