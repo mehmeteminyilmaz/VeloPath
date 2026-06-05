@@ -34,9 +34,9 @@ export function useAuth() {
     }
   };
 
-  const onRegister = async (name, password) => {
+  const onRegister = async (name, password, email) => {
     try {
-      const user = await api.registerUser(name, password);
+      const user = await api.registerUser(name, password, email);
       persistUser(user);
       return user;
     } catch (error) {

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, Lock, User, Eye, EyeOff, UserPlus, LogIn, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Lock, User, Eye, EyeOff, UserPlus, LogIn, AlertCircle, Mail } from 'lucide-react';
 
 const Login = ({ onLogin, onRegister }) => {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +16,7 @@ const Login = ({ onLogin, onRegister }) => {
     setMode(newMode);
     setError('');
     setUsername('');
+    setEmail('');
     setPassword('');
     setConfirmPassword('');
   };
@@ -40,7 +43,7 @@ const Login = ({ onLogin, onRegister }) => {
       if (mode === 'login') {
         await onLogin(username.trim(), password);
       } else {
-        await onRegister(username.trim(), password);
+        await onRegister(username.trim(), password, email.trim() || undefined);
       }
     } catch (err) {
       setError(err.message || 'Bir hata oluştu, tekrar deneyin.');
@@ -155,7 +158,37 @@ const Login = ({ onLogin, onRegister }) => {
             </div>
           </div>
 
-          {/* Şifre Tekrar (sadece kayıt) */}
+          {/* Sifremi Unuttum (sadece giris) */}
+          {mode === 'login' && (
+            <div style={{ textAlign: 'right', marginTop: '-8px' }}>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
+                Sifremi Unuttum
+              </Link>
+            </div>
+          )}
+
+          {/* E-posta (sadece kayit, opsiyonel) */}
+          {mode === 'register' && (
+            <div className="login-input-group animate-slide-up">
+              <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '8px', paddingLeft: '4px' }}>
+                E-posta <span style={{ opacity: 0.6, fontSize: '0.75rem' }}>(opsiyonel — sifre sifirlama icin)</span>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
+                <input
+                  type="email"
+                  placeholder="ornek@email.com"
+                  className="login-input"
+                  style={{ paddingLeft: '46px' }}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Sifre Tekrar (sadece kayit) */}
           {mode === 'register' && (
             <div className="login-input-group animate-slide-up">
               <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '8px', paddingLeft: '4px' }}>

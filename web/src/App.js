@@ -8,6 +8,8 @@ import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import { useAuth } from './hooks/useAuth';
 import { useProjects } from './hooks/useProjects';
 import io from 'socket.io-client';
@@ -172,6 +174,10 @@ function App() {
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
 
   if (!isAuthenticated) {
+    // Public route'lari kontrol et — URL'ye gore dogru sayfayi goster
+    const path = window.location.pathname;
+    if (path === '/forgot-password') return <Router><ForgotPassword /></Router>;
+    if (path === '/reset-password') return <Router><ResetPassword /></Router>;
     return <Login onLogin={onLogin} onRegister={onRegister} />;
   }
 

@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
     const existing = await User.findOne({ username });
     if (existing) return res.status(409).json({ error: 'Bu kullanici adi zaten alinmis.' });
 
-    const user = new User({ username, password });
+    const user = new User({ username, password, ...(req.body.email ? { email: req.body.email } : {}) });
     const refreshToken = signRefreshToken(user);
     user.refreshToken = refreshToken;
     await user.save();
