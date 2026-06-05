@@ -272,7 +272,6 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
           <section className="grid animate-slide-up delay-300">
             {filteredProjects.length === 0 ? (
               <EmptyState
-                illustration={viewMode === 'active' ? '/empty_projects.png' : null}
                 icon={viewMode === 'active' ? FolderOpen : Inbox}
                 title={viewMode === 'active' ? 'Henüz Aktif Projeniz Yok' : 'Arşivde Proje Bulunmuyor'}
                 description={viewMode === 'active'
