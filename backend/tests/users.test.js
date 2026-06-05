@@ -73,10 +73,12 @@ describe('POST /api/users/register', () => {
 describe('POST /api/users/login', () => {
   beforeEach(async () => {
     const hashed = await bcrypt.hash('login123', 4);
-    const user = {
-      _id: 'user1', username: 'loginuser', password: hashed, preferences: {},
-      comparePassword: async (c) => bcrypt.compare(c, hashed)
-    };
+    const user = new MockUser({
+      _id: 'user1',
+      username: 'loginuser',
+      password: hashed,
+      preferences: {},
+    });
     MockUser.findOne = async ({ username }) => username === 'loginuser' ? user : null;
   });
 

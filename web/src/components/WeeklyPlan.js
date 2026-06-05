@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import TaskNoteModal from './TaskNoteModal';
 import EmptyState from './EmptyState';
-import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp, Tag } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle, Circle, Trash2, Lock, Calendar, FileText, GripVertical, Award, TrendingUp, Tag, Clock } from 'lucide-react';
 
 import { 
   DndContext, 
