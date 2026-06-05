@@ -6,10 +6,17 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [themeName, setThemeName] = useState('dark');
+  const [accentColor, setAccentColorState] = useState(null);
 
   useEffect(() => {
+    // Load theme
     AsyncStorage.getItem('theme').then(savedTheme => {
       if (savedTheme) setThemeName(savedTheme);
+    });
+
+    // Load accent color
+    AsyncStorage.getItem('velopath_accent').then(savedAccent => {
+      if (savedAccent) setAccentColorState(savedAccent);
     });
   }, []);
 
@@ -19,10 +26,23 @@ export const ThemeProvider = ({ children }) => {
     await AsyncStorage.setItem('theme', newTheme);
   };
 
-  const colors = THEMES[themeName];
+  const setAccentColor = async (color) => {
+    setAccentColorState(color);
+    if (color) {
+      await AsyncStorage.setItem('velopath_accent', color);
+    } else {
+      await AsyncStorage.removeItem('velopath_accent');
+    }
+  };
+
+  const baseColors = THEMES[themeName];
+  const colors = {
+    ...baseColors,
+    accent: accentColor || baseColors.accent,
+  };
 
   return (
-    <ThemeContext.Provider value={{ themeName, colors, toggleTheme }}>
+    <ThemeContext.Provider value={{ themeName, colors, toggleTheme, accentColor, setAccentColor }}>
       {children}
     </ThemeContext.Provider>
   );

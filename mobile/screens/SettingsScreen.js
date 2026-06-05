@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { RADIUS } from '../theme/colors';
+import { RADIUS, ACCENT_COLORS } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeContext';
 import { updateUsername, updatePassword } from '../services/api';
@@ -13,7 +13,7 @@ import { updateUsername, updatePassword } from '../services/api';
 export default function SettingsScreen({ navigation }) {
   const [username, setUsername] = useState('Misafir');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const { themeName, colors, toggleTheme } = useTheme();
+  const { themeName, colors, toggleTheme, accentColor, setAccentColor } = useTheme();
 
   // Modal States
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
@@ -235,6 +235,39 @@ export default function SettingsScreen({ navigation }) {
             <TouchableOpacity onPress={toggleTheme} style={styles.themeToggleBtn}>
               <Text style={styles.themeValue}>{themeName === 'dark' ? 'Gündüz Modu' : 'Gece Modu'}</Text>
             </TouchableOpacity>
+          </View>
+
+          <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.iconBox, { backgroundColor: `${colors.accent}15` }]}>
+                <Ionicons name="color-palette-outline" size={20} color={colors.accent} />
+              </View>
+              <View>
+                <Text style={styles.settingLabel}>Vurgu Rengi</Text>
+                <Text style={styles.settingSubLabel}>Butonlar ve grafikler için</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.accentPickerRow}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.accentContainer}>
+              {ACCENT_COLORS.map(c => {
+                const isSelected = colors.accent.toLowerCase() === c.value.toLowerCase();
+                return (
+                  <TouchableOpacity
+                    key={c.value}
+                    onPress={() => setAccentColor(c.value)}
+                    style={[
+                      styles.accentDot,
+                      { backgroundColor: c.value }
+                    ]}
+                  >
+                    {isSelected && (
+                      <Ionicons name="checkmark" size={16} color="#fff" />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </View>
 
           <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
@@ -588,5 +621,28 @@ const createStyles = (colors, insets) => StyleSheet.create({
   modalSaveText: {
     color: '#fff',
     fontWeight: '800'
+  },
+  accentPickerRow: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border
+  },
+  accentContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingVertical: 4
+  },
+  accentDot: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2
   }
 });

@@ -40,7 +40,7 @@ function Navigation() {
           name: 'default',
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#6366f1',
+          lightColor: colors.accent,
         });
       }
 

@@ -14,6 +14,18 @@ import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
+const GRADIENT_PAIRS = {
+  '#6366f1': '#8b5cf6',
+  '#8b5cf6': '#d946ef',
+  '#ec4899': '#f43f5e',
+  '#f43f5e': '#fb7185',
+  '#f97316': '#f59e0b',
+  '#f59e0b': '#eab308',
+  '#10b981': '#059669',
+  '#06b6d4': '#0891b2',
+  '#0ea5e9': '#0284c7',
+};
+
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -25,6 +37,10 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  
+  const accentColor = colors.accent;
+  const accentEnd = GRADIENT_PAIRS[accentColor] || accentColor;
+  const tabGradient = [accentColor, accentEnd];
 
   const switchMode = (toRegister) => {
     setIsRegister(toRegister);
@@ -102,10 +118,10 @@ export default function LoginScreen({ navigation }) {
             >
               {!isRegister ? (
                 <LinearGradient
-                  colors={['#6366f1', '#8b5cf6']}
+                  colors={tabGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.activeTabGradient}
+                  style={[styles.activeTabGradient, { shadowColor: colors.accent }]}
                 >
                   <Ionicons name="log-in-outline" size={18} color="#fff" />
                   <Text style={styles.activeTabText}>Giriş Yap</Text>
@@ -123,10 +139,10 @@ export default function LoginScreen({ navigation }) {
             >
               {isRegister ? (
                 <LinearGradient
-                  colors={['#6366f1', '#8b5cf6']}
+                  colors={tabGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={styles.activeTabGradient}
+                  style={[styles.activeTabGradient, { shadowColor: colors.accent }]}
                 >
                   <Ionicons name="person-add-outline" size={18} color="#fff" />
                   <Text style={styles.activeTabText}>Kayıt Ol</Text>
@@ -228,13 +244,13 @@ export default function LoginScreen({ navigation }) {
               </View>
             )}
             <TouchableOpacity
-              style={styles.submitBtnContainer}
+              style={[styles.submitBtnContainer, { shadowColor: colors.accent }]}
               onPress={handleSubmit}
               disabled={loading}
               activeOpacity={0.85}
             >
               <LinearGradient
-                colors={['#6366f1', '#8b5cf6']}
+                colors={tabGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.submitBtn}
