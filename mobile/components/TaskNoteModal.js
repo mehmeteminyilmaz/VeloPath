@@ -38,6 +38,8 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   const [newTagText, setNewTagText] = useState('');
   const [isAILoading, setIsAILoading] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const [dueDate, setDueDate] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (task && visible) {
@@ -45,6 +47,7 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
       setPriority(task.priority || 'Orta');
       setSubtasks(task.subtasks || []);
       setTags(task.tags || []);
+      setDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
       setViewMode('edit');
     }
   }, [task, visible]);
@@ -54,6 +57,7 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   const handleSave = () => {
     onSave(task._id || task.id, {
       notes: noteContent,
+      dueDate: dueDate || null,
       priority,
       subtasks,
       tags
@@ -185,6 +189,25 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+            </View>
+
+            {/* Due Date */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border || 'rgba(255,255,255,0.06)' }}>
+              <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
+              <Text style={{ fontSize: 13, color: colors.textSecondary, fontWeight: '500' }}>Bitis Tarihi:</Text>
+              <TextInput
+                style={{ flex: 1, color: colors.text, fontSize: 13, borderWidth: 1, borderColor: colors.border || 'rgba(255,255,255,0.1)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: colors.cardBg || 'rgba(255,255,255,0.04)' }}
+                placeholder="YYYY-MM-DD (ornek: 2026-06-30)"
+                placeholderTextColor={colors.textSecondary}
+                value={dueDate}
+                onChangeText={setDueDate}
+                keyboardType="numeric"
+              />
+              {dueDate ? (
+                <TouchableOpacity onPress={() => setDueDate('')}>
+                  <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+                </TouchableOpacity>
+              ) : null}
             </View>
 
             {renderTabs()}

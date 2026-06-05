@@ -327,6 +327,24 @@ export default function ProjectDetailsScreen({ route, navigation }) {
                 </Text>
               </TouchableOpacity>
 
+              {/* Due Date badge */}
+              {item.dueDate && !done && (() => {
+                const due = new Date(item.dueDate);
+                const today = new Date(); today.setHours(0,0,0,0);
+                const dueDay = new Date(due); dueDay.setHours(0,0,0,0);
+                const diff = Math.round((dueDay - today) / 86400000);
+                const isOverdue = diff < 0;
+                const isToday = diff === 0;
+                const color = isOverdue ? colors.danger : isToday ? '#f59e0b' : colors.textSecondary;
+                const label = isOverdue ? `${Math.abs(diff)}g gecti` : isToday ? 'Bugun' : diff === 1 ? 'Yarin' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+                return (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 4 }}>
+                    <Ionicons name="calendar-outline" size={12} color={color} />
+                    <Text style={{ fontSize: 11, color, fontWeight: isOverdue || isToday ? '700' : '400' }}>{label}</Text>
+                  </View>
+                );
+              })()}
+
               <TouchableOpacity onPress={() => handleDeleteTask(item._id || item.id)}>
                 <Ionicons name="trash-outline" size={20} color={colors.danger} />
               </TouchableOpacity>

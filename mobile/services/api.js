@@ -85,6 +85,7 @@ export const fetchAllData = async (userId) => {
         text: t.title,
         completed: t.status === 'done',
         week: t.weekIndex || 1,
+        dueDate: t.dueDate || null,
       })),
     }));
     
