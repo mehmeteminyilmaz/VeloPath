@@ -16,30 +16,44 @@ const { width } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
+  const switchMode = (toRegister) => {
+    setIsRegister(toRegister);
+    setError('');
+    setUsername('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
-      Alert.alert('Hata', 'Kullanıcı adı ve şifre boş bırakılamaz.');
+      setError('Kullanıcı adı ve şifre boş bırakılamaz.');
       return;
     }
-
+    if (password.length < 6) {
+      setError('Şifre en az 6 karakter olmalıdır.');
+      return;
+    }
     if (isRegister && password !== confirmPassword) {
-      Alert.alert('Hata', 'Şifreler uyuşmuyor.');
+      setError('Şifreler uyuşmuyor.');
       return;
     }
-
+    setError('');
     setLoading(true);
     try {
       let user;
       if (isRegister) {
-        user = await registerUser(username.trim(), password.trim());
+        user = await registerUser(username.trim(), password.trim(), email.trim() || undefined);
       } else {
         user = await loginUser(username.trim(), password.trim());
       }
@@ -49,13 +63,21 @@ export default function LoginScreen({ navigation }) {
       navigation.replace('Dashboard');
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Bir hata oluştu';
-      Alert.alert('Hata', msg);
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const styles = createStyles(colors, insets);
+
+  const handleForgotPassword = () => {
+    Alert.alert(
+      'Şifremi Unuttum',
+      'Şifrenizi sıfırlamak için web uygulaması üzerinden "Unuttum" seçeneğini kullanın ya da hesabınızı kayıt sırasında girdiğiniz e-posta adresiyle sıfırlayın.',
+      [{ text: 'Tamam' }]
+    );
+  };
 
   return (
     <LinearGradient
@@ -76,7 +98,7 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.tabContainer}>
             <TouchableOpacity 
               style={styles.tabBtn} 
-              onPress={() => setIsRegister(false)}
+              onPress={() => switchMode(false)}
             >
               {!isRegister ? (
                 <LinearGradient
@@ -97,7 +119,7 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.tabBtn} 
-              onPress={() => setIsRegister(true)}
+              onPress={() => switchMode(true)}
             >
               {isRegister ? (
                 <LinearGradient
@@ -154,6 +176,41 @@ export default function LoginScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Hata Mesajı — Inline (web ile aynı) */}
+            {!!error && (
+              <View style={styles.errorBox}>
+                <Ionicons name="alert-circle-outline" size={16} color="#f87171" style={{ marginRight: 8, flexShrink: 0 }} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+
+            {/* Şifremi Unuttum (sadece giriş modu) */}
+            {!isRegister && (
+              <TouchableOpacity onPress={handleForgotPassword} style={{ alignSelf: 'flex-end', marginTop: -8 }}>
+                <Text style={{ color: '#818cf8', fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* E-posta (sadece kayıt, opsiyonel) */}
+            {isRegister && (
+              <View style={styles.inputWrapper}>
+                <Text style={styles.label}>E-posta <Text style={{ opacity: 0.6, fontSize: 12 }}>(opsiyonel — şifre sıfırlama için)</Text></Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="mail-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="ornek@email.com"
+                    placeholderTextColor="#475569"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+              </View>
+            )}
+            {/* Şifre Tekrar (sadece kayıt) */}
             {isRegister && (
               <View style={styles.inputWrapper}>
                 <Text style={styles.label}>Şifre Tekrar</Text>
@@ -351,4 +408,20 @@ const createStyles = (colors, insets) => StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239,68,68,0.12)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.25)',
+  },
+  errorText: {
+    color: '#f87171',
+    fontSize: 13,
+    fontWeight: '500',
+    flex: 1,
+  },
 });
+
