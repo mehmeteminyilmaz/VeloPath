@@ -1,8 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import { BarChart, Award, CheckCircle, TrendingUp, Calendar, Zap } from 'lucide-react';
+import { BarChart, Award, CheckCircle, TrendingUp, Calendar, Zap, Bot } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { analyzeStatsByAI } from '../api';
 
 const Stats = ({ projects, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings }) => {
+  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
   // Veriyi İşle
   const statsData = useMemo(() => {
     const allTasks = projects.flatMap(p => p.tasks.map(t => ({ ...t, projectTitle: p.title })));
@@ -80,6 +85,28 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       last7Days
     };
   }, [projects]);
+
+  const handleAIAnalysis = async () => {
+    setAiLoading(true);
+    setAiError('');
+    setAiAnalysis('');
+    try {
+      const res = await analyzeStatsByAI({
+        totalCompleted: statsData.totalCompleted,
+        totalPending: projects.flatMap(p => p.tasks).filter(t => !t.completed).length,
+        productivity: statsData.productivity.replace('%', ''),
+        streak: statsData.streak,
+        bestDay: statsData.bestDay,
+      });
+      if (res.analysis) setAiAnalysis(res.analysis);
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) setAiError('AI kotasi doldu. Lutfen 1 dakika bekleyin.');
+      else setAiError('Analiz alinamadi. Sunucu baglantisinizi kontrol edin.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // Grafik için maksimum değeri bul
   const maxCount = Math.max(...statsData.last7Days.map(d => d.count), 5);
@@ -193,6 +220,40 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
               </p>
             </div>
           </div>
+        </div>
+
+        {/* AI Coach Karti */}
+        <div className="card animate-slide-up" style={{ marginTop: '2rem', background: 'linear-gradient(135deg, rgba(168,85,247,0.05) 0%, rgba(99,102,241,0.05) 100%)', border: '1px solid rgba(168,85,247,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Bot size={22} color="#a855f7" />
+              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>AI Verimlilik Kocu</h3>
+            </div>
+            <button
+              onClick={handleAIAnalysis}
+              disabled={aiLoading}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '10px', border: 'none', cursor: aiLoading ? 'not-allowed' : 'pointer', background: aiLoading ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.15)', color: '#a855f7', fontWeight: 600, fontSize: '0.88rem', opacity: aiLoading ? 0.7 : 1, transition: 'all 0.2s' }}
+            >
+              <Bot size={16} />
+              {aiLoading ? 'Analiz ediliyor...' : 'Analiz Et'}
+            </button>
+          </div>
+
+          {aiError && (
+            <p style={{ color: 'var(--danger)', fontSize: '0.88rem', padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', margin: 0 }}>
+              {aiError}
+            </p>
+          )}
+
+          {aiAnalysis ? (
+            <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.7 }}>
+              <ReactMarkdown>{aiAnalysis}</ReactMarkdown>
+            </div>
+          ) : !aiError && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+              "Analiz Et" butonuna tikla — AI, verimlilik verilerini inceleyip sana ozel bir performans ozeti ve tavsiye hazirlasin.
+            </p>
+          )}
         </div>
       </main>
     </div>
