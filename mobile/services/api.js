@@ -187,3 +187,13 @@ export const getAIStatsAnalysis = async (statsData) => {
   const res = await api.post(`/ai/analyze-stats`, statsData);
   return res.data;
 };
+
+export const getWeeklyPlanByAI = async (tasks) => {
+  const res = await api.post('/ai/weekly-plan', { tasks });
+  return res.data;
+};
+
+export const prioritizeTasksByAI = async (projectId) => {
+  const res = await api.post(`/ai/prioritize/${projectId}`);
+  return res.data;
+};

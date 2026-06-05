@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllData, getAIStatsAnalysis } from '../services/api';
+import { fetchAllData, getAIStatsAnalysis, getWeeklyPlanByAI } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +21,9 @@ export default function StatsScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
+  const [weeklyPlan, setWeeklyPlan] = useState('');
+  const [weeklyPlanLoading, setWeeklyPlanLoading] = useState(false);
+  const [weeklyPlanError, setWeeklyPlanError] = useState('');
 
   const loadData = useCallback(async () => {
     try {
@@ -60,6 +63,29 @@ export default function StatsScreen({ navigation }) {
       console.error(err);
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleGetWeeklyPlan = async () => {
+    setWeeklyPlanLoading(true);
+    setWeeklyPlanError('');
+    setWeeklyPlan('');
+    try {
+      const allTasks = projects
+        .filter(p => !p.archived)
+        .flatMap(p => (p.tasks || []).filter(t => !t.completed).map(t => ({ ...t, projectTitle: p.title })));
+      if (allTasks.length === 0) {
+        setWeeklyPlanError('Bekleyen görev bulunamadı.');
+        return;
+      }
+      const res = await getWeeklyPlanByAI(allTasks);
+      if (res.plan) setWeeklyPlan(res.plan);
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) setWeeklyPlanError('AI kotası doldu. Lütfen 1 dakika bekleyin.');
+      else setWeeklyPlanError('Plan alınamadı. Sunucu bağlantınızı kontrol edin.');
+    } finally {
+      setWeeklyPlanLoading(false);
     }
   };
 
@@ -123,6 +149,29 @@ export default function StatsScreen({ navigation }) {
   }
 
   const maxChartCount = Math.max(...last7Days.map(d => d.count), 5);
+
+  // Kategori bazlı istatistik (web ile aynı mantık)
+  const CATEGORY_LABELS = {
+    yazilim: 'Yazılım & Tech', egitim: 'Eğitim', kariyer: 'Kariyer',
+    saglik: 'Sağlık & Spor', kisisel: 'Kişisel Gelişim', is: 'İş & Girişim',
+    yaratici: 'Yaratıcı', ev: 'Ev & Yaşam', diger: 'Diğer',
+  };
+  const CATEGORY_COLORS = {
+    yazilim: '#6366f1', egitim: '#8b5cf6', kariyer: '#3b82f6',
+    saglik: '#10b981', kisisel: '#f59e0b', is: '#ec4899',
+    yaratici: '#f97316', ev: '#06b6d4', diger: '#64748b',
+  };
+  const categoryMap = {};
+  projects.filter(p => !p.archived).forEach(p => {
+    const cat = p.category || 'diger';
+    if (!categoryMap[cat]) categoryMap[cat] = { label: CATEGORY_LABELS[cat] || cat, color: CATEGORY_COLORS[cat] || '#64748b', total: 0, completed: 0 };
+    categoryMap[cat].total += (p.tasks || []).length;
+    categoryMap[cat].completed += (p.tasks || []).filter(t => t.completed).length;
+  });
+  const categoryStats = Object.values(categoryMap)
+    .filter(c => c.total > 0)
+    .map(c => ({ ...c, pct: Math.round((c.completed / c.total) * 100) }))
+    .sort((a, b) => b.pct - a.pct);
 
   const stats = [
     { label: 'Tamamlanan', value: completedTasks.length.toString(), icon: 'checkmark-circle-outline', color: colors.success },
@@ -214,6 +263,60 @@ export default function StatsScreen({ navigation }) {
                 ))}
               </View>
             </>
+          )}
+        </View>
+
+        {/* Kategori Bazlı İstatistik */}
+        {categoryStats.length > 0 && (
+          <View style={styles.chartCard}>
+            <View style={styles.chartHeader}>
+              <View style={styles.chartTitleRow}>
+                <Ionicons name="pie-chart-outline" size={18} color={colors.accent} />
+                <Text style={styles.chartTitle}>Kategori Bazlı Başarı</Text>
+              </View>
+            </View>
+            {categoryStats.map((cat, i) => (
+              <View key={i} style={{ marginBottom: 14 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '600' }}>{cat.label}</Text>
+                  <Text style={{ color: cat.color, fontSize: 12, fontWeight: '700' }}>{cat.completed}/{cat.total} görev  %{cat.pct}</Text>
+                </View>
+                <View style={{ height: 6, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden' }}>
+                  <View style={{ width: `${cat.pct}%`, height: '100%', backgroundColor: cat.color, borderRadius: 3 }} />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Bu Hafta Ne Yapayım? — AI Haftalık Plan */}
+        <View style={[styles.summaryCard, { alignItems: 'flex-start', padding: 20 }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="list-outline" size={20} color={colors.accent} />
+              <Text style={[styles.summaryTitle, { margin: 0 }]}>Bu Hafta Ne Yapayım?</Text>
+            </View>
+            <TouchableOpacity
+              onPress={handleGetWeeklyPlan}
+              disabled={weeklyPlanLoading}
+              style={{ backgroundColor: `${colors.accent}20`, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+            >
+              {weeklyPlanLoading
+                ? <ActivityIndicator size="small" color={colors.accent} />
+                : <><Ionicons name="sparkles" size={14} color={colors.accent} />
+                    <Text style={{ color: colors.accent, fontWeight: '700', fontSize: 13 }}>Plan Oluştur</Text></>
+              }
+            </TouchableOpacity>
+          </View>
+
+          {weeklyPlanError ? (
+            <Text style={{ color: colors.danger, fontSize: 13, marginTop: 4 }}>{weeklyPlanError}</Text>
+          ) : weeklyPlan ? (
+            <Text style={{ color: colors.textPrimary, fontSize: 14, lineHeight: 22 }}>{weeklyPlan}</Text>
+          ) : (
+            <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20 }}>
+              "Plan Oluştur" butonuna dokun — AI, tüm bekleyen görevlerini inceleyip bu hafta öncelikli odaklanman gereken 5 görevi önersin.
+            </Text>
           )}
         </View>
 

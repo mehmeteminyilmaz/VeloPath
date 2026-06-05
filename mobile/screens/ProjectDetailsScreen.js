@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI, updateProjectAPI, shareProjectAPI, updateTaskAPI, getAISuggestions } from '../services/api';
+import { fetchProjectDetails, createTask, deleteTaskAPI, toggleTaskAPI, updateProjectAPI, shareProjectAPI, updateTaskAPI, getAISuggestions, prioritizeTasksByAI } from '../services/api';
 import { useTheme } from '../theme/ThemeContext';
 import TaskNoteModal from '../components/TaskNoteModal';
 
@@ -20,6 +20,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
   const [newTaskPriority, setNewTaskPriority] = useState('Orta');
   const [adding, setAdding] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [isPrioritizing, setIsPrioritizing] = useState(false);
 
   const [notesDraft, setNotesDraft] = useState('');
   const [notesView, setNotesView] = useState('edit');
@@ -119,6 +120,25 @@ export default function ProjectDetailsScreen({ route, navigation }) {
       }
     } finally {
       setIsAILoading(false);
+    }
+  };
+
+  const handlePrioritize = async () => {
+    setIsPrioritizing(true);
+    try {
+      const res = await prioritizeTasksByAI(projectId);
+      if (res.orderedTitles && res.orderedTitles.length > 0) {
+        await loadProject();
+        Alert.alert('✨ Başarılı', 'Görevler AI tarafından öncelik sırasına göre düzenlendi!\n(Sayfayı yenileyerek görebilirsiniz.)');
+      } else {
+        Alert.alert('Bilgi', 'AI sıralama yapamadı.');
+      }
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) Alert.alert('⏳ Kota', 'AI kotası doldu. Lütfen 1 dakika bekleyin.');
+      else Alert.alert('Hata', 'Sıralama başarısız.');
+    } finally {
+      setIsPrioritizing(false);
     }
   };
 
@@ -267,6 +287,13 @@ export default function ProjectDetailsScreen({ route, navigation }) {
               <ActivityIndicator size="small" color="#eab308" />
             ) : (
               <Ionicons name="sparkles" size={24} color="#eab308" />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handlePrioritize} disabled={isPrioritizing} title="AI ile Sırala">
+            {isPrioritizing ? (
+              <ActivityIndicator size="small" color={colors.accent} />
+            ) : (
+              <Ionicons name="swap-vertical-outline" size={24} color={colors.accent} />
             )}
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare}>
