@@ -271,7 +271,7 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <div>
                   <p style={{ margin: 0, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}><Palette size={15} /> Vurgu Rengi</p>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Butonlar ve istatistikler icin</p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Butonlar ve istatistikler için</p>
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: '200px' }}>
                   {ACCENT_COLORS.map(c => (

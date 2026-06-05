@@ -92,9 +92,9 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
   // Kategori bazli istatistik
   const categoryStats = useMemo(() => {
     const CATEGORY_LABELS = {
-      yazilim: 'Yazilim & Tech', egitim: 'Egitim', kariyer: 'Kariyer',
-      saglik: 'Saglik & Spor', kisisel: 'Kisisel Gelisim', is: 'Is & Girisim',
-      yaratici: 'Yaratici', ev: 'Ev & Yasam', diger: 'Diger',
+      yazilim: 'Yazılım & Tech', egitim: 'Eğitim', kariyer: 'Kariyer',
+      saglik: 'Sağlık & Spor', kisisel: 'Kişisel Gelişim', is: 'İş & Girişim',
+      yaratici: 'Yaratıcı', ev: 'Ev & Yaşam', diger: 'Diğer',
     };
     const CATEGORY_COLORS = {
       yazilim: '#6366f1', egitim: '#8b5cf6', kariyer: '#3b82f6',
@@ -125,13 +125,13 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
           .filter(t => !t.completed)
           .map(t => ({ ...t, projectTitle: p.title }))
         );
-      if (allTasks.length === 0) { setWeeklyPlanError('Bekleyen gorev bulunamadi.'); setWeeklyPlanLoading(false); return; }
+      if (allTasks.length === 0) { setWeeklyPlanError('Bekleyen görev bulunamadı.'); setWeeklyPlanLoading(false); return; }
       const res = await getWeeklyPlanByAI(allTasks);
       if (res.plan) setWeeklyPlan(res.plan);
     } catch (err) {
       const status = err.response?.status;
-      if (status === 429) setWeeklyPlanError('AI kotasi doldu. Lutfen 1 dakika bekleyin.');
-      else setWeeklyPlanError('Plan alinamadi. Sunucu baglantisinizi kontrol edin.');
+      if (status === 429) setWeeklyPlanError('AI kotası doldu. Lütfen 1 dakika bekleyin.');
+      else setWeeklyPlanError('Plan alınamadı. Sunucu bağlantınızı kontrol edin.');
     } finally {
       setWeeklyPlanLoading(false);
     }
@@ -152,8 +152,8 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       if (res.analysis) setAiAnalysis(res.analysis);
     } catch (err) {
       const status = err.response?.status;
-      if (status === 429) setAiError('AI kotasi doldu. Lutfen 1 dakika bekleyin.');
-      else setAiError('Analiz alinamadi. Sunucu baglantisinizi kontrol edin.');
+      if (status === 429) setAiError('AI kotası doldu. Lütfen 1 dakika bekleyin.');
+      else setAiError('Analiz alınamadı. Sunucu bağlantınızı kontrol edin.');
     } finally {
       setAiLoading(false);
     }
@@ -277,7 +277,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
         {categoryStats.length > 0 && (
           <div className="card animate-slide-up" style={{ marginTop: '2rem' }}>
             <h3 style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
-              <TrendingUp size={20} color="var(--primary)" /> Kategori Bazli Basari
+              <TrendingUp size={20} color="var(--primary)" /> Kategori Bazlı Başarı
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {categoryStats.map(cat => (
@@ -285,7 +285,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)', fontWeight: 500 }}>{cat.label}</span>
                     <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                      {cat.completed}/{cat.total} gorev &nbsp;
+                      {cat.completed}/{cat.total} görev &nbsp;
                       <strong style={{ color: cat.color }}>%{cat.pct}</strong>
                     </span>
                   </div>
@@ -303,7 +303,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <ListTodo size={22} color="var(--accent)" />
-              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>Bu Hafta Ne Yapayim?</h3>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>Bu Hafta Ne Yapayım?</h3>
             </div>
             <button
               onClick={handleWeeklyPlan}
@@ -311,7 +311,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
               style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '10px', border: 'none', cursor: weeklyPlanLoading ? 'not-allowed' : 'pointer', background: 'rgba(16,185,129,0.12)', color: 'var(--accent)', fontWeight: 600, fontSize: '0.88rem', opacity: weeklyPlanLoading ? 0.7 : 1 }}
             >
               <ListTodo size={16} />
-              {weeklyPlanLoading ? 'Hazirlaniyor...' : 'Plan Olustur'}
+              {weeklyPlanLoading ? 'Hazırlanıyor...' : 'Plan Oluştur'}
             </button>
           </div>
           {weeklyPlanError && (
@@ -323,7 +323,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
             </div>
           ) : !weeklyPlanError && (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-              "Plan Olustur" butonuna tikla — AI, tum bekleyen gorevlerini inceleyip bu hafta oncelikli odaklanman gereken 5 gorevi sirayla onersin.
+              "Plan Oluştur" butonuna tıkla — AI, tüm bekleyen görevlerini inceleyip bu hafta öncelikli odaklanman gereken 5 görevi sırayla önersin.
             </p>
           )}
         </div>
@@ -333,7 +333,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Bot size={22} color="#a855f7" />
-              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>AI Verimlilik Kocu</h3>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>AI Verimlilik Koçu</h3>
             </div>
             <button
               onClick={handleAIAnalysis}
@@ -357,7 +357,7 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
             </div>
           ) : !aiError && (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-              "Analiz Et" butonuna tikla — AI, verimlilik verilerini inceleyip sana ozel bir performans ozeti ve tavsiye hazirlasin.
+              "Analiz Et" butonuna tıkla — AI, verimlilik verilerini inceleyip sana özel bir performans özeti ve tavsiye hazırlasın.
             </p>
           )}
         </div>

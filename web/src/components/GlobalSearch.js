@@ -25,9 +25,9 @@ function getDueDateLabel(dueDate) {
   const today = new Date(); today.setHours(0,0,0,0);
   const dueDay = new Date(due); dueDay.setHours(0,0,0,0);
   const diff = Math.round((dueDay - today) / 86400000);
-  if (diff < 0) return { label: Math.abs(diff) + 'g gecti', color: 'var(--danger)' };
-  if (diff === 0) return { label: 'Bugun', color: '#f59e0b' };
-  if (diff === 1) return { label: 'Yarin', color: '#f59e0b' };
+  if (diff < 0) return { label: Math.abs(diff) + 'g geçti', color: 'var(--danger)' };
+  if (diff === 0) return { label: 'Bugün', color: '#f59e0b' };
+  if (diff === 1) return { label: 'Yarın', color: '#f59e0b' };
   return { label: due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }), color: 'var(--text-secondary)' };
 }
 
@@ -114,7 +114,7 @@ export default function GlobalSearch({ projects }) {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Gorev, etiket veya not ara... (Ctrl+K)"
+          placeholder="Görev, etiket veya not ara... (Ctrl+K)"
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
@@ -135,12 +135,12 @@ export default function GlobalSearch({ projects }) {
         <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', zIndex: 999, overflow: 'hidden', maxHeight: '440px', overflowY: 'auto' }}>
           {results.length === 0 ? (
             <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-              Sonuc bulunamadi
+              Sonuç bulunamadı
             </div>
           ) : (
             <>
               <div style={{ padding: '8px 14px 6px', fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                {results.length} sonuc
+                {results.length} sonuç
               </div>
               {results.map((hit, idx) => {
                 const due = getDueDateLabel(hit.dueDate);

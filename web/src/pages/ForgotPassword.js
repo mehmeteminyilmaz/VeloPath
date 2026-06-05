@@ -18,7 +18,7 @@ export default function ForgotPassword() {
       await forgotPassword(email.trim());
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.error || 'Bir hata olustu. Lutfen tekrar deneyin.');
+      setError(err.response?.data?.error || 'Bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setLoading(false);
     }
@@ -28,15 +28,15 @@ export default function ForgotPassword() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '2rem' }}>
       <div className="card" style={{ width: '100%', maxWidth: '420px' }}>
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.85rem', textDecoration: 'none', marginBottom: '1.5rem' }}>
-          <ArrowLeft size={15} /> Girise Don
+          <ArrowLeft size={15} /> Girişe Dön
         </Link>
 
         {sent ? (
           <div style={{ textAlign: 'center', padding: '1rem' }}>
             <CheckCircle size={48} color="var(--accent)" style={{ marginBottom: '1rem' }} />
-            <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.75rem' }}>E-posta Gonderildi</h2>
+            <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.75rem' }}>E-posta Gönderildi</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              {email} adresine sifirlama linki gonderdik. Gelen kutunuzu kontrol edin (spam klasorunu de kontrol etmeyi unutmayin).
+              {email} adresine sıfırlama linki gönderdik. Gelen kutunuzu kontrol edin (spam klasörünü de kontrol etmeyi unutmayın).
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '1rem' }}>
               Link 1 saat gecerlidir.
@@ -45,9 +45,9 @@ export default function ForgotPassword() {
         ) : (
           <>
             <div style={{ marginBottom: '2rem' }}>
-              <h1 style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>Sifremi Unuttum</h1>
+              <h1 style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>Şifremi Unuttum</h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                Hesabiniza kayitli e-posta adresinizi girin, sifre sifirlama linki gonderelim.
+                Hesabınıza kayıtlı e-posta adresinizi girin, şifre sıfırlama linki gönderelim.
               </p>
             </div>
 
@@ -79,7 +79,7 @@ export default function ForgotPassword() {
                 className="button"
                 style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}
               >
-                {loading ? 'Gonderiliyor...' : 'Sifirlama Linki Gonder'}
+                {loading ? 'Gönderiliyor...' : 'Sıfırlama Linki Gönder'}
               </button>
             </form>
           </>

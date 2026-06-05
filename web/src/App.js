@@ -90,11 +90,11 @@ function App() {
       const tomorrowCount = urgentTasks.filter(t => t.diff === 1).length;
 
       let body = '';
-      if (overdue > 0) body += overdue + ' gorev gecikti! ';
-      if (todayCount > 0) body += todayCount + ' gorev bugun bitiyor. ';
-      if (tomorrowCount > 0) body += tomorrowCount + ' gorev yarin bitiyor.';
+      if (overdue > 0) body += overdue + ' görev geçikti! ';
+      if (todayCount > 0) body += todayCount + ' görev bugün bitiyor. ';
+      if (tomorrowCount > 0) body += tomorrowCount + ' görev yarın bitiyor.';
 
-      new Notification('VeloPath - Hatirlatici', { body: body.trim(), icon: '/favicon.ico' });
+      new Notification('VeloPath - Hatırlatıcı', { body: body.trim(), icon: '/favicon.ico' });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects.length, isAuthenticated]);

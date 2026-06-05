@@ -65,14 +65,14 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         for (const sugg of res.suggestions) {
           addTask(id, sugg, 1, null, 'Orta');
         }
-        showMsg('success', res.suggestions.length + ' AI gorevi projeye eklendi!');
+        showMsg('success', res.suggestions.length + ' AI görevi projeye eklendi!');
       } else {
-        showMsg('error', 'Yeni oneri bulunamadi.');
+        showMsg('error', 'Yeni öneri bulunamadı.');
       }
     } catch (err) {
       const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'AI onerileri alinamadi. Sunucu baglantisinizi kontrol edin.');
+      if (status === 429) showMsg('error', 'AI kotası doldu. 1 dakika bekleyin.');
+      else showMsg('error', 'AI önerileri alınamadı. Sunucu bağlantınızı kontrol edin.');
     } finally {
       setIsAILoading(false);
     }
@@ -94,14 +94,14 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         // Eslesmeyen gorevleri sona ekle
         pendingTasks.forEach(t => { if (!reordered.find(r => r.id === t.id)) reordered.push(t); });
         reorderTasks(id, [...reordered, ...doneTasks]);
-        showMsg('success', 'Gorevler AI tarafindan oncelik sirasina gore yeniden duzenlendi!');
+        showMsg('success', 'Görevler AI tarafından öncelik sırasına göre yeniden düzenlendi!');
       } else {
-        showMsg('error', 'AI siralama yapamadi.');
+        showMsg('error', 'AI sıralama yapamadı.');
       }
     } catch (err) {
       const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Siralama basarisiz.');
+      if (status === 429) showMsg('error', 'AI kotası doldu. 1 dakika bekleyin.');
+      else showMsg('error', 'Sıralama başarısız.');
     } finally {
       setIsPrioritizing(false);
     }
@@ -112,16 +112,16 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   };
 
   const handleShareProject = async () => {
-    const username = window.prompt("Projeyi paylasmak istediginiz kullanicinin adini girin:");
+    const username = window.prompt("Projeyi paylaşmak istediğiniz kullanıcının adını girin:");
     if (username && username.trim()) {
       try {
         await api.shareProjectAPI(id, username.trim());
-        showMsg('success', username + ' kullanicisi projeye eklendi!');
+        showMsg('success', username + ' kullanıcısı projeye eklendi!');
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          showMsg('error', 'Kullanici bulunamadi.');
+          showMsg('error', 'Kullanıcı bulunamadı.');
         } else {
-          showMsg('error', 'Proje paylasilirken bir hata olustu.');
+          showMsg('error', 'Proje paylaşılırken bir hata oluştu.');
         }
       }
     }
@@ -185,7 +185,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         )}
         <header className="animate-slide-up" style={{ marginBottom: '3rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
-            <ArrowLeft size={16} /> Dashboard'a Don
+            <ArrowLeft size={16} /> Dashboard'a Dön
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -212,15 +212,15 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                 onClick={handleGetAISuggestions}
                 disabled={isAILoading}
                 style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', padding: '6px 12px', borderRadius: '8px', color: '#a855f7', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
-                title="AI Gorev Onerisi Al"
+                title="AI Görev Önerisi Al"
               >
-                {isAILoading ? '...' : <><Wand2 size={16} /> AI Onerileri</>}
+                {isAILoading ? '...' : <><Wand2 size={16} /> AI Önerileri</>}
               </button>
               <button
                 onClick={handlePrioritize}
                 disabled={isPrioritizing}
                 style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px', opacity: isPrioritizing ? 0.7 : 1 }}
-                title="AI ile Gorevleri Oncelik Sirasina Dizle"
+                title="AI ile Görevleri Öncelik Sırasına Dizle"
               >
                 {isPrioritizing ? '...' : <><Sparkles size={16} /> AI ile Sirala</>}
               </button>

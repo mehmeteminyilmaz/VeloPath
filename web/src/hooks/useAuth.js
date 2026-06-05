@@ -29,7 +29,7 @@ export function useAuth() {
       persistUser(user);
       return user;
     } catch (error) {
-      const msg = error.response?.data?.error || 'Kullanici adi veya sifre hatali.';
+      const msg = error.response?.data?.error || 'Kullanıcı adı veya şifre hatalı.';
       throw new Error(msg);
     }
   };
@@ -40,7 +40,7 @@ export function useAuth() {
       persistUser(user);
       return user;
     } catch (error) {
-      const msg = error.response?.data?.error || 'Kayit sirasinda bir hata olustu.';
+      const msg = error.response?.data?.error || 'Kayıt sırasında bir hata oluştu.';
       throw new Error(msg);
     }
   };

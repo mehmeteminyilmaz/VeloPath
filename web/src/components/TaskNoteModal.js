@@ -107,32 +107,32 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
       const res = await api.breakTaskByAI(task.text);
       if (res.subtasks && res.subtasks.length > 0) {
         setSubtasks(prev => [...prev, ...res.subtasks.map((text, i) => ({ id: Date.now() + i, text, completed: false }))]);
-        showMsg('success', res.subtasks.length + ' alt gorev eklendi.');
+        showMsg('success', res.subtasks.length + ' alt görev eklendi.');
       } else {
-        showMsg('error', 'Alt gorev olusturulamadi.');
+        showMsg('error', 'Alt görev oluşturulamadı.');
       }
     } catch (err) {
       const status = err.response?.status;
       if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Alt gorevler olusturulamadi.');
+      else showMsg('error', 'Alt görevler oluşturulamadı.');
     } finally {
       setIsAILoading(false);
     }
   };
 
   const handleSummarize = async () => {
-    if (!noteContent.trim()) { showMsg('error', 'Ozetlenecek not yok.'); return; }
+    if (!noteContent.trim()) { showMsg('error', 'Özetlenecek not yok.'); return; }
     setIsSummarizing(true);
     try {
       const res = await api.summarizeNotesByAI(noteContent);
       if (res.summary) {
         setNoteContent(res.summary);
-        showMsg('success', 'Not AI ile ozetlendi.');
+        showMsg('success', 'Not AI ile özetlendi.');
       }
     } catch (err) {
       const status = err.response?.status;
       if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Ozetleme basarisiz.');
+      else showMsg('error', 'Özetleme başarısız.');
     } finally {
       setIsSummarizing(false);
     }
@@ -173,10 +173,10 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
         {/* Header */}
         <div className="note-modal-header">
           <div style={{ flex: 1 }}>
-            <h3 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>Gorev Detaylari</h3>
+            <h3 style={{ color: 'var(--text-primary)', marginBottom: '6px' }}>Görev Detayları</h3>
             <p style={{ color: 'var(--accent)', fontSize: '0.9rem', fontWeight: 500, marginBottom: '10px' }}>{task.text}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Oncelik:</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Öncelik:</span>
               <div className="task-priority-selector">
                 {PRIORITY_OPTIONS.map(opt => (
                   <button key={opt.value} onClick={() => setPriority(opt.value)}
@@ -188,7 +188,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
             {/* Due Date */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
               <Calendar size={13} style={{ color: 'var(--text-secondary)' }} />
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Bitis Tarihi:</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Bitiş Tarihi:</span>
               <input
                 type="date"
                 value={dueDate}
@@ -197,7 +197,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
               />
               {dueDate && (
                 <button onClick={() => setDueDate('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px 4px', borderRadius: '4px', fontSize: '0.75rem' }}>
-                  <X size={12} /> Kaldir
+                  <X size={12} /> Kaldır
                 </button>
               )}
             </div>
@@ -222,7 +222,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                     style={{ width: '52px', background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'var(--text-primary)', padding: '3px 8px', fontSize: '0.8rem', textAlign: 'center' }}
                   />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {recurrenceType === 'daily' ? 'gunde' : recurrenceType === 'weekly' ? 'haftada' : 'ayda'}
+                    {recurrenceType === 'daily' ? 'günde' : recurrenceType === 'weekly' ? 'haftada' : 'ayda'}
                   </span>
                 </>
               )}
@@ -250,10 +250,10 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
         <div className="note-tabs">
           {[
             { key: 'edit',     icon: <Edit3 size={15} />,      label: 'Not' },
-            { key: 'subtasks', icon: <ListChecks size={15} />,  label: 'Alt Gorevler', badge: subtasks.length > 0 ? completedSubs + '/' + subtasks.length : null },
+            { key: 'subtasks', icon: <ListChecks size={15} />,  label: 'Alt Görevler', badge: subtasks.length > 0 ? completedSubs + '/' + subtasks.length : null },
             { key: 'tags',     icon: <Tag size={15} />,         label: 'Etiketler',    badge: tags.length > 0 ? tags.length : null },
             { key: 'comments', icon: <MessageSquare size={15} />, label: 'Yorumlar', badge: comments.length > 0 ? comments.length : null },
-            { key: 'preview',  icon: <Check size={15} />,       label: 'Onizleme' },
+            { key: 'preview',  icon: <Check size={15} />,       label: 'Önizleme' },
             { key: 'history',  icon: <History size={15} />,     label: 'Aktivite' },
           ].map(tab => (
             <button key={tab.key} className={`note-tab ${viewMode === tab.key ? 'active' : ''}`} onClick={() => setViewMode(tab.key)}>
@@ -271,7 +271,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
           {viewMode === 'edit' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '8px' }}>
               <textarea className="note-textarea"
-                placeholder="Markdown formatinda notlarinizi yazin... (Ornek: # Baslik, - Liste, **Kalin**)"
+                placeholder="Markdown formatında notlarınızı yazın... (Örnek: # Başlık, - Liste, **Kalın**)"
                 value={noteContent} onChange={e => setNoteContent(e.target.value)} autoFocus
                 style={{ flex: 1 }}
               />
@@ -281,7 +281,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                 style={{ alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', background: 'rgba(168,85,247,0.1)', color: '#a855f7', fontWeight: 600, opacity: (!noteContent.trim() || isSummarizing) ? 0.5 : 1 }}
               >
                 <FileText size={14} />
-                {isSummarizing ? 'Ozetleniyor...' : 'AI ile Ozetle'}
+                {isSummarizing ? 'Özetleniyor...' : 'AI ile Özetle'}
               </button>
             </div>
           )}
@@ -292,7 +292,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
               {subtasks.length > 0 && (
                 <div className="subtask-progress-area">
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{completedSubs} / {subtasks.length} tamamlandi</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{completedSubs} / {subtasks.length} tamamlandı</span>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: subProgress === 100 ? 'var(--accent)' : 'var(--primary)' }}>%{subProgress}</span>
                   </div>
                   <div className="progress-bar" style={{ height: '6px' }}>
@@ -304,7 +304,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                 {subtasks.length === 0 ? (
                   <div className="subtask-empty">
                     <ListChecks size={32} style={{ opacity: 0.3, marginBottom: '0.75rem' }} />
-                    <p>Henuz alt gorev yok.</p>
+                    <p>Henüz alt görev yok.</p>
                   </div>
                 ) : subtasks.map(sub => (
                   <div key={sub.id} className={`subtask-item ${sub.completed ? 'subtask-done' : ''}`}>
@@ -319,7 +319,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
               <div className="subtask-add-row">
                 <input type="text" className="note-textarea"
                   style={{ resize: 'none', height: 'auto', padding: '10px 14px', borderRadius: '10px', fontSize: '0.9rem' }}
-                  placeholder="Yeni alt gorev ekle... (Enter)"
+                  placeholder="Yeni alt görev ekle... (Enter)"
                   value={newSubtaskText} onChange={e => setNewSubtaskText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSubtask(); } }}
                 />
@@ -327,7 +327,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                 <button className="subtask-add-btn"
                   style={{ background: 'rgba(168,85,247,0.1)', color: '#a855f7' }}
                   onClick={handleAIBreakdown} disabled={isAILoading}
-                  title="Yapay Zeka ile Alt Gorevlere Bol">
+                  title="Yapay Zeka ile Alt Görevlere Böl">
                   {isAILoading ? '...' : <Wand2 size={18} />}
                 </button>
               </div>
@@ -339,7 +339,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
             <div className="tags-panel">
               <div className="tags-current">
                 {tags.length === 0 ? (
-                  <div className="subtask-empty"><Tag size={32} style={{ opacity: 0.3, marginBottom: '0.75rem' }} /><p>Henuz etiket eklenmedi.</p></div>
+                  <div className="subtask-empty"><Tag size={32} style={{ opacity: 0.3, marginBottom: '0.75rem' }} /><p>Henüz etiket eklenmedi.</p></div>
                 ) : (
                   <div className="tag-chips-wrap">
                     {tags.map(tag => (
@@ -362,7 +362,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                 <button className="subtask-add-btn" onClick={() => addTag(newTagText)}><Plus size={18} /></button>
               </div>
               <div className="tag-suggestions">
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Hizli Ekle:</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>Hızlı Ekle:</span>
                 <div className="tag-chips-wrap">
                   {SUGGESTED_TAGS.filter(t => !tags.includes(t)).map(t => (
                     <button key={t} className="tag-suggest-btn" onClick={() => addTag(t)} style={{ '--tag-color': getTagColor(t) }}>+ {t}</button>
@@ -378,7 +378,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
               {comments.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                   <MessageSquare size={32} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
-                  <p style={{ margin: 0, fontSize: '0.88rem' }}>Henuz yorum yok.</p>
+                  <p style={{ margin: 0, fontSize: '0.88rem' }}>Henüz yorum yok.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
@@ -427,7 +427,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
           {viewMode === 'preview' && (
             <div className="markdown-preview">
               {noteContent ? <ReactMarkdown>{noteContent}</ReactMarkdown>
-                : <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', textAlign: 'center', marginTop: '2rem' }}>Henuz not eklenmedi.</p>}
+                : <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', textAlign: 'center', marginTop: '2rem' }}>Henüz not eklenmedi.</p>}
             </div>
           )}
 
@@ -436,7 +436,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
             <div className="activity-container">
               <div className="task-meta-info">
                 <div className="meta-item">
-                  <span className="meta-label"><Calendar size={12} /> Olusturulma</span>
+                  <span className="meta-label"><Calendar size={12} /> Oluşturulma</span>
                   <span className="meta-value">{formatDate(task.createdAt)}</span>
                 </div>
                 <div className="meta-item">
@@ -455,7 +455,7 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
                       </div>
                     </div>
                   ))
-                ) : <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>Aktivite gecmisi bulunmuyor.</p>}
+                              ) : <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>Aktivite geçmişi bulunmuyor.</p>}
               </div>
             </div>
           )}

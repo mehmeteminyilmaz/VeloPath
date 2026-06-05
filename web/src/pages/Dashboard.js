@@ -149,7 +149,7 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
         <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Kontrol Paneli</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Hos Geldin, {username || 'Misafir'}! Bugun neler yapiyoruz?</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, {username || 'Misafir'}! Bugün neler yapıyoruz?</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <GlobalSearch projects={projects} />

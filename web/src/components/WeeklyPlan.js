@@ -115,7 +115,7 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', color: '#a855f7', fontWeight: 500 }}>
             <Clock size={10} />
             {task.recurrence.interval > 1 ? `Her ${task.recurrence.interval} ` : 'Her '}
-            {task.recurrence.type === 'daily' ? 'gun' : task.recurrence.type === 'weekly' ? 'hafta' : 'ay'}
+            {task.recurrence.type === 'daily' ? 'gün' : task.recurrence.type === 'weekly' ? 'hafta' : 'ay'}
           </span>
         )}
 
@@ -129,7 +129,7 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
           const isToday = diff === 0;
           const isTomorrow = diff === 1;
           const color = isOverdue ? 'var(--danger)' : isToday ? 'var(--status-low)' : 'var(--text-secondary)';
-          const label = isOverdue ? `${Math.abs(diff)} gun gecti` : isToday ? 'Bugun' : isTomorrow ? 'Yarin' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+          const label = isOverdue ? `${Math.abs(diff)} gün geçti` : isToday ? 'Bugün' : isTomorrow ? 'Yarın' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
           return (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.72rem', color, fontWeight: isOverdue || isToday ? 700 : 400 }}>
               <Calendar size={11} /> {label}
