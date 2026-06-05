@@ -24,13 +24,29 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ── Rate Limiting ─────────────────────────────────────────
+// -- Rate Limiting: JWT userId bazli, yoksa IP ---
+const jwt = require('jsonwebtoken');
+const { ipKeyGenerator } = require('express-rate-limit');
+const JWT_SECRET = process.env.JWT_SECRET || 'velopath_super_secret_key_2026';
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 dakika
-  max: 100, // IP başına 15 dakikada 100 istek sınırı
-  message: { error: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' }
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  keyGenerator: (req) => {
+    try {
+      const auth = req.headers.authorization;
+      if (auth && auth.startsWith('Bearer ')) {
+        const decoded = jwt.verify(auth.split(' ')[1], JWT_SECRET);
+        if (decoded.userId) return 'user_' + decoded.userId;
+      }
+    } catch (_) {}
+    return ipKeyGenerator(req);
+  },
+  message: { error: 'Cok fazla istek gonderdiniz. Lutfen daha sonra tekrar deneyin.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => false,
 });
-// API route'larına limiti uygula
 app.use('/api', limiter);
 
 // ── 2. İstek logger ────────────────────────────────────────
