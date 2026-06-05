@@ -35,12 +35,14 @@ export default function LoginScreen({ navigation }) {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { colors } = useTheme();
+  const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
   
   const accentColor = colors.accent;
   const accentEnd = GRADIENT_PAIRS[accentColor] || accentColor;
   const tabGradient = [accentColor, accentEnd];
+  const bgGradient = themeName === 'light' ? ['#ddd6fe', '#f0f4ff'] : ['#060b18', '#1a1040'];
+  const styles = createStyles(colors, insets, themeName);
 
   const switchMode = (toRegister) => {
     setIsRegister(toRegister);
@@ -98,10 +100,10 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <LinearGradient
-      colors={['#0f172a', '#1e1b4b']}
+      colors={bgGradient}
       style={styles.container}
     >
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={themeName === 'light' ? 'dark-content' : 'light-content'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -109,7 +111,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.inner}>
           {/* Logo Section */}
           <View style={styles.logoContainer}>
-            <Text style={[styles.logoText, { color: '#818cf8' }]}>VeloPath</Text>
+            <Text style={[styles.logoText, { color: themeName === 'light' ? colors.accent : '#818cf8' }]}>VeloPath</Text>
             <Text style={styles.logoSub}>Akıllı Proje Yönetimi ve Verimlilik Asistanı</Text>
           </View>
           <View style={styles.tabContainer}>
@@ -129,7 +131,7 @@ export default function LoginScreen({ navigation }) {
                 </LinearGradient>
               ) : (
                 <View style={styles.inactiveTab}>
-                  <Ionicons name="log-in-outline" size={18} color="#64748b" />
+                  <Ionicons name="log-in-outline" size={18} color={colors.textSecondary} />
                   <Text style={styles.inactiveTabText}>Giriş Yap</Text>
                 </View>
               )}
@@ -150,7 +152,7 @@ export default function LoginScreen({ navigation }) {
                 </LinearGradient>
               ) : (
                 <View style={styles.inactiveTab}>
-                  <Ionicons name="person-add-outline" size={18} color="#64748b" />
+                  <Ionicons name="person-add-outline" size={18} color={colors.textSecondary} />
                   <Text style={styles.inactiveTabText}>Kayıt Ol</Text>
                 </View>
               )}
@@ -160,11 +162,11 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Kullanıcı Adı</Text>
               <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                <Ionicons name="person-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="kullanici_adi"
-                  placeholderTextColor="#475569"
+                  placeholderTextColor={themeName === 'light' ? 'rgba(15,23,42,0.4)' : '#64748b'}
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
@@ -175,11 +177,11 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>Şifre</Text>
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="En az 6 karakter"
-                  placeholderTextColor="#475569"
+                  placeholderTextColor={themeName === 'light' ? 'rgba(15,23,42,0.4)' : '#64748b'}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -188,7 +190,7 @@ export default function LoginScreen({ navigation }) {
                   <Ionicons 
                     name={showPassword ? "eye-off-outline" : "eye-outline"} 
                     size={20} 
-                    color="#64748b" 
+                    color={colors.textSecondary} 
                   />
                 </TouchableOpacity>
               </View>
@@ -196,7 +198,7 @@ export default function LoginScreen({ navigation }) {
             {/* Hata Mesajı — Inline (web ile aynı) */}
             {!!error && (
               <View style={styles.errorBox}>
-                <Ionicons name="alert-circle-outline" size={16} color="#f87171" style={{ marginRight: 8, flexShrink: 0 }} />
+                <Ionicons name="alert-circle-outline" size={16} color={themeName === 'light' ? '#ef4444' : '#f87171'} style={{ marginRight: 8, flexShrink: 0 }} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
@@ -204,7 +206,7 @@ export default function LoginScreen({ navigation }) {
             {/* Şifremi Unuttum (sadece giriş modu) */}
             {!isRegister && (
               <TouchableOpacity onPress={handleForgotPassword} style={{ alignSelf: 'flex-end', marginTop: -8 }}>
-                <Text style={{ color: '#818cf8', fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum</Text>
+                <Text style={{ color: colors.accent, fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum</Text>
               </TouchableOpacity>
             )}
 
@@ -213,11 +215,11 @@ export default function LoginScreen({ navigation }) {
               <View style={styles.inputWrapper}>
                 <Text style={styles.label}>E-posta <Text style={{ opacity: 0.6, fontSize: 12 }}>(opsiyonel — şifre sıfırlama için)</Text></Text>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="mail-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                  <Ionicons name="mail-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
                     placeholder="ornek@email.com"
-                    placeholderTextColor="#475569"
+                    placeholderTextColor={themeName === 'light' ? 'rgba(15,23,42,0.4)' : '#64748b'}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -232,11 +234,11 @@ export default function LoginScreen({ navigation }) {
               <View style={styles.inputWrapper}>
                 <Text style={styles.label}>Şifre Tekrar</Text>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.inputIcon} />
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
                     placeholder="Şifreyi tekrar girin"
-                    placeholderTextColor="#475569"
+                    placeholderTextColor={themeName === 'light' ? 'rgba(15,23,42,0.4)' : '#64748b'}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry={!showPassword}
@@ -286,159 +288,165 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-const createStyles = (colors, insets) => StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  inner: {
-    flex: 1,
-    paddingHorizontal: 30,
-    paddingTop: insets.top + 60,
-    paddingBottom: insets.bottom + 20,
-    alignItems: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 50,
-  },
-  logoSub: {
-    fontSize: 14,
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginTop: 8,
-    fontWeight: '500',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 16,
-    padding: 6,
-    width: '100%',
-    marginBottom: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  tabBtn: {
-    flex: 1,
-    height: 44,
-  },
-  activeTabGradient: {
-    flex: 1,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: '#6366f1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  activeTabText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  inactiveTab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  inactiveTabText: {
-    color: '#64748b',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  form: {
-    width: '100%',
-    gap: 24,
-  },
-  inputWrapper: {
-    gap: 12,
-  },
-  label: {
-    color: '#94a3b8',
-    fontSize: 14,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    height: 60,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  submitBtnContainer: {
-    marginTop: 10,
-    borderRadius: 20,
-    shadowColor: '#6366f1',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 15,
-    elevation: 8,
-  },
-  submitBtn: {
-    height: 64,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  submitBtnText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 'auto',
-    gap: 10,
-  },
-  lockBadge: {
-    width: 28,
-    height: 28,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerText: {
-    color: '#475569',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  errorBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(239,68,68,0.12)',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.25)',
-  },
-  errorText: {
-    color: '#f87171',
-    fontSize: 13,
-    fontWeight: '500',
-    flex: 1,
-  },
-});
+const createStyles = (colors, insets, themeName) => {
+  const isLight = themeName === 'light';
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    inner: {
+      flex: 1,
+      paddingHorizontal: 30,
+      paddingTop: insets.top + 60,
+      paddingBottom: insets.bottom + 20,
+      alignItems: 'center',
+    },
+    logoContainer: {
+      alignItems: 'center',
+      marginBottom: 50,
+    },
+    logoText: {
+      fontSize: 44,
+      fontWeight: '900',
+      letterSpacing: -2,
+    },
+    logoSub: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 8,
+      fontWeight: '500',
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      backgroundColor: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)',
+      borderRadius: 16,
+      padding: 6,
+      width: '100%',
+      marginBottom: 40,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tabBtn: {
+      flex: 1,
+      height: 44,
+    },
+    activeTabGradient: {
+      flex: 1,
+      borderRadius: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 10,
+      elevation: 4,
+    },
+    activeTabText: {
+      color: '#fff',
+      fontWeight: '700',
+      fontSize: 14,
+    },
+    inactiveTab: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+    },
+    inactiveTabText: {
+      color: colors.textSecondary,
+      fontWeight: '600',
+      fontSize: 14,
+    },
+    form: {
+      width: '100%',
+      gap: 24,
+    },
+    inputWrapper: {
+      gap: 12,
+    },
+    label: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+      borderRadius: 18,
+      paddingHorizontal: 16,
+      height: 60,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    inputIcon: {
+      marginRight: 12,
+    },
+    input: {
+      flex: 1,
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    submitBtnContainer: {
+      marginTop: 10,
+      borderRadius: 20,
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.4,
+      shadowRadius: 15,
+      elevation: 8,
+    },
+    submitBtn: {
+      height: 64,
+      borderRadius: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    submitBtnText: {
+      color: '#fff',
+      fontSize: 18,
+      fontWeight: '800',
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 'auto',
+      gap: 10,
+    },
+    lockBadge: {
+      width: 28,
+      height: 28,
+      backgroundColor: colors.border,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    footerText: {
+      color: colors.textSecondary,
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    errorBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isLight ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.12)',
+      borderRadius: 12,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: 'rgba(239,68,68,0.25)',
+    },
+    errorText: {
+      color: isLight ? '#ef4444' : '#f87171',
+      fontSize: 13,
+      fontWeight: '500',
+      flex: 1,
+    },
+  });
+};
 
