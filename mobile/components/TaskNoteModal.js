@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, Modal, TouchableOpacity,
-  TextInput, ScrollView, KeyboardAvoidingView, Platform, Dimensions
+  TextInput, ScrollView, KeyboardAvoidingView, Platform, Dimensions,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { breakTaskByAI, summarizeNotesByAI } from '../services/api';
-import { Alert } from 'react-native';
 
 const { height } = Dimensions.get('window');
 

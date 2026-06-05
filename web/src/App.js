@@ -173,14 +173,6 @@ function App() {
 
   const toggleSettings = () => setIsSettingsOpen(prev => !prev);
 
-  if (!isAuthenticated) {
-    // Public route'lari kontrol et — URL'ye gore dogru sayfayi goster
-    const path = window.location.pathname;
-    if (path === '/forgot-password') return <Router><ForgotPassword /></Router>;
-    if (path === '/reset-password') return <Router><ResetPassword /></Router>;
-    return <Login onLogin={onLogin} onRegister={onRegister} />;
-  }
-
   const sharedProps = {
     resetData, requestNotificationPermission,
     setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings,
@@ -188,32 +180,40 @@ function App() {
 
   return (
     <Router>
-      <div className={`App ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {!isAuthenticated ? (
         <Routes>
-          <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
-          <Route path="/create" element={<CreateProject addProject={addProject} {...sharedProps} />} />
-          <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateTaskDueDate={updateTaskDueDate} updateTaskRecurrence={updateTaskRecurrence} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} username={username} userId={userId} {...sharedProps} />} />
-          <Route path="/stats" element={<Stats projects={projects} {...sharedProps} />} />
-          <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<Login onLogin={onLogin} onRegister={onRegister} />} />
         </Routes>
+      ) : (
+        <div className={`App ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+          <Routes>
+            <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
+            <Route path="/create" element={<CreateProject addProject={addProject} {...sharedProps} />} />
+            <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateTaskDueDate={updateTaskDueDate} updateTaskRecurrence={updateTaskRecurrence} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} username={username} userId={userId} {...sharedProps} />} />
+            <Route path="/stats" element={<Stats projects={projects} {...sharedProps} />} />
+            <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
+          </Routes>
 
-        <SettingsModal
-          isOpen={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
-          username={username}
-          userId={userId}
-          setUsername={setUsername}
-          theme={theme}
-          setTheme={(newTheme) => { setTheme(newTheme); localStorage.setItem('velopath_theme', newTheme); }}
-          accentColor={accentColor}
-          setAccentColor={(c) => { setAccentColor(c); localStorage.setItem('velopath_accent', c); }}
-          requestNotificationPermission={requestNotificationPermission}
-          resetData={onLogout}
-        />
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            username={username}
+            userId={userId}
+            setUsername={setUsername}
+            theme={theme}
+            setTheme={(newTheme) => { setTheme(newTheme); localStorage.setItem('velopath_theme', newTheme); }}
+            accentColor={accentColor}
+            setAccentColor={(c) => { setAccentColor(c); localStorage.setItem('velopath_accent', c); }}
+            requestNotificationPermission={requestNotificationPermission}
+            resetData={onLogout}
+          />
 
-        <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />
-        <PomodoroTimer />
-      </div>
+          <UndoToast toasts={undoToasts} onUndo={undoToast} onDismiss={dismissToast} />
+          <PomodoroTimer />
+        </div>
+      )}
     </Router>
   );
 }
