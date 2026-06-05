@@ -5,7 +5,7 @@ import { THEMES } from './colors';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [themeName, setThemeName] = useState('dark');
+  const [themeName, setThemeName] = useState('light');
   const [accentColor, setAccentColorState] = useState(null);
 
   useEffect(() => {
