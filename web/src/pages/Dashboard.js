@@ -9,6 +9,7 @@ import {
   Trash2, Archive, ArchiveRestore, FolderOpen, Inbox,
   Search, X, LayoutGrid, Columns
 } from 'lucide-react';
+import GlobalSearch from '../components/GlobalSearch';
 
 // ── Ortak Proje Kartı (Grid ve Kanban içinde paylaşılır) ──
 const ProjectCard = ({ project, navigate, archiveProject, deleteProject, getProgressInfo }) => {
@@ -145,14 +146,17 @@ const Dashboard = ({ projects, deleteProject, archiveProject, resetData, sendTas
 
       <main className="main-content">
         {/* Header */}
-        <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <header className="animate-slide-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>Kontrol Paneli</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Hoş Geldin, {username || 'Misafir'}! Bugün neler yapıyoruz?</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Hos Geldin, {username || 'Misafir'}! Bugun neler yapiyoruz?</p>
           </div>
-          <Link to="/create" className="button">
-            <PlusCircle size={20} /> Yeni Proje Oluştur
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <GlobalSearch projects={projects} />
+            <Link to="/create" className="button">
+              <PlusCircle size={20} /> Yeni Proje
+            </Link>
+          </div>
         </header>
 
         {/* İstatistik Kartları */}

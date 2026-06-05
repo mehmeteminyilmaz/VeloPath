@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { PlusCircle, ArrowLeft, Activity, Trash2, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2, Download, Wand2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Activity, Trash2, Archive, ArchiveRestore, FileText, Eye, Edit3, Share2, Download, Wand2, Sparkles } from 'lucide-react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import WeeklyPlan from '../components/WeeklyPlan';
 import ReactMarkdown from 'react-markdown';
 import * as api from '../api';
 
-const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateProjectNotes, reorderTasks, archiveProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings }) => {
+const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTask, updateTaskNote, updateTaskPriority, updateTaskSubtasks, updateTaskTags, updateTaskDueDate, updateTaskRecurrence, updateProjectNotes, reorderTasks, archiveProject, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings, username, userId }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = projects.find(p => p.id?.toString() === id?.toString());
@@ -20,6 +20,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
   const [notesView, setNotesView] = useState('edit'); // 'edit' | 'preview'
   const [notesOpen, setNotesOpen] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [isPrioritizing, setIsPrioritizing] = useState(false);
   const [aiMessage, setAiMessage] = useState(null); // { type: 'success'|'error', text }
 
   const showMsg = (type, text) => {
@@ -74,6 +75,35 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
       else showMsg('error', 'AI onerileri alinamadi. Sunucu baglantisinizi kontrol edin.');
     } finally {
       setIsAILoading(false);
+    }
+  };
+
+  const handlePrioritize = async () => {
+    setIsPrioritizing(true);
+    try {
+      const res = await api.prioritizeTasksByAI(id);
+      if (res.orderedTitles && res.orderedTitles.length > 0) {
+        // Mevcut gorevleri AI sirasina gore yeniden sirala
+        const pendingTasks = project.tasks.filter(t => !t.completed);
+        const doneTasks = project.tasks.filter(t => t.completed);
+        const reordered = [];
+        res.orderedTitles.forEach(title => {
+          const match = pendingTasks.find(t => (t.text || t.title)?.toLowerCase().includes(title.toLowerCase()));
+          if (match && !reordered.find(r => r.id === match.id)) reordered.push(match);
+        });
+        // Eslesmeyen gorevleri sona ekle
+        pendingTasks.forEach(t => { if (!reordered.find(r => r.id === t.id)) reordered.push(t); });
+        reorderTasks(id, [...reordered, ...doneTasks]);
+        showMsg('success', 'Gorevler AI tarafindan oncelik sirasina gore yeniden duzenlendi!');
+      } else {
+        showMsg('error', 'AI siralama yapamadi.');
+      }
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
+      else showMsg('error', 'Siralama basarisiz.');
+    } finally {
+      setIsPrioritizing(false);
     }
   };
 
@@ -182,9 +212,17 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
                 onClick={handleGetAISuggestions}
                 disabled={isAILoading}
                 style={{ background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)', padding: '6px 12px', borderRadius: '8px', color: '#a855f7', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px' }}
-                title="AI Görev Önerisi Al"
+                title="AI Gorev Onerisi Al"
               >
-                {isAILoading ? '...' : <><Wand2 size={16} /> AI Önerileri</>}
+                {isAILoading ? '...' : <><Wand2 size={16} /> AI Onerileri</>}
+              </button>
+              <button
+                onClick={handlePrioritize}
+                disabled={isPrioritizing}
+                style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 12px', borderRadius: '8px', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: '0.3s', marginTop: '8px', opacity: isPrioritizing ? 0.7 : 1 }}
+                title="AI ile Gorevleri Oncelik Sirasina Dizle"
+              >
+                {isPrioritizing ? '...' : <><Sparkles size={16} /> AI ile Sirala</>}
               </button>
               <button
                 onClick={handleExportCSV}
@@ -244,7 +282,11 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
               updateTaskPriority={updateTaskPriority}
               updateTaskSubtasks={updateTaskSubtasks}
               updateTaskTags={updateTaskTags}
+              updateTaskDueDate={updateTaskDueDate}
+              updateTaskRecurrence={updateTaskRecurrence}
               reorderTasks={reorderTasks}
+              currentUsername={username}
+              currentUserId={userId}
             />
           </div>
 

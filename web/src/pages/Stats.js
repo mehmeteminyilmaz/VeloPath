@@ -1,13 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import { BarChart, Award, CheckCircle, TrendingUp, Calendar, Zap, Bot } from 'lucide-react';
+import { BarChart, Award, CheckCircle, TrendingUp, Calendar, Zap, Bot, ListTodo } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { analyzeStatsByAI } from '../api';
+import { analyzeStatsByAI, getWeeklyPlanByAI } from '../api';
 
 const Stats = ({ projects, resetData, requestNotificationPermission, setIsSidebarCollapsed, isSidebarCollapsed, onLogout, toggleSettings }) => {
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState('');
+  const [weeklyPlan, setWeeklyPlan] = useState('');
+  const [weeklyPlanLoading, setWeeklyPlanLoading] = useState(false);
+  const [weeklyPlanError, setWeeklyPlanError] = useState('');
   // Veriyi İşle
   const statsData = useMemo(() => {
     const allTasks = projects.flatMap(p => p.tasks.map(t => ({ ...t, projectTitle: p.title })));
@@ -85,6 +88,54 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       last7Days
     };
   }, [projects]);
+
+  // Kategori bazli istatistik
+  const categoryStats = useMemo(() => {
+    const CATEGORY_LABELS = {
+      yazilim: 'Yazilim & Tech', egitim: 'Egitim', kariyer: 'Kariyer',
+      saglik: 'Saglik & Spor', kisisel: 'Kisisel Gelisim', is: 'Is & Girisim',
+      yaratici: 'Yaratici', ev: 'Ev & Yasam', diger: 'Diger',
+    };
+    const CATEGORY_COLORS = {
+      yazilim: '#6366f1', egitim: '#8b5cf6', kariyer: '#3b82f6',
+      saglik: '#10b981', kisisel: '#f59e0b', is: '#ec4899',
+      yaratici: '#f97316', ev: '#06b6d4', diger: '#64748b',
+    };
+    const map = {};
+    projects.filter(p => !p.archived).forEach(p => {
+      const cat = p.category || 'diger';
+      if (!map[cat]) map[cat] = { label: CATEGORY_LABELS[cat] || cat, color: CATEGORY_COLORS[cat] || '#64748b', total: 0, completed: 0 };
+      map[cat].total += p.tasks.length;
+      map[cat].completed += p.tasks.filter(t => t.completed).length;
+    });
+    return Object.values(map)
+      .filter(c => c.total > 0)
+      .map(c => ({ ...c, pct: c.total === 0 ? 0 : Math.round((c.completed / c.total) * 100) }))
+      .sort((a, b) => b.pct - a.pct);
+  }, [projects]);
+
+  const handleWeeklyPlan = async () => {
+    setWeeklyPlanLoading(true);
+    setWeeklyPlanError('');
+    setWeeklyPlan('');
+    try {
+      const allTasks = projects
+        .filter(p => !p.archived)
+        .flatMap(p => p.tasks
+          .filter(t => !t.completed)
+          .map(t => ({ ...t, projectTitle: p.title }))
+        );
+      if (allTasks.length === 0) { setWeeklyPlanError('Bekleyen gorev bulunamadi.'); setWeeklyPlanLoading(false); return; }
+      const res = await getWeeklyPlanByAI(allTasks);
+      if (res.plan) setWeeklyPlan(res.plan);
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) setWeeklyPlanError('AI kotasi doldu. Lutfen 1 dakika bekleyin.');
+      else setWeeklyPlanError('Plan alinamadi. Sunucu baglantisinizi kontrol edin.');
+    } finally {
+      setWeeklyPlanLoading(false);
+    }
+  };
 
   const handleAIAnalysis = async () => {
     setAiLoading(true);
@@ -220,6 +271,61 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Kategori Bazli Istatistik */}
+        {categoryStats.length > 0 && (
+          <div className="card animate-slide-up" style={{ marginTop: '2rem' }}>
+            <h3 style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <TrendingUp size={20} color="var(--primary)" /> Kategori Bazli Basari
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {categoryStats.map(cat => (
+                <div key={cat.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)', fontWeight: 500 }}>{cat.label}</span>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                      {cat.completed}/{cat.total} gorev &nbsp;
+                      <strong style={{ color: cat.color }}>%{cat.pct}</strong>
+                    </span>
+                  </div>
+                  <div style={{ height: '8px', borderRadius: '999px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: cat.pct + '%', background: cat.color, borderRadius: '999px', transition: 'width 0.8s ease' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Haftalik Plan Karti */}
+        <div className="card animate-slide-up" style={{ marginTop: '2rem', border: '1px solid rgba(16,185,129,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <ListTodo size={22} color="var(--accent)" />
+              <h3 style={{ color: 'var(--text-primary)', margin: 0 }}>Bu Hafta Ne Yapayim?</h3>
+            </div>
+            <button
+              onClick={handleWeeklyPlan}
+              disabled={weeklyPlanLoading}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '10px', border: 'none', cursor: weeklyPlanLoading ? 'not-allowed' : 'pointer', background: 'rgba(16,185,129,0.12)', color: 'var(--accent)', fontWeight: 600, fontSize: '0.88rem', opacity: weeklyPlanLoading ? 0.7 : 1 }}
+            >
+              <ListTodo size={16} />
+              {weeklyPlanLoading ? 'Hazirlaniyor...' : 'Plan Olustur'}
+            </button>
+          </div>
+          {weeklyPlanError && (
+            <p style={{ color: 'var(--danger)', fontSize: '0.88rem', padding: '10px 14px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', margin: 0 }}>{weeklyPlanError}</p>
+          )}
+          {weeklyPlan ? (
+            <div style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.7 }}>
+              <ReactMarkdown>{weeklyPlan}</ReactMarkdown>
+            </div>
+          ) : !weeklyPlanError && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+              "Plan Olustur" butonuna tikla — AI, tum bekleyen gorevlerini inceleyip bu hafta oncelikli odaklanman gereken 5 gorevi sirayla onersin.
+            </p>
+          )}
         </div>
 
         {/* AI Coach Karti */}
