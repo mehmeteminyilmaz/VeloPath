@@ -100,12 +100,23 @@ export default function ProjectDetailsScreen({ route, navigation }) {
           });
         }
         await loadProject();
-        Alert.alert('Başarılı', 'Yapay Zeka (AI) önerileri projeye başarıyla eklendi!');
+        Alert.alert('✨ Başarılı', `${res.suggestions.length} AI görevi projeye eklendi!`);
       } else {
         Alert.alert('Bilgi', 'Yeni öneri bulunamadı.');
       }
     } catch (err) {
-      Alert.alert('Hata', 'AI önerileri alınamadı.');
+      const status = err.response?.status;
+      const msg = err.response?.data?.error || err.message;
+
+      if (status === 429) {
+        Alert.alert(
+          '⏳ Çok Fazla İstek',
+          'AI kotası doldu. Lütfen 1 dakika bekleyip tekrar deneyin.',
+          [{ text: 'Tamam' }]
+        );
+      } else {
+        Alert.alert('Hata', `AI önerileri alınamadı.\n${msg}`);
+      }
     } finally {
       setIsAILoading(false);
     }

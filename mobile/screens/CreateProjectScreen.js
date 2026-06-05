@@ -84,6 +84,7 @@ export default function CreateProjectScreen({ navigation }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(false);
+  const [deadlineError, setDeadlineError] = useState('');
 
   const PRIORITIES = ['Düşük', 'Orta', 'Yüksek'];
   const cyclePriority = () => {
@@ -108,8 +109,72 @@ export default function CreateProjectScreen({ navigation }) {
     }
   };
 
+  // gg.aa.yyyy formatını otomatik olarak ekle (nokta ekleme)
+  const handleDeadlineChange = (text) => {
+    // Sadece rakam ve noktaya izin ver
+    let cleaned = text.replace(/[^0-9.]/g, '');
+
+    // Otomatik nokta ekle
+    if (cleaned.length === 2 && deadline.length === 1) cleaned = cleaned + '.';
+    if (cleaned.length === 5 && deadline.length === 4) cleaned = cleaned + '.';
+
+    // Maksimum 10 karakter (gg.aa.yyyy)
+    if (cleaned.length > 10) return;
+
+    setDeadline(cleaned);
+    setDeadlineError('');
+  };
+
+  // Tarih validasyonu: format, gerçek tarih ve geçmişte olmaması
+  const validateDeadline = (value) => {
+    if (!value) return true; // Boş bırakılabilir
+
+    const regex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+    const match = value.match(regex);
+    if (!match) {
+      setDeadlineError('Tarih formatı: gg.aa.yyyy olmalıdır');
+      return false;
+    }
+
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+
+    if (month < 1 || month > 12) {
+      setDeadlineError('Ay 01-12 arasında olmalıdır');
+      return false;
+    }
+    if (day < 1 || day > 31) {
+      setDeadlineError('Gün 01-31 arasında olmalıdır');
+      return false;
+    }
+
+    // JavaScript Date ile gerçek tarih kontrolü (örn: 31 Şubat geçersiz)
+    const dateObj = new Date(year, month - 1, day);
+    if (
+      dateObj.getFullYear() !== year ||
+      dateObj.getMonth() !== month - 1 ||
+      dateObj.getDate() !== day
+    ) {
+      setDeadlineError('Geçersiz tarih (örn: 31 Şubat olamaz)');
+      return false;
+    }
+
+    // Geçmiş tarih kontrolü (bugünden önce olamaz)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (dateObj < today) {
+      setDeadlineError('Teslim tarihi bugünden önce olamaz');
+      return false;
+    }
+
+    setDeadlineError('');
+    return true;
+  };
+
   const handleCreate = async () => {
     if (!title.trim()) { Alert.alert('Hata', 'Proje başlığı boş bırakılamaz'); return; }
+    if (!validateDeadline(deadline)) return;
     setLoading(true);
     try {
       const userId = await AsyncStorage.getItem('userId');
@@ -241,14 +306,20 @@ export default function CreateProjectScreen({ navigation }) {
             <View style={[styles.inputGroup, { flex: 1 }]}>
               <Text style={styles.label}>Teslim Tarihi</Text>
               <TextInput
-                style={[styles.input, { height: 50 }]}
+                style={[styles.input, { height: 50, borderColor: deadlineError ? colors.danger : colors.border }]}
                 placeholder="gg.aa.yyyy"
                 placeholderTextColor={colors.textSecondary}
                 value={deadline}
-                onChangeText={setDeadline}
+                onChangeText={handleDeadlineChange}
+                onBlur={() => validateDeadline(deadline)}
                 keyboardType="numeric"
                 maxLength={10}
               />
+              {deadlineError ? (
+                <Text style={{ color: colors.danger, fontSize: 11, fontWeight: '600', marginTop: 2 }}>
+                  ⚠ {deadlineError}
+                </Text>
+              ) : null}
             </View>
           </View>
 

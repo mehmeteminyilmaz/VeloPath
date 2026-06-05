@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { breakTaskByAI, summarizeNotesByAI } from '../services/api';
+import { Alert } from 'react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -75,11 +76,19 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
       const res = await breakTaskByAI(task.title || task.text);
       if (res.subtasks && res.subtasks.length > 0) {
         setSubtasks(prev => [
-          ...prev, 
+          ...prev,
           ...res.subtasks.map((text, i) => ({ id: Date.now().toString() + i, text, completed: false }))
         ]);
+      } else {
+        Alert.alert('Bilgi', 'Alt gorev olusturulamadi.');
       }
     } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) {
+        Alert.alert('Kota Doldu', 'AI kotasi doldu. Lutfen 1 dakika bekleyin.');
+      } else {
+        Alert.alert('Hata', 'Alt gorevler olusturulamadi. Lutfen tekrar deneyin.');
+      }
       console.error(err);
     } finally {
       setIsAILoading(false);
@@ -87,12 +96,21 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   };
 
   const handleSummarize = async () => {
-    if (!noteContent.trim()) return;
+    if (!noteContent.trim()) {
+      Alert.alert('Bilgi', 'Ozetlenecek not bulunamadi.');
+      return;
+    }
     setIsSummarizing(true);
     try {
       const res = await summarizeNotesByAI(noteContent);
       if (res.summary) setNoteContent(res.summary);
     } catch (err) {
+      const status = err.response?.status;
+      if (status === 429) {
+        Alert.alert('Kota Doldu', 'AI kotasi doldu. Lutfen 1 dakika bekleyin.');
+      } else {
+        Alert.alert('Hata', 'Ozetleme basarisiz. Lutfen tekrar deneyin.');
+      }
       console.error(err);
     } finally {
       setIsSummarizing(false);
