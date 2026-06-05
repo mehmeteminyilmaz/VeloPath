@@ -329,6 +329,7 @@ const WeeklyPlan = ({ project, toggleTask, deleteTask, updateTaskNote, updateTas
   if (weeks.length === 0) {
     return (
       <EmptyState 
+        illustration="/empty_tasks.png"
         icon={Calendar}
         title="Henüz Görev Planlanmadı"
         description="Projeniz için henüz bir görev eklenmemiş. 'Düzenle' moduna geçerek veya şablonları kullanarak ilk görevinizi planlayabilirsiniz."
