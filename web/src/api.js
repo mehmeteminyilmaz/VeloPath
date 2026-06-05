@@ -67,7 +67,8 @@ axiosAuth.interceptors.response.use(
   }
 );
 
-// ── Auth header helper (legacy, bazi yerlerde hala kullaniliyor) ──────────
+// ── Auth header helper (legacy, interceptor tarafindan karsilanmaktadir) ──
+// eslint-disable-next-line no-unused-vars
 const getAuthHeader = () => {
   const token = localStorage.getItem('velopath_token');
   return token ? { headers: { Authorization: 'Bearer ' + token } } : {};
