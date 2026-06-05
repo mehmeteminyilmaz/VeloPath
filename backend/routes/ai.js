@@ -139,4 +139,68 @@ Dogrudan analiz yazisini ver. Baslik veya giris/cikis ifadeleri kullanma.`;
   }
 });
 
+// 5. Haftalik Plan Olusturucu
+router.post('/weekly-plan', auth, async (req, res) => {
+  try {
+    if (!genAI) return res.status(500).json({ error: 'GEMINI_API_KEY tanimli degil.' });
+    const { tasks } = req.body;
+    if (!tasks || tasks.length === 0) return res.status(400).json({ error: 'Gorev listesi bos.' });
+
+    const taskList = tasks.map(t => {
+      const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmemis';
+      const pri = t.priority === 'high' ? 'Yuksek' : t.priority === 'low' ? 'Dusuk' : 'Orta';
+      const status = t.completed ? 'Tamamlandi' : 'Bekliyor';
+      return `- "${t.title}" | Oncelik: ${pri} | Durum: ${status} | Bitis: ${due} | Proje: ${t.projectTitle || '-'}`;
+    }).join('\n');
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const prompt = `Asagida bir kullanicinin tum bekleyen gorevleri var. Bu hafta hangi 5 goreve oncelikli odaklanmasi gerektigini belirle. Bitis tarihi yakin, onceligi yuksek ve birbirine bagli gorevleri one cikar. Yaniti su formatta ver: her oneri icin tek satirda gorev adi, kisaca neden bu hafta yapilmali. Markdown kullanabilirsin. Turkce yaz.\n\nGorev Listesi:\n${taskList}`;
+
+    const result = await model.generateContent(prompt);
+    res.json({ plan: result.response.text().trim() });
+  } catch (err) {
+    if (is429(err)) return res.status(429).json({ error: 'Gemini AI kotasi doldu. Lutfen 1 dakika bekleyip tekrar deneyin.' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 6. Akilli Gorev Onceligi (Proje bazinda)
+router.post('/prioritize/:projectId', auth, async (req, res) => {
+  try {
+    if (!genAI) return res.status(500).json({ error: 'GEMINI_API_KEY tanimli degil.' });
+
+    const project = await Project.findById(req.params.projectId);
+    if (!project) return res.status(404).json({ error: 'Proje bulunamadi.' });
+
+    const requesterId = req.user.userId.toString();
+    const isOwner = project.user?.toString() === requesterId;
+    const isShared = project.sharedWith?.some(id => id.toString() === requesterId);
+    if (!isOwner && !isShared) return res.status(403).json({ error: 'Bu projeye erisim yetkiniz yok.' });
+
+    const Task = require('../models/Task');
+    const tasks = await Task.find({ projectId: project._id, status: { $ne: 'done' } }).lean();
+    if (tasks.length === 0) return res.status(400).json({ error: 'Bekleyen gorev yok.' });
+
+    const taskList = tasks.map((t, i) => {
+      const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmemis';
+      const pri = t.priority === 'high' ? 'Yuksek' : t.priority === 'low' ? 'Dusuk' : 'Orta';
+      return `${i + 1}. "${t.title}" | Oncelik: ${pri} | Bitis: ${due}`;
+    }).join('\n');
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const prompt = `"${project.title}" projesinin asagidaki bekleyen gorevlerini analiz et ve yapilmasi gereken siraya gore sirala. Bitis tarihi, oncelik ve mantiksal bagimliligi dikkate al. Yaniti sadece sirali gorev isimlerini virgülle ayrilmis duz metin olarak ver. Ornek: Gorev A, Gorev B, Gorev C\n\nGorevler:\n${taskList}`;
+
+    const result = await model.generateContent(prompt);
+    const ordered = result.response.text()
+      .split(',')
+      .map(s => s.trim().replace(/^[\d.\-*]+\s*/, ''))
+      .filter(s => s.length > 1);
+
+    res.json({ orderedTitles: ordered });
+  } catch (err) {
+    if (is429(err)) return res.status(429).json({ error: 'Gemini AI kotasi doldu. Lutfen 1 dakika bekleyip tekrar deneyin.' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
