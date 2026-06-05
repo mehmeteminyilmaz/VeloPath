@@ -139,7 +139,10 @@ const PomodoroTimer = () => {
               min="1" 
               max="120" 
               value={workMinutes} 
-              onChange={(e) => setWorkMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                setWorkMinutes(Math.min(120, Math.max(1, val)));
+              }}
               className="pomodoro-input"
             />
           </div>
@@ -150,7 +153,10 @@ const PomodoroTimer = () => {
               min="1" 
               max="60" 
               value={shortBreakMinutes} 
-              onChange={(e) => setShortBreakMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                setShortBreakMinutes(Math.min(60, Math.max(1, val)));
+              }}
               className="pomodoro-input"
             />
           </div>
@@ -161,15 +167,22 @@ const PomodoroTimer = () => {
               min="1" 
               max="60" 
               value={longBreakMinutes} 
-              onChange={(e) => setLongBreakMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                setLongBreakMinutes(Math.min(60, Math.max(1, val)));
+              }}
               className="pomodoro-input"
             />
           </div>
           <button 
             className="pomodoro-save-btn"
             onClick={() => {
+              // Son koruma: sınır dışı değerleri sıfırla
+              setWorkMinutes(w => Math.min(120, Math.max(1, w)));
+              setShortBreakMinutes(s => Math.min(60, Math.max(1, s)));
+              setLongBreakMinutes(l => Math.min(60, Math.max(1, l)));
               setShowSettings(false);
-              switchMode(mode); // reset with new times
+              switchMode(mode);
             }}
           >
             <Check size={18} />
