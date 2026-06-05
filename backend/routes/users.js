@@ -70,7 +70,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// REFRESH TOKEN
+// ME — Token dogrulama (mobil uygulama baslangiç kontrolü için)
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password -refreshToken');
+    if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi.' });
+    res.json({ _id: user._id, username: user.username, preferences: user.preferences });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;

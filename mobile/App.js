@@ -60,16 +60,45 @@ function Navigation() {
 
     registerForPushNotificationsAsync();
 
-    Promise.all([
-      AsyncStorage.getItem('userId'),
-      AsyncStorage.getItem('hasSeenOnboarding')
-    ]).then(([uid, seen]) => {
-      if (!seen) {
-        setInitialRoute('Onboarding');
-      } else {
-        setInitialRoute(uid ? 'Dashboard' : 'Login');
+    // Token geçerliliğini backend'den doğrula
+    const checkAuth = async () => {
+      try {
+        const [uid, token, seen] = await Promise.all([
+          AsyncStorage.getItem('userId'),
+          AsyncStorage.getItem('token'),
+          AsyncStorage.getItem('hasSeenOnboarding'),
+        ]);
+
+        if (!seen) {
+          setInitialRoute('Onboarding');
+          return;
+        }
+
+        if (!uid || !token) {
+          setInitialRoute('Login');
+          return;
+        }
+
+        // Token'ın hâlâ geçerli olup olmadığını backend'e sor
+        const { API_BASE } = await import('./services/api');
+        const response = await fetch(`${API_BASE}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          setInitialRoute('Dashboard');
+        } else {
+          // Token geçersiz veya süresi dolmuş — oturumu temizle
+          await AsyncStorage.multiRemove(['userId', 'username', 'token']);
+          setInitialRoute('Login');
+        }
+      } catch (_) {
+        // Ağ hatası olsa bile Login'e gönder (güvenli taraf)
+        setInitialRoute('Login');
       }
-    });
+    };
+
+    checkAuth();
   }, []);
 
   if (!initialRoute) {
