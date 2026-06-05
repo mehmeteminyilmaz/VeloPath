@@ -41,6 +41,9 @@ const api = axios.create({
 // Her istekte AsyncStorage'dan token al ve Authorization header'ına ekle
 api.interceptors.request.use(async (config) => {
   try {
+    if (config.headers.Authorization) {
+      return config;
+    }
     const token = await AsyncStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
