@@ -4,10 +4,8 @@ const Project = require('../models/Project');
 const Task = require('../models/Task');
 const auth = require('../middleware/auth');
 
-// Tüm proje route'ları JWT ile korumalı
 router.use(auth);
 
-// GET all projects for a specific user WITH tasks (Optimized & Collaboration Ready)
 router.get('/user/:userId', async (req, res) => {
   try {
     const projects = await Project.find({
@@ -17,17 +15,12 @@ router.get('/user/:userId', async (req, res) => {
       ]
     }).lean().sort({ createdAt: -1 });
 
-    // Fetch all tasks for these projects in one query
     const projectIds = projects.map(p => p._id);
     const allTasks = await Task.find({ projectId: { $in: projectIds } }).lean();
 
-    // Map tasks to their respective projects
     const projectsWithTasks = projects.map(project => {
       const projectTasks = allTasks.filter(t => t.projectId.toString() === project._id.toString());
-      return {
-        ...project,
-        tasks: projectTasks
-      };
+      return { ...project, tasks: projectTasks };
     });
 
     res.json(projectsWithTasks);
@@ -36,21 +29,18 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// GET all projects (Legacy)
-router.get('/', async (req, res) => {
-  try {
-    const projects = await Project.find().sort({ createdAt: -1 });
-    res.json(projects);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET single project WITH tasks
 router.get('/:id', async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).lean();
     if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const requesterId = req.user.userId.toString();
+    const isOwner = project.user && project.user.toString() === requesterId;
+    const isShared = project.sharedWith && project.sharedWith.some(id => id.toString() === requesterId);
+
+    if (!isOwner && !isShared) {
+      return res.status(403).json({ error: 'Bu projeye erisim yetkiniz yok.' });
+    }
 
     const tasks = await Task.find({ projectId: req.params.id }).lean().sort({ orderIndex: 1, createdAt: 1 });
     res.json({ ...project, tasks });
@@ -59,25 +49,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// SHARE project
 router.post('/:id/share', async (req, res) => {
   try {
     const { username } = req.body;
     const User = require('../models/User');
     const userToShareWith = await User.findOne({ username });
 
-    if (!userToShareWith) return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+    if (!userToShareWith) return res.status(404).json({ message: 'Kullanici bulunamadi' });
 
     const project = await Project.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Proje bulunamadı' });
+    if (!project) return res.status(404).json({ message: 'Proje bulunamadi' });
 
     if (!project.sharedWith.includes(userToShareWith._id)) {
       project.sharedWith.push(userToShareWith._id);
       await project.save();
 
       if (req.io) {
-        req.io.to(`user_${project.user.toString()}`).emit('data_updated');
-        project.sharedWith.forEach(uId => req.io.to(`user_${uId.toString()}`).emit('data_updated'));
+        req.io.to('user_' + project.user.toString()).emit('data_updated');
+        project.sharedWith.forEach(uId => req.io.to('user_' + uId.toString()).emit('data_updated'));
       }
     }
 
@@ -87,17 +76,13 @@ router.post('/:id/share', async (req, res) => {
   }
 });
 
-// CREATE project
 router.post('/', async (req, res) => {
   try {
-    const project = new Project({
-      ...req.body,
-      sharedWith: [] // Ensure sharedWith is array
-    });
+    const project = new Project({ ...req.body, sharedWith: [] });
     const savedProject = await project.save();
 
     if (req.io) {
-      req.io.to(`user_${savedProject.user.toString()}`).emit('data_updated');
+      req.io.to('user_' + savedProject.user.toString()).emit('data_updated');
     }
 
     res.status(201).json(savedProject);
@@ -106,16 +91,15 @@ router.post('/', async (req, res) => {
   }
 });
 
-// UPDATE project
 router.put('/:id', async (req, res) => {
   try {
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedProject) return res.status(404).json({ message: 'Project not found' });
 
     if (req.io) {
-      req.io.to(`user_${updatedProject.user.toString()}`).emit('data_updated');
+      req.io.to('user_' + updatedProject.user.toString()).emit('data_updated');
       if (updatedProject.sharedWith && updatedProject.sharedWith.length > 0) {
-        updatedProject.sharedWith.forEach(uId => req.io.to(`user_${uId.toString()}`).emit('data_updated'));
+        updatedProject.sharedWith.forEach(uId => req.io.to('user_' + uId.toString()).emit('data_updated'));
       }
     }
 
@@ -125,19 +109,17 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE project
 router.delete('/:id', async (req, res) => {
   try {
     const deletedProject = await Project.findByIdAndDelete(req.params.id);
     if (!deletedProject) return res.status(404).json({ message: 'Project not found' });
 
-    // CASCADE DELETE: Proje silindiğinde ona ait tüm görevleri de veritabanından sil
     await Task.deleteMany({ projectId: req.params.id });
 
     if (req.io) {
-      req.io.to(`user_${deletedProject.user.toString()}`).emit('data_updated');
+      req.io.to('user_' + deletedProject.user.toString()).emit('data_updated');
       if (deletedProject.sharedWith && deletedProject.sharedWith.length > 0) {
-        deletedProject.sharedWith.forEach(uId => req.io.to(`user_${uId.toString()}`).emit('data_updated'));
+        deletedProject.sharedWith.forEach(uId => req.io.to('user_' + uId.toString()).emit('data_updated'));
       }
     }
 
