@@ -1,0 +1,60 @@
+import { useState } from 'react';
+import * as api from '../api';
+
+export function useAuth() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() =>
+    localStorage.getItem('velopath_authenticated') === 'true'
+  );
+  const [username, setUsername] = useState(() =>
+    localStorage.getItem('velopath_username') || ''
+  );
+  const [userId, setUserId] = useState(() =>
+    localStorage.getItem('velopath_userid') || ''
+  );
+
+  const onLogin = async (name, password) => {
+    try {
+      const user = await api.loginUser(name, password);
+      setUsername(user.username);
+      setUserId(user._id);
+      setIsAuthenticated(true);
+      localStorage.setItem('velopath_username', user.username);
+      localStorage.setItem('velopath_userid', user._id);
+      localStorage.setItem('velopath_authenticated', 'true');
+      if (user.token) localStorage.setItem('velopath_token', user.token);
+      return user;
+    } catch (error) {
+      const msg = error.response?.data?.error || 'Kullanıcı adı veya şifre hatalı.';
+      throw new Error(msg);
+    }
+  };
+
+  const onRegister = async (name, password) => {
+    try {
+      const user = await api.registerUser(name, password);
+      setUsername(user.username);
+      setUserId(user._id);
+      setIsAuthenticated(true);
+      localStorage.setItem('velopath_username', user.username);
+      localStorage.setItem('velopath_userid', user._id);
+      localStorage.setItem('velopath_authenticated', 'true');
+      if (user.token) localStorage.setItem('velopath_token', user.token);
+      return user;
+    } catch (error) {
+      const msg = error.response?.data?.error || 'Kayıt sırasında bir hata oluştu.';
+      throw new Error(msg);
+    }
+  };
+
+  const onLogout = () => {
+    setIsAuthenticated(false);
+    setUsername('');
+    setUserId('');
+    localStorage.removeItem('velopath_authenticated');
+    localStorage.removeItem('velopath_userid');
+    localStorage.removeItem('velopath_username');
+    localStorage.removeItem('velopath_token');
+  };
+
+  return { isAuthenticated, username, setUsername, userId, onLogin, onRegister, onLogout };
+}
