@@ -4,6 +4,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Yeni bir tarayıcı oturumu/sekmesi açıldığında sunumun temiz başlaması için giriş ve onboarding durumlarını sıfırla
+if (!sessionStorage.getItem('velopath_session_initialized')) {
+  localStorage.removeItem('velopath_authenticated');
+  localStorage.removeItem('velopath_userid');
+  localStorage.removeItem('velopath_username');
+  localStorage.removeItem('velopath_token');
+  localStorage.removeItem('velopath_refresh_token');
+  localStorage.removeItem('onboardingDone');
+  sessionStorage.setItem('velopath_session_initialized', 'true');
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
