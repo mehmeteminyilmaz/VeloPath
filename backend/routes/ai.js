@@ -129,6 +129,9 @@ Kullanici Verileri:
 - En Uzun Calisma Serisi: ${streak} gun ust uste gorev tamamlama
 - En Verimli Gun: ${bestDay}
 
+Ozel Talimat:
+Eger tamamlanan gorev (totalCompleted) 0 ise, analiz cumlesine mutlaka "Bu haftaki verilerinize baktığımızda, henüz bir başlangıç yapma fırsatınızın olmadığını görüyoruz." diyerek basla ve geri kalan cumleleri buna gore motive edici sekilde tamamla.
+
 Dogrudan analiz yazisini ver. Baslik veya giris/cikis ifadeleri kullanma.`;
 
     const result = await model.generateContent(prompt);
