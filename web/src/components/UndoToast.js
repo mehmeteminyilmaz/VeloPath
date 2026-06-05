@@ -24,6 +24,24 @@ const ToastItem = ({ toast, onUndo, onDismiss }) => {
   const rafRef = useRef(null);
   const [exiting, setExiting] = useState(false);
 
+  const onDismissRef = useRef(onDismiss);
+  const onUndoRef = useRef(onUndo);
+
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+    onUndoRef.current = onUndo;
+  });
+
+  const handleDismiss = () => {
+    setExiting(true);
+    setTimeout(() => onDismissRef.current(toast.id), 300);
+  };
+
+  const handleUndo = () => {
+    setExiting(true);
+    setTimeout(() => onUndoRef.current(toast.id), 300);
+  };
+
   useEffect(() => {
     const animate = () => {
       const elapsed = Date.now() - startTimeRef.current;
@@ -35,18 +53,17 @@ const ToastItem = ({ toast, onUndo, onDismiss }) => {
       }
     };
     rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
+
+    const dismissTimer = setTimeout(() => {
+      handleDismiss();
+    }, DURATION);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(dismissTimer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleDismiss = () => {
-    setExiting(true);
-    setTimeout(() => onDismiss(toast.id), 300);
-  };
-
-  const handleUndo = () => {
-    setExiting(true);
-    setTimeout(() => onUndo(toast.id), 300);
-  };
 
   return (
     <div className={`undo-toast ${exiting ? 'undo-toast-exit' : 'undo-toast-enter'}`}>
