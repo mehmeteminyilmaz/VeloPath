@@ -87,14 +87,39 @@ function Navigation() {
 
         if (response.ok) {
           setInitialRoute('Dashboard');
-        } else {
-          // Token geçersiz veya süresi dolmuş — oturumu temizle
-          await AsyncStorage.multiRemove(['userId', 'username', 'token']);
+        } else if (response.status === 401) {
+          // Token süresi dolmuş olabilir, yenilemeyi dene
+          const refreshToken = await AsyncStorage.getItem('refreshToken');
+          if (refreshToken) {
+            try {
+              const refreshResponse = await fetch(`${API_BASE}/users/refresh`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken }),
+              });
+              if (refreshResponse.ok) {
+                const refreshData = await refreshResponse.json();
+                await AsyncStorage.setItem('token', refreshData.token);
+                if (refreshData.refreshToken) {
+                  await AsyncStorage.setItem('refreshToken', refreshData.refreshToken);
+                }
+                setInitialRoute('Dashboard');
+                return;
+              }
+            } catch (e) {
+              console.error("Token yenileme hatasi:", e);
+            }
+          }
+          // Refresh başarısız olduysa veya yoksa oturumu temizle
+          await AsyncStorage.multiRemove(['userId', 'username', 'token', 'refreshToken']);
           setInitialRoute('Login');
+        } else {
+          // Sunucu hatası veya diğer durumlarda Dashboard'a yönlendir (çevrimdışı destek)
+          setInitialRoute('Dashboard');
         }
       } catch (_) {
-        // Ağ hatası olsa bile Login'e gönder (güvenli taraf)
-        setInitialRoute('Login');
+        // İnternet/ağ hatası durumunda Dashboard'a yönlendir (çevrimdışı destek)
+        setInitialRoute('Dashboard');
       }
     };
 

@@ -76,6 +76,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem('userId', user._id);
       await AsyncStorage.setItem('username', user.username);
       if (user.token) await AsyncStorage.setItem('token', user.token);
+      if (user.refreshToken) await AsyncStorage.setItem('refreshToken', user.refreshToken);
       navigation.replace('Dashboard');
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Bir hata oluştu';

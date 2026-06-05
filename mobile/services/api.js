@@ -49,14 +49,68 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(p => error ? p.reject(error) : p.resolve(token));
+  failedQueue = [];
+};
+
+// Response interceptor: 401 gelirse token yenile
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        await AsyncStorage.multiRemove(['userId', 'username', 'token', 'refreshToken']);
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers.Authorization = 'Bearer ' + token;
+          return api(originalRequest);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const res = await axios.post(`${API_BASE}/users/refresh`, { refreshToken });
+        const { token, refreshToken: newRefreshToken } = res.data;
+        await AsyncStorage.setItem('token', token);
+        if (newRefreshToken) {
+          await AsyncStorage.setItem('refreshToken', newRefreshToken);
+        }
+        processQueue(null, token);
+        originalRequest.headers.Authorization = 'Bearer ' + token;
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        await AsyncStorage.multiRemove(['userId', 'username', 'token', 'refreshToken']);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ---------- AUTH ----------
 export const loginUser = async (username, password) => {
   const res = await api.post('/users/login', { username, password });
   return res.data;
 };
 
-export const registerUser = async (username, password) => {
-  const res = await api.post('/users/register', { username, password });
+export const registerUser = async (username, password, email) => {
+  const res = await api.post('/users/register', { username, password, email });
   return res.data;
 };
 
