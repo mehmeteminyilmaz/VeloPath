@@ -38,11 +38,12 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
   const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const isLight = themeName === 'light';
   
   const accentColor = colors.accent;
   const accentEnd = GRADIENT_PAIRS[accentColor] || accentColor;
   const tabGradient = [accentColor, accentEnd];
-  const bgGradient = themeName === 'light' ? ['#ddd6fe', '#f0f4ff'] : ['#060b18', '#1a1040'];
+  const bgGradient = isLight ? ['#ddd6fe', '#f0f4ff'] : ['#060b18', '#1a1040'];
   const styles = createStyles(colors, insets, themeName);
 
   const switchMode = (toRegister) => {
@@ -102,7 +103,7 @@ export default function LoginScreen({ navigation }) {
       colors={bgGradient}
       style={styles.container}
     >
-      <StatusBar barStyle={themeName === 'light' ? 'dark-content' : 'light-content'} />
+      <StatusBar barStyle={isLight ? 'dark-content' : 'light-content'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -115,7 +116,7 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.inner}>
             {/* Logo Section */}
             <View style={styles.logoContainer}>
-              <Text style={[styles.logoText, { color: themeName === 'light' ? colors.accent : '#818cf8' }]}>VeloPath</Text>
+               <Text style={[styles.logoText, { color: isLight ? colors.accent : '#818cf8' }]}>VeloPath</Text>
               <Text style={styles.logoSub}>Akıllı Proje Yönetimi ve Verimlilik Asistanı</Text>
             </View>
 
@@ -288,7 +289,7 @@ export default function LoginScreen({ navigation }) {
             {/* Footer */}
             <View style={styles.footer}>
               <View style={styles.lockBadge}>
-                <Ionicons name="lock-closed" size={14} color={colors.textSecondary} />
+                <Ionicons name="lock-closed" size={14} color={isLight ? colors.accent : colors.textSecondary} />
               </View>
               <Text style={styles.footerText}>Verileriniz şifreli olarak güvende saklanır.</Text>
             </View>
@@ -318,17 +319,17 @@ const createStyles = (colors, insets, themeName) => {
     },
     loginCard: {
       width: '100%',
-      backgroundColor: colors.bgCard,
-      borderWidth: 1,
-      borderColor: colors.border,
+      backgroundColor: isLight ? '#ffffff' : 'transparent',
+      borderWidth: isLight ? 1 : 0,
+      borderColor: isLight ? 'rgba(99,102,241,0.15)' : 'transparent',
       borderRadius: 28,
-      padding: 24,
+      padding: isLight ? 24 : 0,
       marginBottom: 20,
-      shadowColor: isLight ? 'rgba(79,70,229,0.08)' : '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: isLight ? 0.08 : 0.4,
-      shadowRadius: 15,
-      elevation: 6,
+      shadowColor: isLight ? 'rgba(99,102,241,0.15)' : 'transparent',
+      shadowOffset: { width: 0, height: 20 },
+      shadowOpacity: isLight ? 0.15 : 0,
+      shadowRadius: 30,
+      elevation: isLight ? 10 : 0,
     },
     logoContainer: {
       alignItems: 'center',
@@ -348,13 +349,13 @@ const createStyles = (colors, insets, themeName) => {
     },
     tabContainer: {
       flexDirection: 'row',
-      backgroundColor: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)',
+      backgroundColor: isLight ? 'rgba(99, 102, 241, 0.04)' : 'rgba(255, 255, 255, 0.03)',
       borderRadius: 16,
       padding: 6,
       width: '100%',
-      marginBottom: 40,
+      marginBottom: 30,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: isLight ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.08)',
     },
     tabBtn: {
       flex: 1,
@@ -391,26 +392,27 @@ const createStyles = (colors, insets, themeName) => {
     },
     form: {
       width: '100%',
-      gap: 24,
+      gap: 20,
     },
     inputWrapper: {
-      gap: 12,
+      gap: 8,
     },
     label: {
       color: colors.textSecondary,
       fontSize: 14,
-      fontWeight: '700',
-      textAlign: 'center',
+      fontWeight: '600',
+      textAlign: 'left',
+      paddingLeft: 4,
     },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+      backgroundColor: isLight ? 'rgba(99, 102, 241, 0.03)' : 'rgba(255, 255, 255, 0.02)',
       borderRadius: 18,
       paddingHorizontal: 16,
       height: 60,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: isLight ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255, 255, 255, 0.08)',
     },
     inputIcon: {
       marginRight: 12,
@@ -423,15 +425,15 @@ const createStyles = (colors, insets, themeName) => {
     },
     submitBtnContainer: {
       marginTop: 10,
-      borderRadius: 20,
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.4,
-      shadowRadius: 15,
-      elevation: 8,
+      borderRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.35,
+      shadowRadius: 12,
+      elevation: 6,
     },
     submitBtn: {
-      height: 64,
-      borderRadius: 20,
+      height: 58,
+      borderRadius: 16,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
@@ -439,8 +441,8 @@ const createStyles = (colors, insets, themeName) => {
     },
     submitBtnText: {
       color: '#fff',
-      fontSize: 18,
-      fontWeight: '800',
+      fontSize: 16,
+      fontWeight: '700',
     },
     footer: {
       flexDirection: 'row',
@@ -452,7 +454,7 @@ const createStyles = (colors, insets, themeName) => {
     lockBadge: {
       width: 28,
       height: 28,
-      backgroundColor: colors.border,
+      backgroundColor: isLight ? 'rgba(99, 102, 241, 0.05)' : 'rgba(255, 255, 255, 0.03)',
       borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
