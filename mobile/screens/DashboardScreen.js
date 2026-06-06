@@ -22,6 +22,7 @@ export default function DashboardScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Aktif');
   const [priorityFilter, setPriorityFilter] = useState('Tümü');
+  const [layoutMode, setLayoutMode] = useState('grid'); // 'grid' | 'kanban'
 
   const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -151,6 +152,101 @@ export default function DashboardScreen({ navigation }) {
     );
   };
 
+  const getProjectProgress = (project) => {
+    const tasks = project.tasks || [];
+    const completedCount = tasks.filter(t => t.completed === true || t.status === 'done').length;
+    return tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+  };
+
+  const getKanbanCol = (project) => {
+    const completed = (project.tasks || []).filter(t => t.completed === true || t.status === 'done').length;
+    const total = (project.tasks || []).length;
+    if (total === 0 || completed === 0) return 'todo';
+    if (completed === total) return 'done';
+    return 'doing';
+  };
+
+  const renderKanbanCard = (project) => {
+    const tasks = project.tasks || [];
+    const completedCount = tasks.filter(isTaskDone).length;
+    const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+    const projectId = project._id || project.id;
+
+    return (
+      <TouchableOpacity
+        key={projectId}
+        style={[styles.kanbanCard, { borderLeftColor: project.color || colors.accent }]}
+        onPress={() => navigation.navigate('ProjectDetails', {
+          projectId,
+          projectTitle: project.title,
+          projectColor: project.color || colors.accent
+        })}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.kanbanCardTitle} numberOfLines={1}>{project.title}</Text>
+        <Text style={styles.kanbanCardInfo}>{completedCount} / {tasks.length} Görev</Text>
+        
+        <View style={styles.kanbanProgressBarBg}>
+          <View style={[styles.kanbanProgressBarFill, {
+            width: `${Math.max(progress, progress > 0 ? 2 : 0)}%`,
+            backgroundColor: project.color || colors.accent
+          }]} />
+        </View>
+        <Text style={[styles.kanbanProgressPercent, { color: progress === 100 ? colors.success : colors.warning }]}>%{progress}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderKanbanBoard = () => {
+    const todoProjects = filteredProjects.filter(p => getKanbanCol(p) === 'todo');
+    const doingProjects = filteredProjects.filter(p => getKanbanCol(p) === 'doing');
+    const doneProjects = filteredProjects.filter(p => getKanbanCol(p) === 'done');
+
+    const columns = [
+      { key: 'todo', label: 'Yapılacak', color: '#f59e0b', icon: '📋', projects: todoProjects },
+      { key: 'doing', label: 'Devam Eden', color: '#3b82f6', icon: '⚡', projects: doingProjects },
+      { key: 'done', label: 'Tamamlandı', color: '#10b981', icon: '✅', projects: doneProjects },
+    ];
+
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.kanbanScrollContent}
+        snapToInterval={width * 0.78 + 12}
+        decelerationRate="fast"
+      >
+        {columns.map(col => (
+          <View key={col.key} style={styles.kanbanColumn}>
+            <View style={[styles.kanbanColHeader, { borderBottomColor: col.color }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 16 }}>{col.icon}</Text>
+                <Text style={styles.kanbanColTitle}>{col.label}</Text>
+              </View>
+              <View style={[styles.kanbanColCountBadge, { backgroundColor: `${col.color}20` }]}>
+                <Text style={[styles.kanbanColCountText, { color: col.color }]}>{col.projects.length}</Text>
+              </View>
+            </View>
+
+            <ScrollView
+              style={styles.kanbanColBody}
+              contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {col.projects.length > 0 ? (
+                col.projects.map(renderKanbanCard)
+              ) : (
+                <View style={styles.kanbanEmptyCol}>
+                  <Text style={styles.kanbanEmptyColText}>Proje Yok</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        ))}
+      </ScrollView>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle={themeName === 'dark' ? 'light-content' : 'dark-content'} />
@@ -179,7 +275,7 @@ export default function DashboardScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={filteredProjects}
+        data={layoutMode === 'kanban' && activeFilter === 'Aktif' ? [] : filteredProjects}
         keyExtractor={(item) => item._id || item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
         ListHeaderComponent={
@@ -211,6 +307,28 @@ export default function DashboardScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* Grid / Kanban layout selector (Only active projects) */}
+            {activeFilter === 'Aktif' && (
+              <View style={styles.layoutToggleContainer}>
+                <View style={styles.layoutBtnGroup}>
+                  <TouchableOpacity
+                    style={[styles.layoutBtn, layoutMode === 'grid' && styles.layoutBtnActive]}
+                    onPress={() => setLayoutMode('grid')}
+                  >
+                    <Ionicons name="grid-outline" size={15} color={layoutMode === 'grid' ? colors.accent : colors.textSecondary} style={{ marginRight: 4 }} />
+                    <Text style={[styles.layoutBtnText, layoutMode === 'grid' && { color: colors.accent, fontWeight: 'bold' }]}>Izgara</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.layoutBtn, layoutMode === 'kanban' && styles.layoutBtnActive]}
+                    onPress={() => setLayoutMode('kanban')}
+                  >
+                    <Ionicons name="albums-outline" size={15} color={layoutMode === 'kanban' ? colors.accent : colors.textSecondary} style={{ marginRight: 4 }} />
+                    <Text style={[styles.layoutBtnText, layoutMode === 'kanban' && { color: colors.accent, fontWeight: 'bold' }]}>Kanban</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
 
             {/* Öncelik Filtreleri — web ile aynı */}
             <ScrollView
@@ -255,36 +373,43 @@ export default function DashboardScreen({ navigation }) {
           </>
         }
         ListEmptyComponent={
-          !loading ? (
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconWrap}>
-                <Ionicons
-                  name={activeFilter === 'Aktif' ? 'folder-open-outline' : 'archive-outline'}
-                  size={44}
-                  color={colors.accent}
-                />
-              </View>
-              <Text style={styles.emptyTitle}>
-                {activeFilter === 'Aktif' ? 'Henüz Aktif Projeniz Yok' : 'Arşivde Proje Bulunmuyor'}
-              </Text>
-              <Text style={styles.emptyDesc}>
-                {activeFilter === 'Aktif'
-                  ? 'Hayallerinizi gerçekleştirmek için ilk adımınızı atın!'
-                  : 'Arşivlediğiniz projeler burada görünecektir.'}
-              </Text>
-              {activeFilter === 'Aktif' && (
-                <TouchableOpacity
-                  style={[styles.emptyBtn, { backgroundColor: colors.accent }]}
-                  onPress={() => navigation.navigate('CreateProject')}
-                >
-                  <Ionicons name="add-circle-outline" size={18} color="#fff" />
-                  <Text style={styles.emptyBtnText}>İlk Projeni Oluştur</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ) : null
+          (layoutMode === 'kanban' && activeFilter === 'Aktif')
+            ? null
+            : (!loading ? (
+                <View style={styles.emptyState}>
+                  <View style={styles.emptyIconWrap}>
+                    <Ionicons
+                      name={activeFilter === 'Aktif' ? 'folder-open-outline' : 'archive-outline'}
+                      size={44}
+                      color={colors.accent}
+                    />
+                  </View>
+                  <Text style={styles.emptyTitle}>
+                    {activeFilter === 'Aktif' ? 'Henüz Aktif Projeniz Yok' : 'Arşivde Proje Bulunmuyor'}
+                  </Text>
+                  <Text style={styles.emptyDesc}>
+                    {activeFilter === 'Aktif'
+                      ? 'Hayallerinizi gerçekleştirmek için ilk adımınızı atın!'
+                      : 'Arşivlediğiniz projeler burada görünecektir.'}
+                  </Text>
+                  {activeFilter === 'Aktif' && (
+                    <TouchableOpacity
+                      style={[styles.emptyBtn, { backgroundColor: colors.accent }]}
+                      onPress={() => navigation.navigate('CreateProject')}
+                    >
+                      <Ionicons name="add-circle-outline" size={18} color="#fff" />
+                      <Text style={styles.emptyBtnText}>İlk Projeni Oluştur</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : null)
         }
-        contentContainerStyle={[styles.listContent, filteredProjects.length === 0 && { flexGrow: 1 }]}
+        ListFooterComponent={
+          layoutMode === 'kanban' && activeFilter === 'Aktif'
+            ? renderKanbanBoard()
+            : null
+        }
+        contentContainerStyle={[styles.listContent, (layoutMode === 'kanban' && activeFilter === 'Aktif') ? { flexGrow: 1 } : (filteredProjects.length === 0 && { flexGrow: 1 })]}
         renderItem={({ item }) => {
           const tasks = item.tasks || [];
           const completedCount = tasks.filter(t => t.completed === true || t.status === 'done').length;
@@ -516,5 +641,123 @@ const createStyles = (colors, insets) => StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+  },
+
+  // Layout & Kanban Styles
+  layoutToggleContainer: {
+    paddingHorizontal: 20,
+    marginTop: 15,
+    alignItems: 'flex-start',
+  },
+  layoutBtnGroup: {
+    flexDirection: 'row',
+    backgroundColor: colors.bgCard,
+    borderRadius: 10,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  layoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  layoutBtnActive: {
+    backgroundColor: `${colors.accent}15`,
+  },
+  layoutBtnText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+
+  kanbanScrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    gap: 16,
+  },
+  kanbanColumn: {
+    width: width * 0.78,
+    backgroundColor: colors.bgCard,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    maxHeight: 450,
+    overflow: 'hidden',
+  },
+  kanbanColHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 3,
+  },
+  kanbanColTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  kanbanColCountBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  kanbanColCountText: {
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  kanbanColBody: {
+    padding: 12,
+  },
+  kanbanCard: {
+    backgroundColor: colors.bg,
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderLeftWidth: 4,
+  },
+  kanbanCardTitle: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  kanbanCardInfo: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    marginBottom: 8,
+  },
+  kanbanProgressBarBg: {
+    height: 4,
+    backgroundColor: `${colors.textSecondary}15`,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  kanbanProgressBarFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  kanbanProgressPercent: {
+    fontSize: 9,
+    fontWeight: '900',
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  kanbanEmptyCol: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    borderStyle: 'dashed',
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: 12,
+  },
+  kanbanEmptyColText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

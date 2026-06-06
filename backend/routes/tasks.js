@@ -6,6 +6,17 @@ const auth = require('../middleware/auth');
 
 router.use(auth);
 
+router.use((req, res, next) => {
+  if (req.body && req.body.subtasks && Array.isArray(req.body.subtasks)) {
+    req.body.subtasks = req.body.subtasks.map(s => {
+      const text = s.text || s.title || '';
+      const title = s.title || s.text || '';
+      return { ...s, text, title };
+    });
+  }
+  next();
+});
+
 const notifyProjectMembers = async (io, projectId) => {
   if (!io || !projectId) return;
   try {

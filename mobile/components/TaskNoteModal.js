@@ -40,6 +40,7 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [dueDate, setDueDate] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [taskTitle, setTaskTitle] = useState('');
 
   useEffect(() => {
     if (task && visible) {
@@ -48,6 +49,7 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
       setSubtasks(task.subtasks || []);
       setTags(task.tags || []);
       setDueDate(task.dueDate ? task.dueDate.split('T')[0] : '');
+      setTaskTitle(task.title || task.text || '');
       setViewMode('edit');
     }
   }, [task, visible]);
@@ -56,6 +58,7 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
 
   const handleSave = () => {
     onSave(task._id || task.id, {
+      title: taskTitle.trim(),
       notes: noteContent,
       dueDate: dueDate || null,
       priority,
@@ -167,9 +170,16 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
           <View style={styles.modalContent}>
             
             <View style={styles.header}>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, marginRight: 15 }}>
                 <Text style={styles.headerTitle}>Görev Detayları</Text>
-                <Text style={styles.headerSubtitle} numberOfLines={2}>{task.title || task.text}</Text>
+                <TextInput
+                  style={[styles.headerSubtitle, { paddingVertical: 2, borderBottomWidth: 1, borderBottomColor: colors.border || 'rgba(255,255,255,0.08)' }]}
+                  value={taskTitle}
+                  onChangeText={setTaskTitle}
+                  placeholder="Görev adı girin..."
+                  placeholderTextColor={colors.textSecondary}
+                  multiline
+                />
               </View>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />

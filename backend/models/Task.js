@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const subtaskSchema = new mongoose.Schema({
   id:        { type: String, required: true },
-  title:     { type: String, required: true },
+  title:     { type: String },
+  text:      { type: String },
   completed: { type: Boolean, default: false }
 });
 
