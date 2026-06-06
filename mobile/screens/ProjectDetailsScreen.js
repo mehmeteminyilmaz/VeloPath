@@ -333,6 +333,11 @@ export default function ProjectDetailsScreen({ route, navigation }) {
           }
 
           const done = isTaskDone(item);
+          const taskId = item._id || item.id;
+          const hasPriority = item.priority && item.priority !== 'medium' && item.priority !== 'Orta';
+          const priorityColor = item.priority === 'Yüksek' || item.priority === 'high' ? colors.danger
+            : item.priority === 'Düşük' || item.priority === 'low' ? colors.success
+            : colors.warning;
           return (
             <TouchableOpacity 
               style={[styles.taskCard, done && styles.taskCardCompleted]}
@@ -341,7 +346,7 @@ export default function ProjectDetailsScreen({ route, navigation }) {
             >
               <TouchableOpacity
                 style={styles.checkArea}
-                onPress={() => handleToggleTask(item._id || item.id)}
+                onPress={() => handleToggleTask(taskId)}
               >
                 <View style={[
                   styles.checkbox,
@@ -349,32 +354,66 @@ export default function ProjectDetailsScreen({ route, navigation }) {
                 ]}>
                   {done && <Ionicons name="checkmark" size={16} color="#fff" />}
                 </View>
-                <Text style={[styles.taskTitle, done && styles.taskTitleCompleted]} numberOfLines={2}>
-                  {item.title || item.text}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Due Date badge */}
-              {item.dueDate && !done && (() => {
-                const due = new Date(item.dueDate);
-                const today = new Date(); today.setHours(0,0,0,0);
-                const dueDay = new Date(due); dueDay.setHours(0,0,0,0);
-                const diff = Math.round((dueDay - today) / 86400000);
-                const isOverdue = diff < 0;
-                const isToday = diff === 0;
-                const color = isOverdue ? colors.danger : isToday ? '#f59e0b' : colors.textSecondary;
-                const label = isOverdue ? `${Math.abs(diff)}g gecti` : isToday ? 'Bugun' : diff === 1 ? 'Yarin' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
-                return (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 4 }}>
-                    <Ionicons name="calendar-outline" size={12} color={color} />
-                    <Text style={{ fontSize: 11, color, fontWeight: isOverdue || isToday ? '700' : '400' }}>{label}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.taskTitle, done && styles.taskTitleCompleted]} numberOfLines={2}>
+                    {item.title || item.text}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                    {/* Priority badge */}
+                    {item.priority && (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: priorityColor }} />
+                        <Text style={{ fontSize: 10, color: priorityColor, fontWeight: '700' }}>
+                          {item.priority === 'high' ? 'Yüksek' : item.priority === 'low' ? 'Düşük' : item.priority === 'medium' ? 'Orta' : item.priority}
+                        </Text>
+                      </View>
+                    )}
+                    {/* Due Date badge */}
+                    {item.dueDate && !done && (() => {
+                      const due = new Date(item.dueDate);
+                      const today = new Date(); today.setHours(0,0,0,0);
+                      const dueDay = new Date(due); dueDay.setHours(0,0,0,0);
+                      const diff = Math.round((dueDay - today) / 86400000);
+                      const isOverdue = diff < 0;
+                      const isToday = diff === 0;
+                      const color = isOverdue ? colors.danger : isToday ? '#f59e0b' : colors.textSecondary;
+                      const label = isOverdue ? `${Math.abs(diff)}g gecti` : isToday ? 'Bugün' : diff === 1 ? 'Yarın' : due.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+                      return (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                          <Ionicons name="calendar-outline" size={10} color={color} />
+                          <Text style={{ fontSize: 10, color, fontWeight: isOverdue || isToday ? '700' : '400' }}>{label}</Text>
+                        </View>
+                      );
+                    })()}
+                    {/* Has notes indicator */}
+                    {item.notes && (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                        <Ionicons name="document-text-outline" size={11} color={colors.accent} />
+                        <Text style={{ fontSize: 10, color: colors.accent, fontWeight: '600' }}>Not</Text>
+                      </View>
+                    )}
+                    {/* Subtask progress */}
+                    {item.subtasks && item.subtasks.length > 0 && (() => {
+                      const done2 = item.subtasks.filter(s => s.completed).length;
+                      return (
+                        <Text style={{ fontSize: 10, color: colors.textSecondary }}>{done2}/{item.subtasks.length} alt görev</Text>
+                      );
+                    })()}
                   </View>
-                );
-              })()}
-
-              <TouchableOpacity onPress={() => handleDeleteTask(item._id || item.id)}>
-                <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                </View>
               </TouchableOpacity>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TouchableOpacity
+                  style={[styles.iconBtn, item.notes && { backgroundColor: `${colors.accent}18` }]}
+                  onPress={() => handleTaskPress(item)}
+                >
+                  <Ionicons name="document-text-outline" size={18} color={item.notes ? colors.accent : colors.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => handleDeleteTask(taskId)}>
+                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
           );
         }}
@@ -585,19 +624,27 @@ const createStyles = (colors, insets) => StyleSheet.create({
     borderColor: colors.border,
   },
   taskCardCompleted: { opacity: 0.6 },
-  checkArea: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  checkArea: { flex: 1, flexDirection: 'row', alignItems: 'flex-start', paddingRight: 8 },
   checkbox: {
     width: 24, height: 24,
     borderRadius: 6,
     borderWidth: 2,
     borderColor: colors.border,
-    marginRight: 15,
+    marginRight: 12,
+    marginTop: 2,
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
   },
-  taskTitle: { color: colors.textPrimary, fontSize: 16, fontWeight: '500', flex: 1 },
+  taskTitle: { color: colors.textPrimary, fontSize: 15, fontWeight: '600', flex: 1 },
   taskTitleCompleted: { textDecorationLine: 'line-through', color: colors.textSecondary },
+  iconBtn: {
+    width: 34, height: 34,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: `${colors.textSecondary}10`,
+  },
 
   inputArea: {
     flexDirection: 'row',

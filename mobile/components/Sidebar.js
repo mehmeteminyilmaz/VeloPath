@@ -36,8 +36,10 @@ const Sidebar = ({ isOpen, onClose, navigation, currentRoute }) => {
 
   const menuItems = [
     { label: 'Dashboard', icon: 'grid-outline', route: 'Dashboard' },
-    { label: 'Proje Oluştur', icon: 'add-circle-outline', route: 'CreateProject' },
+    { label: 'Haftalık Plan', icon: 'calendar-outline', route: 'WeeklyPlan' },
+    { label: 'Pomodoro', icon: 'timer-outline', route: 'Pomodoro' },
     { label: 'İstatistikler', icon: 'stats-chart-outline', route: 'Stats' },
+    { label: 'Proje Oluştur', icon: 'add-circle-outline', route: 'CreateProject' },
     { label: 'Ayarlar', icon: 'settings-outline', route: 'Settings' },
   ];
 

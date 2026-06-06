@@ -24,6 +24,7 @@ import StatsScreen from './screens/StatsScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CreateProjectScreen from './screens/CreateProjectScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import WeeklyPlanScreen from './screens/WeeklyPlanScreen';
 import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
 const Stack = createNativeStackNavigator();
@@ -161,6 +162,7 @@ function Navigation() {
           <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
           <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
+          <Stack.Screen name="WeeklyPlan" component={WeeklyPlanScreen} />
           <Stack.Screen name="Pomodoro" component={PomodoroScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
           <Stack.Screen name="Stats" component={StatsScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
