@@ -49,6 +49,19 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// -- Auth Route'lara Özel Sıkı Rate Limit (Brute Force Koruması) ---
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: 10,                   // 15 dakikada en fazla 10 deneme
+  keyGenerator: ipKeyGenerator,
+  message: { error: 'Cok fazla giris denemesi yaptiniz. Lutfen 15 dakika sonra tekrar deneyin.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/users/login',           authLimiter);
+app.use('/api/users/register',        authLimiter);
+app.use('/api/users/forgot-password', authLimiter);
+
 // ── 2. İstek logger ────────────────────────────────────────
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);

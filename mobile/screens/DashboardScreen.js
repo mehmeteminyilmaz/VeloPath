@@ -168,6 +168,9 @@ export default function DashboardScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Kontrol Paneli</Text>
         <View style={styles.headerRight}>
+          <TouchableOpacity onPress={() => navigation.navigate('GlobalSearch')} style={{ marginRight: 15 }}>
+            <Ionicons name="search-outline" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('CreateProject')} style={{ marginRight: 15 }}>
             <Ionicons name="add-circle-outline" size={26} color={colors.accent} />
           </TouchableOpacity>
