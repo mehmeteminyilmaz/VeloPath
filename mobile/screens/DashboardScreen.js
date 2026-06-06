@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  StatusBar, ActivityIndicator, Alert, RefreshControl, ScrollView, TextInput, Dimensions
+  StatusBar, Alert, RefreshControl, ScrollView, TextInput, Dimensions
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchAllData, deleteProjectAPI } from '../services/api';
+import { fetchAllData, deleteProjectAPI, updateProjectAPI } from '../services/api';
 import { connectSocket, disconnectSocket } from '../services/socket';
 import Sidebar from '../components/Sidebar';
 import { useTheme } from '../theme/ThemeContext';
@@ -21,6 +21,7 @@ export default function DashboardScreen({ navigation }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Aktif');
+  const [priorityFilter, setPriorityFilter] = useState('Tümü');
 
   const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -88,6 +89,15 @@ export default function DashboardScreen({ navigation }) {
   // Görev tamamlanma kontrolü — backend hem completed hem status döndürebilir
   const isTaskDone = (t) => t.completed === true || t.status === 'done';
 
+  const handleArchive = async (projectId, isCurrentlyArchived) => {
+    try {
+      await updateProjectAPI(projectId, { archived: !isCurrentlyArchived });
+      onRefresh();
+    } catch (err) {
+      Alert.alert('Hata', 'İşlem gerçekleştirilemedi.');
+    }
+  };
+
   // Projeleri filtrele
   const filteredProjects = projects
     .filter(p => activeFilter === 'Aktif' ? !p.archived : !!p.archived)
@@ -98,6 +108,10 @@ export default function DashboardScreen({ navigation }) {
         p.title?.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q)
       );
+    })
+    .filter(p => {
+      if (priorityFilter === 'Tümü') return true;
+      return p.priority === priorityFilter;
     });
 
   // Summary kartları için gerçek istatistikler
@@ -195,6 +209,34 @@ export default function DashboardScreen({ navigation }) {
               </View>
             </View>
 
+            {/* Öncelik Filtreleri — web ile aynı */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 14 }}
+              contentContainerStyle={styles.priorityFilterRow}
+            >
+              {['Tümü', 'Yüksek', 'Orta', 'Düşük'].map(p => (
+                <TouchableOpacity
+                  key={p}
+                  onPress={() => setPriorityFilter(p)}
+                  style={[
+                    styles.priorityPill,
+                    priorityFilter === p && styles.priorityPillActive,
+                    priorityFilter === p && p === 'Yüksek' && { backgroundColor: colors.danger },
+                    priorityFilter === p && p === 'Orta'  && { backgroundColor: colors.warning },
+                    priorityFilter === p && p === 'Düşük' && { backgroundColor: colors.success },
+                    priorityFilter === p && p === 'Tümü'  && { backgroundColor: colors.accent },
+                  ]}
+                >
+                  <Text style={[
+                    styles.priorityPillText,
+                    priorityFilter === p && styles.priorityPillTextActive,
+                  ]}>{p}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
             <View style={styles.searchSection}>
               <View style={styles.searchBar}>
                 <Ionicons name="search-outline" size={20} color={colors.textSecondary} />
@@ -209,18 +251,49 @@ export default function DashboardScreen({ navigation }) {
             </View>
           </>
         }
-        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconWrap}>
+                <Ionicons
+                  name={activeFilter === 'Aktif' ? 'folder-open-outline' : 'archive-outline'}
+                  size={44}
+                  color={colors.accent}
+                />
+              </View>
+              <Text style={styles.emptyTitle}>
+                {activeFilter === 'Aktif' ? 'Henüz Aktif Projeniz Yok' : 'Arşivde Proje Bulunmuyor'}
+              </Text>
+              <Text style={styles.emptyDesc}>
+                {activeFilter === 'Aktif'
+                  ? 'Hayallerinizi gerçekleştirmek için ilk adımınızı atın!'
+                  : 'Arşivlediğiniz projeler burada görünecektir.'}
+              </Text>
+              {activeFilter === 'Aktif' && (
+                <TouchableOpacity
+                  style={[styles.emptyBtn, { backgroundColor: colors.accent }]}
+                  onPress={() => navigation.navigate('CreateProject')}
+                >
+                  <Ionicons name="add-circle-outline" size={18} color="#fff" />
+                  <Text style={styles.emptyBtnText}>İlk Projeni Oluştur</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : null
+        }
+        contentContainerStyle={[styles.listContent, filteredProjects.length === 0 && { flexGrow: 1 }]}
         renderItem={({ item }) => {
           const tasks = item.tasks || [];
           const completedCount = tasks.filter(t => t.completed === true || t.status === 'done').length;
           const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
           const isArchived = !!item.archived;
+          const projectId = item._id || item.id;
 
           return (
             <TouchableOpacity
               style={[styles.projectCard, { borderLeftColor: item.color || colors.accent }]}
               onPress={() => navigation.navigate('ProjectDetails', {
-                projectId: item._id || item.id,
+                projectId,
                 projectTitle: item.title,
                 projectColor: item.color || colors.accent
               })}
@@ -236,8 +309,18 @@ export default function DashboardScreen({ navigation }) {
                   </View>
                 </View>
                 <View style={styles.cardActions}>
-                  <TouchableOpacity onPress={() => handleDelete(item._id || item.id)}>
-                    <Ionicons name="trash-outline" size={18} color={colors.textSecondary} />
+                  <TouchableOpacity
+                    onPress={() => handleArchive(projectId, isArchived)}
+                    style={{ padding: 4 }}
+                  >
+                    <Ionicons
+                      name={isArchived ? 'arrow-undo-outline' : 'archive-outline'}
+                      size={17}
+                      color={colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDelete(projectId)} style={{ padding: 4 }}>
+                    <Ionicons name="trash-outline" size={17} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -355,6 +438,67 @@ const createStyles = (colors, insets) => StyleSheet.create({
   progressBarBg: { height: 4, backgroundColor: `${colors.textSecondary}15`, borderRadius: 2, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 2 },
   progressPercent: { color: colors.danger, fontSize: 10, fontWeight: '800', alignSelf: 'flex-end', marginTop: 6 },
+
+  // Öncelik filtre hapları
+  priorityFilterRow: { paddingHorizontal: 20, paddingBottom: 2, gap: 8 },
+  priorityPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginRight: 8,
+  },
+  priorityPillActive: { borderWidth: 0 },
+  priorityPillText: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
+  priorityPillTextActive: { color: '#fff', fontWeight: '700' },
+
+  // Boş durum
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 48,
+  },
+  emptyIconWrap: {
+    width: 90,
+    height: 90,
+    borderRadius: 28,
+    backgroundColor: `${colors.accent}12`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    color: colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  emptyDesc: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 28,
+  },
+  emptyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 999,
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  emptyBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   fab: {
     position: 'absolute',
