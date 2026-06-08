@@ -206,7 +206,9 @@ router.post('/forgot-password', async (req, res) => {
         html: '<p>Merhaba ' + user.username + ',</p><p>Sifrenizi sifirlamak icin asagidaki linke tiklayin (1 saat gecerli):</p><p><a href="' + resetUrl + '">' + resetUrl + '</a></p><p>Bu istegi siz yapmadiysa bu e-postayı gormezden gelebilirsiniz.</p>',
       });
     } else {
-      console.log('[DEV] Reset token:', resetToken);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[DEV] Reset token:', resetToken);
+      }
     }
 
     res.json({ message: 'E-posta adresinize sifirlama linki gonderildi.' });

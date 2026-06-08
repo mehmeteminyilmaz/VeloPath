@@ -16,4 +16,7 @@ const projectSchema = new mongoose.Schema({
   sharedWith:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
+projectSchema.index({ user: 1 });
+projectSchema.index({ sharedWith: 1 });
+
 module.exports = mongoose.model('Project', projectSchema);

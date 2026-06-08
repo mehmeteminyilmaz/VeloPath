@@ -37,4 +37,8 @@ const taskSchema = new mongoose.Schema({
   orderIndex:  { type: Number, default: 0 }
 }, { timestamps: true });
 
+taskSchema.index({ projectId: 1 });
+taskSchema.index({ dueDate: 1 });
+taskSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Task', taskSchema);
