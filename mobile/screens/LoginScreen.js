@@ -91,11 +91,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      'Şifremi Unuttum',
-      'Şifrenizi sıfırlamak için web uygulaması üzerinden "Unuttum" seçeneğini kullanın ya da hesabınızı kayıt sırasında girdiğiniz e-posta adresiyle sıfırlayın.',
-      [{ text: 'Tamam' }]
-    );
+    navigation.navigate('ForgotPassword');
   };
 
   return (

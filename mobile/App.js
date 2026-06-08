@@ -26,6 +26,8 @@ import CreateProjectScreen from './screens/CreateProjectScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import WeeklyPlanScreen from './screens/WeeklyPlanScreen';
 import GlobalSearchScreen from './screens/GlobalSearchScreen';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
 import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
 const Stack = createNativeStackNavigator();
@@ -161,6 +163,8 @@ function Navigation() {
         >
           <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ animation: 'fade' }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ animation: 'fade' }} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ animation: 'fade' }} />
           <Stack.Screen name="ProjectDetails" component={ProjectDetailsScreen} />
           <Stack.Screen name="WeeklyPlan" component={WeeklyPlanScreen} />
