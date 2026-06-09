@@ -11,6 +11,31 @@ import { fetchAllData, getAIStatsAnalysis, getWeeklyPlanByAI } from '../services
 
 const { width } = Dimensions.get('window');
 
+const renderMarkdownParagraph = (text, colors) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return lines.map((line, lineIdx) => {
+    let cleanLine = line;
+    const isBullet = line.trim().startsWith('*') || line.trim().startsWith('-');
+    if (isBullet) {
+      cleanLine = line.replace(/^\s*[\*\-]\s*/, '• ');
+    }
+    const parts = cleanLine.split('**');
+    return (
+      <Text key={lineIdx} style={{ fontSize: 14, lineHeight: 22, color: colors.textPrimary, marginBottom: 6 }}>
+        {parts.map((part, partIdx) => {
+          const isBold = partIdx % 2 !== 0;
+          return (
+            <Text key={partIdx} style={isBold ? { fontWeight: 'bold' } : null}>
+              {part}
+            </Text>
+          );
+        })}
+      </Text>
+    );
+  });
+};
+
 export default function StatsScreen({ navigation }) {
   const { colors, themeName } = useTheme();
   const insets = useSafeAreaInsets();
@@ -291,20 +316,20 @@ export default function StatsScreen({ navigation }) {
 
         {/* Bu Hafta Ne Yapayım? — AI Haftalık Plan */}
         <View style={[styles.summaryCard, { alignItems: 'flex-start', padding: 20 }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 14, gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
               <Ionicons name="list-outline" size={20} color={colors.accent} />
-              <Text style={[styles.summaryTitle, { margin: 0 }]}>Bu Hafta Ne Yapayım?</Text>
+              <Text style={[styles.summaryTitle, { margin: 0, fontSize: 16 }]} numberOfLines={1} adjustsFontSizeToFit>Bu Hafta Ne Yapayım?</Text>
             </View>
             <TouchableOpacity
               onPress={handleGetWeeklyPlan}
               disabled={weeklyPlanLoading}
-              style={{ backgroundColor: `${colors.accent}20`, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+              style={{ backgroundColor: `${colors.accent}15`, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 }}
             >
               {weeklyPlanLoading
                 ? <ActivityIndicator size="small" color={colors.accent} />
-                : <><Ionicons name="sparkles" size={14} color={colors.accent} />
-                    <Text style={{ color: colors.accent, fontWeight: '700', fontSize: 13 }}>Plan Oluştur</Text></>
+                : <><Ionicons name="sparkles" size={12} color={colors.accent} />
+                    <Text style={{ color: colors.accent, fontWeight: '700', fontSize: 12 }}>Plan Oluştur</Text></>
               }
             </TouchableOpacity>
           </View>
@@ -312,7 +337,9 @@ export default function StatsScreen({ navigation }) {
           {weeklyPlanError ? (
             <Text style={{ color: colors.danger, fontSize: 13, marginTop: 4 }}>{weeklyPlanError}</Text>
           ) : weeklyPlan ? (
-            <Text style={{ color: colors.textPrimary, fontSize: 14, lineHeight: 22 }}>{weeklyPlan}</Text>
+            <View style={{ width: '100%' }}>
+              {renderMarkdownParagraph(weeklyPlan, colors)}
+            </View>
           ) : (
             <Text style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 20 }}>
               "Plan Oluştur" butonuna dokun — AI, tüm bekleyen görevlerini inceleyip bu hafta öncelikli odaklanman gereken 5 görevi önersin.
@@ -353,9 +380,7 @@ export default function StatsScreen({ navigation }) {
             </View>
           ) : aiAnalysis ? (
             <View style={{ width: '100%', marginTop: 10 }}>
-              <Text style={[styles.summaryDesc, { textAlign: 'left', color: colors.textPrimary, lineHeight: 22 }]}>
-                {aiAnalysis}
-              </Text>
+              {renderMarkdownParagraph(aiAnalysis, colors)}
               <TouchableOpacity 
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 15, paddingVertical: 8, alignSelf: 'center' }}
                 onPress={handleGetAIAnalysis}
