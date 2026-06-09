@@ -17,7 +17,7 @@ const aiLimiter = rateLimit({
 router.use(aiLimiter);
 
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 // Helper: 429 hata kontrolu
 const is429 = (err) =>
