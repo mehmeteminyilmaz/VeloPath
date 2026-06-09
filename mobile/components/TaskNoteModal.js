@@ -374,7 +374,7 @@ const createStyles = (colors) => StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: colors.bgCard,
+    backgroundColor: colors.bg === '#060b18' ? '#1e293b' : '#ffffff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     height: height * 0.85,
