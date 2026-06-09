@@ -268,23 +268,33 @@ const SettingsModal = ({ isOpen, onClose, username, userId, setUsername, theme, 
               </div>
 
               {/* Accent Renk Secici */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
                 <div>
                   <p style={{ margin: 0, fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}><Palette size={15} /> Vurgu Rengi</p>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Butonlar ve istatistikler için</p>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: '200px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                   {ACCENT_COLORS.map(c => (
                     <button
                       key={c.value}
                       onClick={() => setAccentColor(c.value)}
                       title={c.name}
                       style={{
-                        width: '22px', height: '22px', borderRadius: '50%',
-                        background: c.value, border: 'none', cursor: 'pointer',
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: c.value,
+                        border: 'none',
+                        cursor: 'pointer',
                         outline: accentColor === c.value ? '2px solid white' : '2px solid transparent',
                         outlineOffset: '2px',
-                        transition: 'outline 0.15s',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'scale(1.15)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'scale(1)';
                       }}
                     />
                   ))}
