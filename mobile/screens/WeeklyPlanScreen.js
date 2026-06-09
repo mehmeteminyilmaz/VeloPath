@@ -296,7 +296,7 @@ export default function WeeklyPlanScreen({ navigation }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={{ maxHeight: 52 }}
+        style={{ height: 52, flexGrow: 0, flexShrink: 0 }}
         contentContainerStyle={styles.projectFilterRow}
       >
         <TouchableOpacity
