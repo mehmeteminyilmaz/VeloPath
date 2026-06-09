@@ -192,6 +192,8 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
               <input
                 type="date"
                 value={dueDate}
+                min="2020-01-01"
+                max="2100-12-31"
                 onChange={e => setDueDate(e.target.value)}
                 style={{ background: 'var(--card-bg)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'var(--text-primary)', padding: '3px 8px', fontSize: '0.8rem', cursor: 'pointer' }}
               />

@@ -210,7 +210,7 @@ const CreateProject = ({ addProject, resetData, requestNotificationPermission, s
                     <span>Teslim Tarihi</span>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 'normal' }}>(İsteğe Bağlı)</span>
                   </label>
-                  <input type="date" value={deadline} min={new Date().toISOString().split('T')[0]} onChange={(e) => setDeadline(e.target.value)} className="glass-input" />
+                  <input type="date" value={deadline} min={new Date().toISOString().split('T')[0]} max="2100-12-31" onChange={(e) => setDeadline(e.target.value)} className="glass-input" />
                 </div>
               </div>
 

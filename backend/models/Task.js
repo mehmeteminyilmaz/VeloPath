@@ -25,7 +25,18 @@ const taskSchema = new mongoose.Schema({
   status:      { type: String, default: 'todo', enum: ['todo', 'in-progress', 'done'] },
   priority:    { type: String, default: 'medium', enum: ['low', 'medium', 'high'] },
   completedAt: { type: Date },
-  dueDate:     { type: Date, default: null },
+  dueDate: {
+    type: Date,
+    default: null,
+    validate: {
+      validator: function(v) {
+        if (!v) return true;
+        const year = v.getFullYear();
+        return year >= 2020 && year <= 2100;
+      },
+      message: 'Bitiş tarihi yılı 2020 ile 2100 arasında olmalıdır.'
+    }
+  },
   recurrence:  { type: recurrenceSchema, default: null },
   tags:        [{ type: String }],
   notes:       { type: String, default: '' },

@@ -140,6 +140,10 @@ export default function CreateProjectScreen({ navigation }) {
     const month = parseInt(match[2], 10);
     const year = parseInt(match[3], 10);
 
+    if (year < 2020 || year > 2100) {
+      setDeadlineError('Yıl 2020 ile 2100 arasında olmalıdır');
+      return false;
+    }
     if (month < 1 || month > 12) {
       setDeadlineError('Ay 01-12 arasında olmalıdır');
       return false;

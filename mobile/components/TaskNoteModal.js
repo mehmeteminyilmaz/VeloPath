@@ -57,6 +57,26 @@ export default function TaskNoteModal({ visible, task, onClose, onSave }) {
   if (!task) return null;
 
   const handleSave = () => {
+    if (dueDate) {
+      const dateParts = dueDate.split('-');
+      const year = parseInt(dateParts[0], 10);
+      const month = parseInt(dateParts[1], 10);
+      const day = parseInt(dateParts[2], 10);
+      
+      const parsedDate = new Date(dueDate);
+      if (
+        isNaN(parsedDate.getTime()) ||
+        dateParts.length !== 3 ||
+        isNaN(year) || isNaN(month) || isNaN(day) ||
+        year < 2020 || year > 2100 ||
+        month < 1 || month > 12 ||
+        day < 1 || day > 31
+      ) {
+        Alert.alert('Hata', 'Lütfen geçerli bir bitiş tarihi girin (Format: YYYY-MM-DD, Örn: 2026-06-30. Yıl 2020 ile 2100 arasında olmalıdır).');
+        return;
+      }
+    }
+
     onSave(task._id || task.id, {
       title: taskTitle.trim(),
       notes: noteContent,
