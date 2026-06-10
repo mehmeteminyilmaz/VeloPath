@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, BarChart2, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Settings, LogOut, Sun, Moon, BarChart2, ChevronsLeft, ChevronsRight, Calendar } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed, setIsSidebarCollapsed, onLogout, toggleSettings }) => {
@@ -45,6 +45,9 @@ const Sidebar = ({ resetData, requestNotificationPermission, isSidebarCollapsed,
       <nav style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`} title="Dashboard">
           <LayoutDashboard size={20} /> {!isSidebarCollapsed && <span>Dashboard</span>}
+        </Link>
+        <Link to="/weekly-plan" className={`nav-item ${isActive('/weekly-plan') ? 'active' : ''}`} title="Haftalık Plan">
+          <Calendar size={20} /> {!isSidebarCollapsed && <span>Haftalık Plan</span>}
         </Link>
         <Link to="/create" className={`nav-item ${isActive('/create') ? 'active' : ''}`} title="Proje Oluştur">
           <PlusCircle size={20} /> {!isSidebarCollapsed && <span>Proje Oluştur</span>}

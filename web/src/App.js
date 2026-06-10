@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
 import ProjectDetails from './pages/ProjectDetails';
 import Stats from './pages/Stats';
+import WeeklyPlanPage from './pages/WeeklyPlanPage';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -192,6 +193,7 @@ function App() {
             <Route path="/" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
             <Route path="/create" element={<CreateProject addProject={addProject} {...sharedProps} />} />
             <Route path="/project/:id" element={<ProjectDetails projects={projects} addTask={addTask} toggleTask={toggleTask} deleteProject={deleteProject} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateTaskDueDate={updateTaskDueDate} updateTaskRecurrence={updateTaskRecurrence} updateProjectNotes={updateProjectNotes} reorderTasks={reorderTasks} archiveProject={archiveProject} username={username} userId={userId} {...sharedProps} />} />
+            <Route path="/weekly-plan" element={<WeeklyPlanPage projects={projects} toggleTask={toggleTask} deleteTask={deleteTask} updateTaskNote={updateTaskNote} updateTaskPriority={updateTaskPriority} updateTaskSubtasks={updateTaskSubtasks} updateTaskTags={updateTaskTags} updateTaskDueDate={updateTaskDueDate} updateTaskRecurrence={updateTaskRecurrence} username={username} userId={userId} {...sharedProps} />} />
             <Route path="/stats" element={<Stats projects={projects} {...sharedProps} />} />
             <Route path="*" element={<Dashboard projects={projects} deleteProject={deleteProject} archiveProject={archiveProject} sendTaskNotification={sendTaskNotification} username={username} {...sharedProps} />} />
           </Routes>
