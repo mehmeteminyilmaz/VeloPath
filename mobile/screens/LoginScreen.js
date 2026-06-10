@@ -274,7 +274,6 @@ export default function LoginScreen({ navigation }) {
                         <Text style={styles.submitBtnText}>
                           {isRegister ? 'Hesap Oluştur' : 'Giriş Yap'}
                         </Text>
-                        <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.6)" />
                       </>
                     )}
                   </LinearGradient>

@@ -782,6 +782,7 @@ body {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
   margin-top: 1rem;
+  justify-content: center;
 }
 
 .login-button:hover {
@@ -2739,6 +2740,7 @@ body {
   background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
   box-shadow: 0 8px 28px rgba(99,102,241,0.35);
   margin-top: 0.5rem;
+  justify-content: center;
 }
 
 .login-button:hover {

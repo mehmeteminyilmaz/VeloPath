@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Lock, User, Eye, EyeOff, UserPlus, LogIn, AlertCircle, Mail } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, UserPlus, LogIn, AlertCircle, Mail } from 'lucide-react';
 
 const Login = ({ onLogin, onRegister }) => {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -236,7 +236,6 @@ const Login = ({ onLogin, onRegister }) => {
                 ? <><LogIn size={18} /> Giriş Yap</>
                 : <><UserPlus size={18} /> Hesap Oluştur</>
             )}
-            {!loading && <ArrowRight size={18} />}
           </button>
         </form>
 
