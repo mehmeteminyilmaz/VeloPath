@@ -19,6 +19,34 @@ router.use(aiLimiter);
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
+// Robust fallback content generation
+async function generateContentWithFallback(prompt) {
+  if (!genAI) {
+    throw new Error('GEMINI_API_KEY tanimli degil.');
+  }
+  let lastError = null;
+  const uniqueModels = Array.from(new Set([
+    GEMINI_MODEL,
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash-lite',
+    'gemini-3.1-flash-lite',
+    'gemini-flash-lite-latest'
+  ]));
+  
+  for (const modelName of uniqueModels) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return result;
+    } catch (err) {
+      console.error(`[AI Fallback] Model ${modelName} failed: ${err.message}`);
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+
 // Helper: 429 hata kontrolu
 const is429 = (err) =>
   err.status === 429 ||
@@ -53,11 +81,10 @@ router.post('/suggest/:projectId', auth, async (req, res) => {
       ? 'Projede zaten su gorevler var (bunlari tekrar onerme): ' + existingTasks.map(t => t.title).join(', ') + '.'
       : 'Projede henuz hic gorev yok.';
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const prompt = `Projem: "${project.title}". Aciklama: "${project.description || 'Belirtilmemis'}". ${existingList}
 Lutfen bu proje icin yeni, eyleme gecilebilir, birbirini tekrar etmeyen 4 adet gorev onerisi yap. Sadece gorev isimlerini virgülle ayrilmis duz metin olarak ver. Baska aciklama, madde isareti veya numara kullanma. Ornek: Tasarimi yap, Veritabanini kur, Testleri yaz, Canliya al`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     const suggestions = result.response.text()
       .split(',')
       .map(s => s.trim().replace(/^[\-\d\.\*\n]+\s*/, ''))
@@ -78,10 +105,9 @@ router.post('/subtasks', auth, async (req, res) => {
     const { taskTitle } = req.body;
     if (!taskTitle) return res.status(400).json({ error: 'Gorev adi gerekli.' });
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const prompt = `Su gorevi adim adim 3-4 kucuk, eyleme gecilebilir alt goreve (subtask) bol: "${taskTitle}". Sadece alt gorevleri virgülle ayrilmis duz metin olarak ver. Sayi veya madde imi kullanma. Ornek: AWS hesabi ac, Veritabani cluster olustur, Ilk testleri yap`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     const subtasks = result.response.text()
       .split(',')
       .map(s => s.trim().replace(/^[\-\d\.\*\n]+\s*/, ''))
@@ -102,10 +128,9 @@ router.post('/summarize', auth, async (req, res) => {
     const { text } = req.body;
     if (!text || text.trim().length === 0) return res.status(400).json({ error: 'Ozetlenecek metin bulunamadi.' });
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const prompt = `Asagidaki proje notlarini profesyonelce Turkce olarak kisa, oz ve yapilandirilmis (markdown) bir formatta ozetle. Onemli kararlari vurgula:\n\n"${text}"`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     res.json({ summary: result.response.text().trim() });
   } catch (err) {
     if (is429(err)) return res.status(429).json({ error: 'Gemini AI kotasi doldu. Lutfen 1 dakika bekleyip tekrar deneyin.' });
@@ -120,8 +145,7 @@ router.post('/analyze-stats', auth, async (req, res) => {
 
     const { totalCompleted, totalPending, productivity, streak, bestDay } = req.body;
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-    const prompt = `Asagidaki kullanici verimlilik istatistiklerini profesyonel bir verimlilik kocu gibi analiz et. Kullaniciya motivasyon verici, yapici ve Turkce dilinde kisa (en fazla 4-5 cumle) bir haftalik performans ozeti ve tavsiye yaz. Onemli kelimeleri kalin (bold) yapabilirsin.
+    const prompt = `Asagidaki kullanici verimlilik istatistiklerini profesyonel bir verimlilik kocu gibi analiz et. Kullaniciya motivasyon verici, yapici ve Turkce dilinde kisa (en fazla 4-5 cumle) bir haftalik performans ozeti ogutleri ve tavsiye yaz. Onemli kelimeleri kalin (bold) yapabilirsin.
 
 Kullanici Verileri:
 - Tamamlanan Gorev: ${totalCompleted} adet
@@ -135,7 +159,7 @@ Eger tamamlanan gorev (totalCompleted) 0 ise, analiz cumlesine mutlaka "Bu hafta
 
 Dogrudan analiz yazisini ver. Baslik veya giris/cikis ifadeleri kullanma.`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     res.json({ analysis: result.response.text().trim() });
   } catch (err) {
     if (is429(err)) return res.status(429).json({ error: 'Gemini AI kotasi doldu. Lutfen 1 dakika bekleyip tekrar deneyin.' });
@@ -154,13 +178,12 @@ router.post('/weekly-plan', auth, async (req, res) => {
       const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmemis';
       const pri = t.priority === 'high' ? 'Yuksek' : t.priority === 'low' ? 'Dusuk' : 'Orta';
       const status = t.completed ? 'Tamamlandi' : 'Bekliyor';
-      return `- "${t.title}" | Oncelik: ${pri} | Durum: ${status} | Bitis: ${due} | Proje: ${t.projectTitle || '-'}`;
+      return `- "${t.title || t.text}" | Oncelik: ${pri} | Durum: ${status} | Bitis: ${due} | Proje: ${t.projectTitle || '-'}`;
     }).join('\n');
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const prompt = `Asagida bir kullanicinin tum bekleyen gorevleri var. Bu hafta hangi 5 goreve oncelikli odaklanmasi gerektigini belirle. Bitis tarihi yakin, onceligi yuksek ve birbirine bagli gorevleri one cikar. Yaniti su formatta ver: her oneri icin tek satirda gorev adi, kisaca neden bu hafta yapilmali. Markdown kullanabilirsin. Turkce yaz.\n\nGorev Listesi:\n${taskList}`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     res.json({ plan: result.response.text().trim() });
   } catch (err) {
     if (is429(err)) return res.status(429).json({ error: 'Gemini AI kotasi doldu. Lutfen 1 dakika bekleyip tekrar deneyin.' });
@@ -188,13 +211,12 @@ router.post('/prioritize/:projectId', auth, async (req, res) => {
     const taskList = tasks.map((t, i) => {
       const due = t.dueDate ? new Date(t.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmemis';
       const pri = t.priority === 'high' ? 'Yuksek' : t.priority === 'low' ? 'Dusuk' : 'Orta';
-      return `${i + 1}. "${t.title}" | Oncelik: ${pri} | Bitis: ${due}`;
+      return `${i + 1}. "${t.title || t.text}" | Oncelik: ${pri} | Bitis: ${due}`;
     }).join('\n');
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const prompt = `"${project.title}" projesinin asagidaki bekleyen gorevlerini analiz et ve yapilmasi gereken siraya gore sirala. Bitis tarihi, oncelik ve mantiksal bagimliligi dikkate al. Yaniti sadece sirali gorev isimlerini virgülle ayrilmis duz metin olarak ver. Ornek: Gorev A, Gorev B, Gorev C\n\nGorevler:\n${taskList}`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithFallback(prompt);
     const ordered = result.response.text()
       .split(',')
       .map(s => s.trim().replace(/^[\d.\-*]+\s*/, ''))

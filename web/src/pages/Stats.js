@@ -129,9 +129,8 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       const res = await getWeeklyPlanByAI(allTasks);
       if (res.plan) setWeeklyPlan(res.plan);
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) setWeeklyPlanError('AI kotası doldu. Lütfen 1 dakika bekleyin.');
-      else setWeeklyPlanError('Plan alınamadı. Sunucu bağlantınızı kontrol edin.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Plan alınamadı. Sunucu bağlantınızı kontrol edin.';
+      setWeeklyPlanError(errorMsg);
     } finally {
       setWeeklyPlanLoading(false);
     }
@@ -151,9 +150,8 @@ const Stats = ({ projects, resetData, requestNotificationPermission, setIsSideba
       });
       if (res.analysis) setAiAnalysis(res.analysis);
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) setAiError('AI kotası doldu. Lütfen 1 dakika bekleyin.');
-      else setAiError('Analiz alınamadı. Sunucu bağlantınızı kontrol edin.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Analiz alınamadı. Sunucu bağlantınızı kontrol edin.';
+      setAiError(errorMsg);
     } finally {
       setAiLoading(false);
     }

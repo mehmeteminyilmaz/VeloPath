@@ -115,9 +115,8 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
         showMsg('error', 'Alt görev oluşturulamadı.');
       }
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Alt görevler oluşturulamadı.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Alt görevler oluşturulamadı.';
+      showMsg('error', errorMsg);
     } finally {
       setIsAILoading(false);
     }
@@ -133,9 +132,8 @@ const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onS
         showMsg('success', 'Not AI ile özetlendi.');
       }
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotasi doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Özetleme başarısız.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Özetleme başarısız.';
+      showMsg('error', errorMsg);
     } finally {
       setIsSummarizing(false);
     }

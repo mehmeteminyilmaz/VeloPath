@@ -70,9 +70,8 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         showMsg('error', 'Yeni öneri bulunamadı.');
       }
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotası doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'AI önerileri alınamadı. Sunucu bağlantınızı kontrol edin.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'AI önerileri alınamadı. Sunucu bağlantınızı kontrol edin.';
+      showMsg('error', errorMsg);
     } finally {
       setIsAILoading(false);
     }
@@ -99,9 +98,8 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
         showMsg('error', 'AI sıralama yapamadı.');
       }
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 429) showMsg('error', 'AI kotası doldu. 1 dakika bekleyin.');
-      else showMsg('error', 'Sıralama başarısız.');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Sıralama başarısız.';
+      showMsg('error', errorMsg);
     } finally {
       setIsPrioritizing(false);
     }
