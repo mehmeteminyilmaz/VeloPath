@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { fetchAllData, deleteProjectAPI, updateProjectAPI } from '../services/api';
 import { connectSocket, disconnectSocket } from '../services/socket';
 import Sidebar from '../components/Sidebar';
+import OnboardingModal from '../components/OnboardingModal';
 import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -23,6 +24,7 @@ export default function DashboardScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState('Aktif');
   const [priorityFilter, setPriorityFilter] = useState('Tümü');
   const [layoutMode, setLayoutMode] = useState('grid'); // 'grid' | 'kanban'
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const { themeName, colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -57,6 +59,12 @@ export default function DashboardScreen({ navigation }) {
       const name = await AsyncStorage.getItem('username');
       setUsername(name || 'Kullanıcı');
       if (uid) loadData(uid);
+
+      // Sunum/Giriş sonrası Onboarding kontrolü
+      const seen = await AsyncStorage.getItem('hasSeenOnboarding');
+      if (seen !== 'true') {
+        setShowOnboarding(true);
+      }
     };
     init();
   }, [loadData]);
@@ -492,6 +500,14 @@ export default function DashboardScreen({ navigation }) {
       >
         <Ionicons name="timer-outline" size={32} color="#fff" />
       </TouchableOpacity>
+
+      <OnboardingModal
+        visible={showOnboarding}
+        onClose={async () => {
+          await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+          setShowOnboarding(false);
+        }}
+      />
     </View>
   );
 }

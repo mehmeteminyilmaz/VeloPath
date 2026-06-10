@@ -73,10 +73,7 @@ function Navigation() {
           AsyncStorage.getItem('hasSeenOnboarding'),
         ]);
 
-        if (!seen) {
-          setInitialRoute('Onboarding');
-          return;
-        }
+
 
         if (!uid || !token) {
           setInitialRoute('Login');
