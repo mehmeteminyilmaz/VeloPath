@@ -26,7 +26,10 @@ export function useProjects(userId, isAuthenticated) {
       let savedTasks = [];
       if (initialTasks.length > 0) {
         savedTasks = await Promise.all(
-          initialTasks.map(t => api.createTask({ ...t, projectId: savedProject._id, title: t.text }))
+          initialTasks.map(t => {
+            const mappedPriority = t.priority === 'Yüksek' ? 'high' : t.priority === 'Orta' ? 'medium' : 'low';
+            return api.createTask({ ...t, projectId: savedProject._id, title: t.text, priority: mappedPriority });
+          })
         );
       }
       setProjects(prev => prev.map(p =>
@@ -92,7 +95,7 @@ export function useProjects(userId, isAuthenticated) {
   const addTask = async (projectId, taskText, week = 1, dependsOn = null, priority = 'Orta') => {
     const pid = projectId.toString();
     const now = new Date().toISOString();
-    const tempId = Date.now().toString();
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newTask = { id: tempId, text: taskText, completed: false, week, dependsOn, priority, subtasks: [], createdAt: now, history: [{ timestamp: now, action: 'Görevi oluşturdu.' }] };
 
     setProjects(prev => prev.map(p => p.id.toString() === pid ? { ...p, tasks: [...p.tasks, newTask] } : p));

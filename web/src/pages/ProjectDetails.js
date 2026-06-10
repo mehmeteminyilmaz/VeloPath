@@ -63,7 +63,7 @@ const ProjectDetails = ({ projects, addTask, toggleTask, deleteProject, deleteTa
       const res = await api.getAISuggestions(id);
       if (res.suggestions && res.suggestions.length > 0) {
         for (const sugg of res.suggestions) {
-          addTask(id, sugg, 1, null, 'Orta');
+          await addTask(id, sugg, 1, null, 'Orta');
         }
         showMsg('success', res.suggestions.length + ' AI görevi projeye eklendi!');
       } else {
