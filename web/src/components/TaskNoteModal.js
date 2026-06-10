@@ -5,9 +5,9 @@ import ReactMarkdown from 'react-markdown';
 import * as api from '../api';
 
 const PRIORITY_OPTIONS = [
-  { value: 'Yuksek', label: 'Yuksek', color: 'var(--danger)' },
-  { value: 'Orta',   label: 'Orta',   color: 'var(--status-low)' },
-  { value: 'Dusuk',  label: 'Dusuk',  color: 'var(--status-high)' },
+  { value: 'high',   label: 'Yüksek', color: 'var(--danger)' },
+  { value: 'medium', label: 'Orta',   color: 'var(--status-low)' },
+  { value: 'low',    label: 'Düşük',  color: 'var(--status-high)' },
 ];
 
 const SUGGESTED_TAGS = ['React', 'Backend', 'Tasarim', 'Test', 'API', 'UI', 'Dokumantasyon', 'Bug', 'Ozellik', 'Acil'];
@@ -29,7 +29,10 @@ const RECURRENCE_OPTIONS = [
 const TaskNoteModal = ({ task, projectId, onClose, onSave, onPriorityChange, onSubtasksChange, onTagsChange, onDueDateChange, onRecurrenceChange, currentUsername, currentUserId }) => {
   const [noteContent, setNoteContent] = useState(task.notes || '');
   const [viewMode, setViewMode] = useState('edit');
-  const [priority, setPriority] = useState(task.priority || 'Orta');
+  const initialPriority = task.priority === 'Yüksek' || task.priority === 'Yuksek' || task.priority === 'high' ? 'high'
+    : task.priority === 'Düşük' || task.priority === 'Dusuk' || task.priority === 'low' ? 'low'
+    : 'medium';
+  const [priority, setPriority] = useState(initialPriority);
   const [subtasks, setSubtasks] = useState(task.subtasks || []);
   const [tags, setTags] = useState(task.tags || []);
   const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');

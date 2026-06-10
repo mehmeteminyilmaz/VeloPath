@@ -96,14 +96,15 @@ export function useProjects(userId, isAuthenticated) {
     const pid = projectId.toString();
     const now = new Date().toISOString();
     const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const newTask = { id: tempId, text: taskText, completed: false, week, dependsOn, priority, subtasks: [], createdAt: now, history: [{ timestamp: now, action: 'Görevi oluşturdu.' }] };
+    const mappedPriority = priority === 'Yüksek' || priority === 'high' || priority === 'Yuksek' ? 'high' : priority === 'Orta' || priority === 'medium' ? 'medium' : 'low';
+    const newTask = { id: tempId, text: taskText, completed: false, week, dependsOn, priority: mappedPriority, subtasks: [], createdAt: now, history: [{ timestamp: now, action: 'Görevi oluşturdu.' }] };
 
     setProjects(prev => prev.map(p => p.id.toString() === pid ? { ...p, tasks: [...p.tasks, newTask] } : p));
 
     try {
       const savedTask = await api.createTask({
         projectId: pid, title: taskText, weekIndex: week,
-        priority: priority === 'Yüksek' ? 'high' : priority === 'Orta' ? 'medium' : 'low',
+        priority: mappedPriority,
         dependsOn, history: newTask.history
       });
       setProjects(prev => prev.map(p => p.id.toString() === pid
@@ -171,11 +172,13 @@ export function useProjects(userId, isAuthenticated) {
     const pid = projectId.toString();
     const tid = taskId.toString();
     const now = new Date().toISOString();
+    const mappedPriority = priority === 'Yüksek' || priority === 'high' || priority === 'Yuksek' ? 'high' : priority === 'Orta' || priority === 'medium' ? 'medium' : 'low';
+    const priorityLabel = mappedPriority === 'high' ? 'Yüksek' : mappedPriority === 'medium' ? 'Orta' : 'Düşük';
     setProjects(prev => prev.map(p => p.id.toString() !== pid ? p : {
       ...p,
-      tasks: p.tasks.map(t => t.id.toString() !== tid ? t : { ...t, priority, history: [...(t.history || []), { timestamp: now, action: `Görev önceliğini '${priority}' olarak güncelledi.` }] })
+      tasks: p.tasks.map(t => t.id.toString() !== tid ? t : { ...t, priority: mappedPriority, history: [...(t.history || []), { timestamp: now, action: `Görev önceliğini '${priorityLabel}' olarak güncelledi.` }] })
     }));
-    try { await api.updateTaskAPI(tid, { priority: priority === 'Yüksek' ? 'high' : priority === 'Orta' ? 'medium' : 'low' }); } catch (err) { console.error(err); }
+    try { await api.updateTaskAPI(tid, { priority: mappedPriority }); } catch (err) { console.error(err); }
   };
 
   const updateTaskSubtasks = async (projectId, taskId, subtasks) => {

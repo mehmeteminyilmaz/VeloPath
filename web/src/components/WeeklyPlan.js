@@ -26,13 +26,27 @@ import { useDroppable } from '@dnd-kit/core';
 // --- Bireysel Görev (Sortable) Bileşeni ---
 const PRIORITY_COLOR = {
   'Yüksek': 'var(--danger)',
+  'high': 'var(--danger)',
   'Orta': 'var(--status-low)',
+  'medium': 'var(--status-low)',
   'Düşük': 'var(--status-high)',
+  'low': 'var(--status-high)',
 };
 const PRIORITY_LABEL = {
   'Yüksek': '🔴',
+  'high': '🔴',
   'Orta': '🟡',
+  'medium': '🟡',
   'Düşük': '🟢',
+  'low': '🟢',
+};
+const PRIORITY_TEXT = {
+  'Yüksek': 'Yüksek',
+  'high': 'Yüksek',
+  'Orta': 'Orta',
+  'medium': 'Orta',
+  'Düşük': 'Düşük',
+  'low': 'Düşük',
 };
 
 const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen }) => {
@@ -100,9 +114,9 @@ const SortableTask = ({ task, locked, dependency, onToggle, onDelete, onNoteOpen
             <span
               className="task-priority-badge"
               style={{ color: PRIORITY_COLOR[task.priority] }}
-              title={`Öncelik: ${task.priority}`}
+              title={`Öncelik: ${PRIORITY_TEXT[task.priority] || task.priority}`}
             >
-              {PRIORITY_LABEL[task.priority]} {task.priority}
+              {PRIORITY_LABEL[task.priority]} {PRIORITY_TEXT[task.priority] || task.priority}
             </span>
           )}
           {locked && (
